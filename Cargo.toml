@@ -1,0 +1,11 @@
+[package]
+name = "loregui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+iced = { version = "0.10.0", features=["lazy"] }
+iced_aw = { version = "0.7.0", default-features = false, features = ["card", "modal", "selection_list"] }
+lorecore = { git = "https://github.com/TheComamba/LoreCore.git", branch="dev/move-gui-to-different-repo" }
+preferences = {version = "1.1.0"}
+rfd = "0.11.3" # file dialogs
