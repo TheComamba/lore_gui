@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      isRelease:
+        type: boolean
+        required: false
+        default: false
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+  TZ: Europe/Berlin
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            container: ubuntu:20.04 # Linking against an older version of Glibc
+          - os: windows-latest
+          - os: macos-latest
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          apt-get update
+          apt-get install -y sudo curl build-essential cmake pkg-config libfontconfig1-dev cargo
+          ./scripts/install_build_dependencies_linux.sh
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+            toolchain: stable
+
+      - uses: clechasseur/rs-cargo@v1
+        if: ${{ !inputs.isRelease }}
+        with:
+            command: build
+
+      - uses: clechasseur/rs-cargo@v1
+        if: ${{ inputs.isRelease }}
+        with:
+            command: build
+            args: --release
+
+      - name: Make artifacts folder
+        run: mkdir artifacts
+
+      - name: Add Linux/MacOS artifacts to folder
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: cp target/*/loregui artifacts
+      - name: Add Windows artifacts to folder
+        if: matrix.os == 'windows-latest'
+        run: cp target\*\loregui.exe artifacts
+
+      - name: Upload Artifacts
+        if: inputs.isRelease
+        uses: actions/upload-artifact@v3
+        with:
+          name: LoreGui_${{ matrix.os}}
+          path: artifacts

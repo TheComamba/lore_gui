@@ -1,0 +1,47 @@
+name: Test Executability
+
+on: [workflow_call]
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  testExecutability:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test Executability
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: LoreGui_${{ matrix.os }}
+          path: artifacts
+
+      # run in xvfb (X virtual framebuffer) on headless systems
+      - name: Test Executability on Linux # not yet supported by iced, expected for v0.12.0
+        if: matrix.os == 'ubuntu-latest' && false
+        run: |
+          cd artifacts
+          chmod +x loregui
+          xvfb-run -a ./loregui &
+          sleep 5
+          killall loregui
+      - name: Test Executability on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd artifacts
+          .\loregui.exe &
+          sleep 5
+          taskkill /IM loregui.exe /F
+      - name: Test Executability on MacOS # not yet (?) working on GitHub actions, needs support for metal
+        if: matrix.os == 'macos-latest' && false
+        run: |
+          cd artifacts
+          chmod +x loregui
+          ./loregui &
+          sleep 5
+          killall loregui
