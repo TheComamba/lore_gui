@@ -1,25 +1,89 @@
 use super::Dialog;
 use crate::app::message_handling::GuiMes;
+use crate::errors::LoreGuiError;
 use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text, TextInput},
     Element, Renderer,
 };
+use lorecore::sql::entity::EntityColumn;
+use lorecore::sql::lore_database::LoreDatabase;
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityDialog {
-    label: String,
-    ent_category: String,
-    name: String,
+    data: NewEntityData,
 }
 
 impl NewEntityDialog {
     pub(crate) fn new() -> Self {
         NewEntityDialog {
-            label: String::new(),
-            ent_category: String::new(),
-            name: String::new(),
+            data: NewEntityData::new(),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct NewEntityData {
+    pub(self) label: String,
+    pub(self) name: String,
+    pub(self) category: String,
+}
+
+impl NewEntityData {
+    pub(crate) fn new() -> Self {
+        NewEntityData {
+            label: String::new(),
+            name: String::new(),
+            category: String::new(),
+        }
+    }
+
+    pub(crate) fn write_to_database(self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => {
+                return Err(LoreGuiError::InputError(
+                    "No database loaded to which to add new entity.".to_string(),
+                ));
+            }
+        };
+        if self.label.is_empty() {
+            return Err(LoreGuiError::InputError(
+                "Cannot create entity with empty label.".to_string(),
+            ));
+        }
+        if self.name.is_empty() {
+            return Err(LoreGuiError::InputError(
+                "Cannot create entity with empty name.".to_string(),
+            ));
+        }
+        if self.category.is_empty() {
+            return Err(LoreGuiError::InputError(
+                "Cannot create entity with empty category.".to_string(),
+            ));
+        }
+
+        //TODO: These should be constants somewhere.
+        let category_descriptor = "_category".to_string();
+        let name_descriptor = "_name".to_string();
+
+        let name_col = EntityColumn {
+            label: self.label.clone(),
+            descriptor: name_descriptor,
+            description: Some(self.name),
+        };
+        let category_col = EntityColumn {
+            label: self.label,
+            descriptor: category_descriptor,
+            description: Some(self.category),
+        };
+
+        db.write_entity_columns(vec![name_col])
+            .map_err(LoreGuiError::LoreCoreError)?;
+        db.write_entity_columns(vec![category_col])
+            .map_err(LoreGuiError::LoreCoreError)?;
+
+        Ok(())
     }
 }
 
@@ -41,33 +105,34 @@ impl Component<GuiMes, Renderer> for NewEntityDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             NewEntityMes::LabelUpd(label) => {
-                self.label = label;
+                self.data.label = label;
                 None
             }
             NewEntityMes::CategoryUpd(ent_type) => {
-                self.ent_category = ent_type;
+                self.data.category = ent_type;
                 None
             }
             NewEntityMes::NameUpd(name) => {
-                self.name = name;
+                self.data.name = name;
                 None
             }
-            NewEntityMes::Submit => Some(GuiMes::EntitySubmit),
+            NewEntityMes::Submit => Some(GuiMes::EntitySubmit(self.data.to_owned())),
         }
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
-        let label_input = TextInput::new("", &self.label).on_input(NewEntityMes::LabelUpd);
-        let type_input = TextInput::new("", &self.ent_category).on_input(NewEntityMes::CategoryUpd);
-        let name_input = TextInput::new("", &self.name).on_input(NewEntityMes::NameUpd);
+        let label_input = TextInput::new("", &self.data.label).on_input(NewEntityMes::LabelUpd);
+        let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
+        let category_input =
+            TextInput::new("", &self.data.category).on_input(NewEntityMes::CategoryUpd);
         let submit_button = Button::new(Text::new("Create")).on_press(NewEntityMes::Submit);
         Column::new()
             .push(Text::new("Label:"))
             .push(label_input)
-            .push(Text::new("Category:"))
-            .push(type_input)
             .push(Text::new("Name"))
             .push(name_input)
+            .push(Text::new("Category:"))
+            .push(category_input)
             .push(submit_button)
             .padding(5)
             .spacing(5)
