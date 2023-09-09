@@ -1,0 +1,91 @@
+name: Release Binaries
+
+on:
+  push:
+    branches: ["main"]
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  releaseBuild:
+    uses: ./.github/workflows/_build.yml
+    with:
+      isRelease: true
+
+  testExecutability:
+    needs: [releaseBuild]
+    uses: ./.github/workflows/_test_executability.yml
+
+  uploadChangelog:
+    name: Upload Changelog
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout: changelogs
+
+      - name: Fetch current changelog
+        run: ./changelogs/get_current.sh
+
+      - name: Rename File's
+        run: mv changelogs/current.md changelogs/changelog.md
+
+      - name: Upload Changelog
+        uses: actions/upload-artifact@v3
+        with:
+          name: Changelog
+          path: changelogs/changelog.md
+
+  publishBinaries:
+    name: Publish Binaries
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    needs: [releaseBuild, uploadChangelog]
+    permissions: write-all
+
+    steps:
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: LoreGui_ubuntu-latest
+          path: artifactsLinux
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: LoreGui_windows-latest
+          path: artifactsWindows
+      - name: Download MacOS Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: LoreGui_macos-latest
+          path: artifactsMacOS
+
+      - name: Compress folders
+        run: |
+          zip -r binariesLinux.zip artifactsLinux
+          zip -r binariesWindows.zip artifactsWindows
+          zip -r binariesMacOS.zip artifactsMacOS
+
+      - name: Download Changelog
+        uses: actions/download-artifact@v3
+        with:
+          name: Changelog
+          path: .
+
+      - name: Display file structure
+        run: ls -lRa
+
+      - name: Check Files' existence just before upload
+        run: |
+          ls -l binaries*
+          cat changelog.md
+
+      - name: Upload Binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          files: binaries*.zip
+          body_path: changelog.md

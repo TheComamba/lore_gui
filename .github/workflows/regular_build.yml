@@ -1,0 +1,16 @@
+name: Regular Build
+
+on:
+  schedule:
+    - cron: "0 0 * * 6" # every saturday at 00:00 UTC
+
+jobs:
+  releaseBuild:
+    uses: ./.github/workflows/_build.yml
+    with:
+      isRelease: true
+
+  testExecutability:
+    needs: [releaseBuild]
+    uses: ./.github/workflows/_test_executability.yml
+    

@@ -1,0 +1,8 @@
+name: Debug Build
+on: [push]
+
+jobs:
+  debugBuild:
+    uses: ./.github/workflows/_build.yml
+    with:
+      isRelease: false
