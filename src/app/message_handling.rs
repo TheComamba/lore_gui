@@ -31,7 +31,10 @@ impl SqlGui {
             GuiMes::ParentViewUpd(event) => self.update_parent_view(event)?,
             GuiMes::ChildViewUpd(event) => self.update_child_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,
-            GuiMes::EntitySubmit(data) => data.write_to_database(&self.lore_database)?,
+            GuiMes::EntitySubmit(data) => {
+                data.write_to_database(&self.lore_database)?;
+                self.dialog = None;
+            }
         }
         Ok(())
     }
