@@ -100,34 +100,6 @@ impl EntityViewState {
         Ok(())
     }
 
-    pub(super) fn new_entity(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let label = self.label_view_state.get_search_text().clone();
-        if label.is_empty() {
-            return Err(LoreGuiError::InputError(
-                "Cannot create entity with empty label.".to_string(),
-            ));
-        }
-        let descriptor = "PLACEHOLDER".to_string();
-        let description = None;
-        let new_col = EntityColumn {
-            label,
-            descriptor,
-            description,
-        };
-        match db {
-            Some(db) => db
-                .write_entity_columns(vec![new_col])
-                .map_err(LoreGuiError::LoreCoreError)?,
-            None => {
-                return Err(LoreGuiError::InputError(
-                    "No database loaded to which to add new entity.".to_string(),
-                ));
-            }
-        };
-        self.update_labels(db)?;
-        Ok(())
-    }
-
     fn new_descriptor(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let label = match self.label_view_state.get_selected().as_ref() {
             Some(label) => label.clone(),
