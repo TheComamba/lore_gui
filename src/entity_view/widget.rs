@@ -66,7 +66,6 @@ impl<'a> EntityView<'a> {
                 .state
                 .descriptor_view_state
                 .get_search_text()
-                .to_string()
                 .is_empty()
         {
             Some(ColViewMes::New)

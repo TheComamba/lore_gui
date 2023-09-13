@@ -60,7 +60,11 @@ impl DbColViewState {
         self.set_visible_entries();
     }
 
-    pub(crate) fn get_search_text(&self) -> SqlSearchText {
+    pub(crate) fn get_search_text(&self) -> &str {
+        &self.search_text
+    }
+
+    pub(crate) fn get_sql_search_text(&self) -> SqlSearchText {
         SqlSearchText::new(&self.search_text)
     }
 
