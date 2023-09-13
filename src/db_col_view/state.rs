@@ -1,3 +1,5 @@
+use lorecore::sql::search_text::SqlSearchText;
+
 use crate::errors::LoreGuiError;
 
 #[derive(Debug, Clone)]
@@ -58,8 +60,8 @@ impl DbColViewState {
         self.set_visible_entries();
     }
 
-    pub(crate) fn get_search_text(&self) -> &String {
-        &self.search_text
+    pub(crate) fn get_search_text(&self) -> SqlSearchText {
+        SqlSearchText::new(&self.search_text)
     }
 
     pub(crate) fn get_visible_entries(&self) -> &Vec<String> {

@@ -93,17 +93,20 @@ impl HistoryViewState {
 
     fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let year = self.year_view_state.get_selected_int()?;
-        match db {
-            Some(db) => {
+        if let Some(db) = db {
+            if let Some(year) = year {
                 let days = db
-                    .get_all_days(year)
+                    .get_days(year)
                     .map_err(LoreGuiError::LoreCoreError)?
                     .iter()
                     .map(Self::optional_int_to_string)
                     .collect();
                 self.day_view_state.set_entries(days);
+            } else {
+                self.day_view_state = DbColViewState::new();
             }
-            None => self.day_view_state = DbColViewState::new(),
+        } else {
+            self.day_view_state = DbColViewState::new();
         }
         self.update_labels(db)?;
         Ok(())
@@ -112,12 +115,15 @@ impl HistoryViewState {
     fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let year = self.year_view_state.get_selected_int()?;
         let day = self.day_view_state.get_selected_int()?;
-        match db {
-            Some(db) => self.label_view_state.set_entries(
-                db.get_all_history_labels(year, day)
-                    .map_err(LoreGuiError::LoreCoreError)?,
-            ),
-            None => self.label_view_state = DbColViewState::new(),
+        if let Some(db) = db {
+            if let Some(year) = year {
+                self.label_view_state.set_entries(
+                    db.get_history_labels(year, day)
+                        .map_err(LoreGuiError::LoreCoreError)?,
+                );
+            }
+        } else {
+            self.label_view_state = DbColViewState::new();
         }
         self.update_content(db)?;
         Ok(())

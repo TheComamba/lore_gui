@@ -52,7 +52,7 @@ impl EntityViewState {
     fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         match db {
             Some(db) => self.label_view_state.set_entries(
-                db.get_all_entity_labels()
+                db.get_entity_labels(self.label_view_state.get_search_text())
                     .map_err(LoreGuiError::LoreCoreError)?,
             ),
             None => self.label_view_state = DbColViewState::new(),
@@ -63,12 +63,18 @@ impl EntityViewState {
 
     fn update_descriptors(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let label = self.label_view_state.get_selected();
-        match db {
-            Some(db) => self.descriptor_view_state.set_entries(
-                db.get_descriptors(&label.as_ref())
-                    .map_err(LoreGuiError::LoreCoreError)?,
-            ),
-            None => self.descriptor_view_state = DbColViewState::new(),
+        if let Some(db) = db {
+            if let Some(label) = label {
+                let search_text = self.descriptor_view_state.get_search_text();
+                self.descriptor_view_state.set_entries(
+                    db.get_descriptors(&label, search_text)
+                        .map_err(LoreGuiError::LoreCoreError)?,
+                );
+            } else {
+                self.descriptor_view_state = DbColViewState::new();
+            }
+        } else {
+            self.descriptor_view_state = DbColViewState::new();
         }
         self.update_description(db)?;
         Ok(())
@@ -109,7 +115,7 @@ impl EntityViewState {
                 ));
             }
         };
-        let descriptor = self.descriptor_view_state.get_search_text().clone();
+        let descriptor = self.descriptor_view_state.get_search_text().to_string();
         if descriptor.is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot create empty descriptor.".to_string(),
