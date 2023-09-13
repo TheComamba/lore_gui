@@ -20,12 +20,19 @@ pub(super) struct HistoryViewState {
 }
 
 impl HistoryViewState {
-    pub(super) fn new() -> Self {
+    pub(super) fn new(years: Vec<i32>) -> Self {
+        let years = years.iter().map(|y| y.to_string()).collect();
         Self {
-            year_view_state: DbColViewState::new(),
-            day_view_state: DbColViewState::new(),
-            label_view_state: DbColViewState::new(),
+            year_view_state: DbColViewState::new(years),
+            day_view_state: DbColViewState::default(),
+            label_view_state: DbColViewState::default(),
             current_content: String::new(),
         }
+    }
+}
+
+impl Default for HistoryViewState {
+    fn default() -> Self {
+        Self::new(vec![])
     }
 }

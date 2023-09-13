@@ -78,7 +78,7 @@ impl HistoryViewState {
                     .collect();
                 self.year_view_state.set_entries(years);
             }
-            None => self.year_view_state = DbColViewState::new(),
+            None => self.year_view_state = DbColViewState::default(),
         }
         self.update_days(db)?;
         Ok(())
@@ -103,10 +103,10 @@ impl HistoryViewState {
                     .collect();
                 self.day_view_state.set_entries(days);
             } else {
-                self.day_view_state = DbColViewState::new();
+                self.day_view_state = DbColViewState::default();
             }
         } else {
-            self.day_view_state = DbColViewState::new();
+            self.day_view_state = DbColViewState::default();
         }
         self.update_labels(db)?;
         Ok(())
@@ -123,7 +123,7 @@ impl HistoryViewState {
                 );
             }
         } else {
-            self.label_view_state = DbColViewState::new();
+            self.label_view_state = DbColViewState::default();
         }
         self.update_content(db)?;
         Ok(())

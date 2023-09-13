@@ -24,10 +24,10 @@ impl<'a> EntityView<'a> {
 }
 
 impl EntityViewState {
-    pub(super) fn new() -> Self {
+    pub(super) fn new(labels: Vec<String>) -> Self {
         Self {
-            label_view_state: DbColViewState::new(),
-            descriptor_view_state: DbColViewState::new(),
+            label_view_state: DbColViewState::new(labels),
+            descriptor_view_state: DbColViewState::default(),
             current_description: None,
         }
     }
@@ -35,6 +35,6 @@ impl EntityViewState {
 
 impl Default for EntityViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(vec![])
     }
 }

@@ -1,5 +1,8 @@
+use std::path::PathBuf;
+
 use super::{message_handling::GuiMes, SqlGui, ViewType};
 use crate::{
+    errors::LoreGuiError,
     APP_TITLE,
     {
         dialog::error::ErrorDialog,
@@ -21,14 +24,14 @@ impl Sandbox for SqlGui {
     fn new() -> Self {
         let mut gui = SqlGui {
             selected_view: super::ViewType::Entity,
-            entity_view_state: EntityViewState::new(),
-            history_view_state: HistoryViewState::new(),
-            relationship_view_state: RelationshipViewState::new(),
+            entity_view_state: EntityViewState::default(),
+            history_view_state: HistoryViewState::default(),
+            relationship_view_state: RelationshipViewState::default(),
             lore_database: None,
             dialog: None,
         };
         if let Some(path) = load_database_path() {
-            match gui.open_database(path) {
+            match gui.initialise(path) {
                 Ok(_) => (),
                 Err(e) => gui.dialog = Some(Box::new(ErrorDialog::new(e))),
             };
@@ -111,5 +114,13 @@ impl SqlGui {
             .padding(5)
             .spacing(5)
             .into()
+    }
+
+    fn initialise(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
+        self.open_database(path)?;
+        self.entity_view_state.reset(&self.lore_database)?;
+        self.history_view_state.reset(&self.lore_database)?;
+        self.relationship_view_state.reset(&self.lore_database)?;
+        Ok(())
     }
 }

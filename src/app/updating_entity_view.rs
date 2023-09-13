@@ -55,7 +55,7 @@ impl EntityViewState {
                 db.get_entity_labels(self.label_view_state.get_sql_search_text())
                     .map_err(LoreGuiError::LoreCoreError)?,
             ),
-            None => self.label_view_state = DbColViewState::new(),
+            None => self.label_view_state = DbColViewState::default(),
         }
         self.update_descriptors(db)?;
         Ok(())
@@ -71,10 +71,10 @@ impl EntityViewState {
                         .map_err(LoreGuiError::LoreCoreError)?,
                 );
             } else {
-                self.descriptor_view_state = DbColViewState::new();
+                self.descriptor_view_state = DbColViewState::default();
             }
         } else {
-            self.descriptor_view_state = DbColViewState::new();
+            self.descriptor_view_state = DbColViewState::default();
         }
         self.update_description(db)?;
         Ok(())

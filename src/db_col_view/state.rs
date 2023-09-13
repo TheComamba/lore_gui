@@ -11,13 +11,15 @@ pub(crate) struct DbColViewState {
 }
 
 impl DbColViewState {
-    pub(crate) fn new() -> Self {
-        DbColViewState {
-            search_text: "".to_string(),
+    pub(crate) fn new(entries: Vec<String>) -> Self {
+        let mut state = DbColViewState {
+            search_text: String::new(),
             entries: vec![],
             selected_entry: None,
             visible_entries: vec![],
-        }
+        };
+        state.set_entries(entries);
+        state
     }
 
     pub(crate) fn get_selected_int(&self) -> Result<Option<i32>, LoreGuiError> {
@@ -37,6 +39,7 @@ impl DbColViewState {
         entries.sort();
         entries.dedup();
         self.entries = entries;
+        self.set_visible_entries();
     }
 
     pub(crate) fn set_selected(&mut self, entry: String) {
@@ -90,6 +93,6 @@ impl DbColViewState {
 
 impl Default for DbColViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(vec![])
     }
 }
