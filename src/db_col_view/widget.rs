@@ -55,7 +55,7 @@ where
 
     fn selection_list(&self) -> Element<ColViewMes> {
         let selection_list = SelectionList::new_with(
-            self.state.get_visible_entries(),
+            self.state.get_entries(),
             ColViewMes::Selected,
             20.0,
             0.0,

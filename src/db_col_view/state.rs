@@ -7,7 +7,6 @@ pub(crate) struct DbColViewState {
     search_text: String,
     entries: Vec<String>,
     selected_entry: Option<String>,
-    visible_entries: Vec<String>,
 }
 
 impl DbColViewState {
@@ -16,7 +15,6 @@ impl DbColViewState {
             search_text: String::new(),
             entries: vec![],
             selected_entry: None,
-            visible_entries: vec![],
         };
         state.set_entries(entries);
         state
@@ -42,7 +40,10 @@ impl DbColViewState {
         entries.sort();
         entries.dedup();
         self.entries = entries;
-        self.set_visible_entries();
+    }
+
+    pub(crate) fn get_entries(&self) -> &Vec<String> {
+        &self.entries
     }
 
     pub(crate) fn set_selected(&mut self, entry: String) {
@@ -63,7 +64,6 @@ impl DbColViewState {
 
     pub(crate) fn set_search_text(&mut self, text: String) {
         self.search_text = text;
-        self.set_visible_entries();
     }
 
     pub(crate) fn get_search_text(&self) -> &str {
@@ -72,25 +72,6 @@ impl DbColViewState {
 
     pub(crate) fn get_sql_search_text(&self) -> SqlSearchText {
         SqlSearchText::new(&self.search_text)
-    }
-
-    pub(crate) fn get_visible_entries(&self) -> &Vec<String> {
-        &self.visible_entries
-    }
-
-    fn set_visible_entries(&mut self) {
-        self.visible_entries = match self.search_text.is_empty() {
-            true => self.entries.clone(),
-            false => {
-                let mut visible = vec![String::new()];
-                for entry in self.entries.iter() {
-                    if entry.contains(&self.search_text) {
-                        visible.push(entry.clone());
-                    }
-                }
-                visible
-            }
-        }
     }
 }
 

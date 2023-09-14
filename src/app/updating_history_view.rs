@@ -12,7 +12,10 @@ impl SqlGui {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.year_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.year_view_state.set_search_text(text);
+                state.update_years(&self.lore_database)?;
+            }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected_none();
@@ -26,7 +29,10 @@ impl SqlGui {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.day_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.day_view_state.set_search_text(text);
+                state.update_days(&self.lore_database)?;
+            }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
                 state.label_view_state.set_selected_none();
@@ -43,7 +49,10 @@ impl SqlGui {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.label_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.label_view_state.set_search_text(text);
+                state.update_labels(&self.lore_database)?;
+            }
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
                 state.update_content(&self.lore_database)?;
