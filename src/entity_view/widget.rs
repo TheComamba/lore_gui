@@ -55,11 +55,7 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
 
 impl<'a> EntityView<'a> {
     fn new_entity_msg(&self) -> Option<ColViewMes> {
-        if self.lore_database.is_some() {
-            Some(ColViewMes::New)
-        } else {
-            None
-        }
+        Some(ColViewMes::New)
     }
 
     fn new_descriptor_msg(&self) -> Option<ColViewMes> {
