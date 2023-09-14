@@ -19,18 +19,21 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Year",
+                false,
                 vec![],
                 GuiMes::YearViewUpd,
                 &self.state.year_view_state,
             ))
             .push(DbColView::new(
                 "Day",
+                false,
                 vec![],
                 GuiMes::DayViewUpd,
                 &self.state.day_view_state,
             ))
             .push(DbColView::new(
                 "Label",
+                true,
                 vec![],
                 GuiMes::HistoryLabelViewUpd,
                 &self.state.label_view_state,
