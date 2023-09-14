@@ -1,7 +1,7 @@
 use super::SqlGui;
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
-    dialog::new_entity::NewEntityDialog,
+    dialog::new_entity::{NewEntityData, NewEntityDialog},
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
@@ -38,6 +38,14 @@ impl SqlGui {
                 state.update_description(&self.lore_database)?;
             }
         };
+        Ok(())
+    }
+
+    pub(super) fn write_new_entity(&mut self, data: NewEntityData) -> Result<(), LoreGuiError> {
+        let label = data.get_label().to_string();
+        data.write_to_database(&self.lore_database)?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(label))?;
+        self.dialog = None;
         Ok(())
     }
 }

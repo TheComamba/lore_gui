@@ -85,6 +85,10 @@ impl NewEntityData {
 
         Ok(())
     }
+
+    pub(crate) fn get_label(&self) -> &str {
+        &self.label
+    }
 }
 
 impl Dialog for NewEntityDialog {
@@ -116,7 +120,7 @@ impl Component<GuiMes, Renderer> for NewEntityDialog {
                 self.data.name = name;
                 None
             }
-            NewEntityMes::Submit => Some(GuiMes::EntitySubmit(self.data.to_owned())),
+            NewEntityMes::Submit => Some(GuiMes::NewEntity(self.data.to_owned())),
         }
     }
 
