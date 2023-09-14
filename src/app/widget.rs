@@ -115,9 +115,10 @@ impl SqlGui {
 
     fn initialise(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
         self.open_database(path)?;
-        self.entity_view_state.reset(&self.lore_database)?;
-        self.history_view_state.reset(&self.lore_database)?;
-        self.relationship_view_state.reset(&self.lore_database)?;
+        let db = self.get_database()?;
+        self.entity_view_state.reset(db)?;
+        self.history_view_state.reset(db)?;
+        self.relationship_view_state.reset(db)?;
         Ok(())
     }
 }

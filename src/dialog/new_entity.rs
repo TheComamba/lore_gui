@@ -38,15 +38,7 @@ impl NewEntityData {
         }
     }
 
-    pub(crate) fn write_to_database(self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let db = match db {
-            Some(db) => db,
-            None => {
-                return Err(LoreGuiError::InputError(
-                    "No database loaded to which to add new entity.".to_string(),
-                ));
-            }
-        };
+    pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         if self.label.is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot create entity with empty label.".to_string(),

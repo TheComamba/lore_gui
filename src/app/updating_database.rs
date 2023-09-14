@@ -5,9 +5,10 @@ use std::path::PathBuf;
 
 impl SqlGui {
     fn update_database_derived_data(&mut self) -> Result<(), LoreGuiError> {
-        self.entity_view_state.reset(&self.lore_database)?;
-        self.history_view_state.reset(&self.lore_database)?;
-        self.relationship_view_state.reset(&self.lore_database)?;
+        let db = self.get_database()?;
+        self.entity_view_state.reset(db)?;
+        self.history_view_state.reset(db)?;
+        self.relationship_view_state.reset(db)?;
         Ok(())
     }
 
@@ -41,5 +42,12 @@ impl SqlGui {
         self.lore_database = Some(LoreDatabase::open(path).map_err(LoreGuiError::LoreCoreError)?);
         self.update_database_derived_data()?;
         Ok(())
+    }
+
+    pub(super) fn get_database(&mut self) -> Result<&LoreDatabase, LoreGuiError> {
+        match self.lore_database.as_ref() {
+            Some(db) => Ok(db),
+            None => Err(LoreGuiError::NoDatabase),
+        }
     }
 }
