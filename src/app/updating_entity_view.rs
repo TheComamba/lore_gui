@@ -9,7 +9,10 @@ use lorecore::sql::{entity::EntityColumn, lore_database::LoreDatabase};
 
 impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
@@ -27,7 +30,10 @@ impl SqlGui {
     }
 
     pub(super) fn update_descriptor_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::New => (),
@@ -44,7 +50,10 @@ impl SqlGui {
     }
 
     pub(super) fn write_new_entity(&mut self, data: NewEntityData) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let label = data.get_label().to_string();
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(label))?;

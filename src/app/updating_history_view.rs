@@ -9,7 +9,10 @@ use super::SqlGui;
 
 impl SqlGui {
     pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
@@ -27,7 +30,10 @@ impl SqlGui {
     }
 
     pub(super) fn update_day_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
@@ -48,7 +54,10 @@ impl SqlGui {
         &mut self,
         event: ColViewMes,
     ) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),

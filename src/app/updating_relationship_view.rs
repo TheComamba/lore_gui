@@ -6,7 +6,10 @@ use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
     pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::New => (),
@@ -24,7 +27,10 @@ impl SqlGui {
     }
 
     pub(super) fn update_child_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self.get_database()?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::New => (),
