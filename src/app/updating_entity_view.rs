@@ -1,7 +1,10 @@
 use super::SqlGui;
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
-    dialog::new_entity::{NewEntityData, NewEntityDialog},
+    dialog::{
+        new_descriptor::{NewDescriptorData, NewDescriptorDialog},
+        new_entity::{NewEntityData, NewEntityDialog},
+    },
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
@@ -36,7 +39,14 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.entity_view_state;
         match event {
-            ColViewMes::New => (),
+            ColViewMes::New => {
+                let label = state.label_view_state.get_selected().as_ref().ok_or(
+                    LoreGuiError::InputError(
+                        "No label selected for which to create new descriptor.".to_string(),
+                    ),
+                )?;
+                self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())));
+            }
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
                 state.update_descriptors(db)?;
@@ -57,6 +67,21 @@ impl SqlGui {
         let label = data.get_label().to_string();
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(label))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn write_new_descriptor(
+        &mut self,
+        data: NewDescriptorData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let descriptor = data.get_descriptor().to_string();
+        data.write_to_database(db)?;
+        self.update_descriptor_view(ColViewMes::SearchFieldUpd(descriptor))?;
         self.dialog = None;
         Ok(())
     }
