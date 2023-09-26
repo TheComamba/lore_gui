@@ -8,7 +8,7 @@ use crate::{
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
-use lorecore::sql::{entity::EntityColumn, lore_database::LoreDatabase};
+use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {

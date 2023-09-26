@@ -47,7 +47,7 @@ impl NewDescriptorData {
         let col = lorecore::sql::entity::EntityColumn {
             label: self.label,
             descriptor: self.descriptor,
-            description: None,
+            description: Some(self.description),
         };
         db.write_entity_columns(vec![col])
             .map_err(LoreGuiError::LoreCoreError)
