@@ -1,7 +1,7 @@
 use super::Dialog;
 use crate::app::message_handling::GuiMes;
 use iced::{
-    widget::{component, Column, Component, Text, TextInput},
+    widget::{component, Button, Column, Component, Text, TextInput},
     Element, Renderer,
 };
 
@@ -46,18 +46,49 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
 
     type Event = NewHistoryMes;
 
-    fn update(&mut self, state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        None
+    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
+        match event {
+            NewHistoryMes::YearUpd(year) => {
+                if year.is_empty() {
+                    self.data.year = 0;
+                } else {
+                    let year = year.parse::<i32>();
+                    if let Ok(year) = year {
+                        self.data.year = year
+                    };
+                }
+                None
+            }
+            NewHistoryMes::DayUpd(day) => {
+                if day.is_empty() {
+                    self.data.day = None;
+                } else {
+                    let day = day.parse::<i32>();
+                    if let Ok(day) = day {
+                        self.data.day = Some(day)
+                    };
+                }
+                None
+            }
+            NewHistoryMes::ContentUpd(content) => {
+                self.data.content = content;
+                None
+            }
+            NewHistoryMes::Submit => None,
+        }
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
-        let year_input = TextInput::new("", &self.data.year.to_string());
+        let year_input =
+            TextInput::new("", &self.data.year.to_string()).on_input(NewHistoryMes::YearUpd);
         let day_string = match self.data.day {
             Some(day) => day.to_string(),
             None => String::new(),
         };
-        let day_input = TextInput::new("", &day_string);
-        let content_input = TextInput::new("", &self.data.content);
+        let day_input = TextInput::new("", &day_string).on_input(NewHistoryMes::DayUpd);
+        let content_input =
+            TextInput::new("", &self.data.content).on_input(NewHistoryMes::ContentUpd);
+        let submit_button = Button::new("Create").on_press(NewHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))
             .push(year_input)
@@ -65,6 +96,7 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
             .push(day_input)
             .push(Text::new("Content:"))
             .push(content_input)
+            .push(submit_button)
             .padding(5)
             .spacing(5)
             .into()
@@ -72,4 +104,9 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum NewHistoryMes {}
+pub(crate) enum NewHistoryMes {
+    YearUpd(String),
+    DayUpd(String),
+    ContentUpd(String),
+    Submit,
+}
