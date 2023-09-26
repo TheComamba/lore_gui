@@ -66,7 +66,8 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let label = data.get_label().to_string();
         data.write_to_database(db)?;
-        self.update_label_view(ColViewMes::SearchFieldUpd(label))?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_label_view(ColViewMes::Selected(0, label))?;
         self.dialog = None;
         Ok(())
     }
@@ -81,7 +82,8 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let descriptor = data.get_descriptor().to_string();
         data.write_to_database(db)?;
-        self.update_descriptor_view(ColViewMes::SearchFieldUpd(descriptor))?;
+        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
         self.dialog = None;
         Ok(())
     }
