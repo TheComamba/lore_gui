@@ -1,7 +1,7 @@
 use super::Dialog;
 use crate::app::message_handling::GuiMes;
 use iced::{
-    widget::{component, Column, Component},
+    widget::{component, Column, Component, Text, TextInput},
     Element, Renderer,
 };
 
@@ -13,15 +13,23 @@ pub(crate) struct NewHistoryDialog {
 impl NewHistoryDialog {
     pub(crate) fn new() -> Self {
         NewHistoryDialog {
-            data: NewHistoryData {},
+            data: NewHistoryData {
+                year: 0,
+                day: None,
+                content: String::new(),
+                properties: None,
+            },
         }
     }
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct NewHistoryData {}
-
-impl NewHistoryData {}
+pub(crate) struct NewHistoryData {
+    pub(crate) year: i32,
+    pub(crate) day: Option<i32>,
+    pub(crate) content: String,
+    pub(crate) properties: Option<String>,
+}
 
 impl Dialog for NewHistoryDialog {
     fn header(&self) -> String {
@@ -43,7 +51,23 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
-        Column::new().padding(5).spacing(5).into()
+        let year_input = TextInput::new("", &self.data.year.to_string());
+        let day_string = match self.data.day {
+            Some(day) => day.to_string(),
+            None => String::new(),
+        };
+        let day_input = TextInput::new("", &day_string);
+        let content_input = TextInput::new("", &self.data.content);
+        Column::new()
+            .push(Text::new("Year:"))
+            .push(year_input)
+            .push(Text::new("Day:"))
+            .push(day_input)
+            .push(Text::new("Content:"))
+            .push(content_input)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 }
 
