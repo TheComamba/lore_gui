@@ -1,5 +1,6 @@
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
+    dialog::new_history_item::NewHistoryDialog,
     errors::LoreGuiError,
     history_view::HistoryViewState,
 };
@@ -15,7 +16,7 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
-            ColViewMes::New => (),
+            ColViewMes::New => self.dialog = Some(Box::new(NewHistoryDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.year_view_state.set_search_text(text);
                 state.update_years(db)?;
