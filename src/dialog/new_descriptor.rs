@@ -25,6 +25,7 @@ impl NewDescriptorDialog {
 pub(crate) struct NewDescriptorData {
     pub(self) label: String,
     pub(self) descriptor: String,
+    pub(self) description: String,
 }
 
 impl NewDescriptorData {
@@ -32,6 +33,7 @@ impl NewDescriptorData {
         NewDescriptorData {
             label,
             descriptor: String::new(),
+            description: String::new(),
         }
     }
 
@@ -72,16 +74,30 @@ impl Component<GuiMes, Renderer> for NewDescriptorDialog {
     type Event = NewDescriptorMessage;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        None
+        match event {
+            NewDescriptorMessage::DescriptorUpd(descriptor) => {
+                self.data.descriptor = descriptor;
+                None
+            }
+            NewDescriptorMessage::DescriptionUpd(description) => {
+                self.data.description = description;
+                None
+            }
+            NewDescriptorMessage::Submit => Some(GuiMes::NewDescriptor(self.data.to_owned())),
+        }
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
         let descriptor_input =
-            TextInput::new("", &self.data.label).on_input(NewDescriptorMessage::DescriptorUpd);
+            TextInput::new("", &self.data.descriptor).on_input(NewDescriptorMessage::DescriptorUpd);
+        let description_input = TextInput::new("", &self.data.description)
+            .on_input(NewDescriptorMessage::DescriptionUpd);
         let submit_button = Button::new(Text::new("Create")).on_press(NewDescriptorMessage::Submit);
         Column::new()
             .push(Text::new("Descriptor:"))
             .push(descriptor_input)
+            .push(Text::new("Description:"))
+            .push(description_input)
             .push(submit_button)
             .padding(5)
             .spacing(5)
@@ -92,5 +108,6 @@ impl Component<GuiMes, Renderer> for NewDescriptorDialog {
 #[derive(Debug, Clone)]
 pub(crate) enum NewDescriptorMessage {
     DescriptorUpd(String),
+    DescriptionUpd(String),
     Submit,
 }

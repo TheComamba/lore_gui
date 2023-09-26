@@ -59,13 +59,7 @@ impl<'a> EntityView<'a> {
     }
 
     fn new_descriptor_msg(&self) -> Option<ColViewMes> {
-        if self.state.label_view_state.get_selected().is_some()
-            && !self
-                .state
-                .descriptor_view_state
-                .get_search_text()
-                .is_empty()
-        {
+        if self.state.label_view_state.get_selected().is_some() {
             Some(ColViewMes::New)
         } else {
             None

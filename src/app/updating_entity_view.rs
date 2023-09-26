@@ -150,31 +150,4 @@ impl EntityViewState {
 
         Ok(())
     }
-
-    fn new_descriptor(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let label = match self.label_view_state.get_selected().as_ref() {
-            Some(label) => label.clone(),
-            None => {
-                return Err(LoreGuiError::InputError(
-                    "No label selected for which to create new descriptor.".to_string(),
-                ));
-            }
-        };
-        let descriptor = self.descriptor_view_state.get_search_text().to_string();
-        if descriptor.is_empty() {
-            return Err(LoreGuiError::InputError(
-                "Cannot create empty descriptor.".to_string(),
-            ));
-        }
-        let description = None;
-        let new_col = EntityColumn {
-            label,
-            descriptor,
-            description,
-        };
-        db.write_entity_columns(vec![new_col])
-            .map_err(LoreGuiError::LoreCoreError)?;
-        self.update_descriptors(db)?;
-        Ok(())
-    }
 }
