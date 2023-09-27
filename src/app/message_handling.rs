@@ -1,7 +1,10 @@
 use super::{SqlGui, ViewType};
 use crate::{
     db_col_view::ColViewMes,
-    dialog::{new_descriptor::NewDescriptorData, new_entity::NewEntityData},
+    dialog::{
+        new_descriptor::NewDescriptorData, new_entity::NewEntityData,
+        new_history_item::NewHistoryData,
+    },
     errors::LoreGuiError,
 };
 
@@ -20,6 +23,7 @@ pub(crate) enum GuiMes {
     DialogClosed,
     NewEntity(NewEntityData),
     NewDescriptor(NewDescriptorData),
+    NewHistoryItem(NewHistoryData),
 }
 
 impl SqlGui {
@@ -38,6 +42,7 @@ impl SqlGui {
             GuiMes::DialogClosed => self.dialog = None,
             GuiMes::NewEntity(data) => self.write_new_entity(data)?,
             GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
+            GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
         }
         Ok(())
     }

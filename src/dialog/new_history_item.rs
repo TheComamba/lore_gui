@@ -1,9 +1,10 @@
 use super::Dialog;
-use crate::app::message_handling::GuiMes;
+use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element, Renderer,
 };
+use lorecore::sql::{history::HistoryItem, lore_database::LoreDatabase};
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryDialog {
@@ -29,6 +30,21 @@ pub(crate) struct NewHistoryData {
     pub(crate) day: Option<i32>,
     pub(crate) content: String,
     pub(crate) properties: Option<String>,
+}
+
+impl NewHistoryData {
+    pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+        let item = HistoryItem {
+            year: self.year,
+            day: self.day,
+            content: self.content,
+            properties: self.properties,
+            label: "Dayumn I forgot about the label!".to_string(),
+        };
+        db.write_history_items(vec![item])
+            .map_err(LoreGuiError::LoreCoreError)?;
+        Ok(())
+    }
 }
 
 impl Dialog for NewHistoryDialog {
@@ -74,7 +90,7 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
                 self.data.content = content;
                 None
             }
-            NewHistoryMes::Submit => None,
+            NewHistoryMes::Submit => Some(GuiMes::NewHistoryItem(self.data.clone())),
         }
     }
 

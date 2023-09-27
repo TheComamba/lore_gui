@@ -1,6 +1,6 @@
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
-    dialog::new_history_item::NewHistoryDialog,
+    dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
     errors::LoreGuiError,
     history_view::HistoryViewState,
 };
@@ -71,6 +71,25 @@ impl SqlGui {
                 state.update_content(db)?;
             }
         };
+        Ok(())
+    }
+
+    pub(super) fn write_new_history(&mut self, data: NewHistoryData) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let year = data.year.to_string();
+        let day = match data.day {
+            Some(day) => day.to_string(),
+            None => String::new(),
+        };
+        data.write_to_database(db)?;
+        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_year_view(ColViewMes::Selected(0, year))?;
+        self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_day_view(ColViewMes::Selected(0, day))?;
+        self.dialog = None;
         Ok(())
     }
 }
