@@ -1,3 +1,5 @@
+use lorecore::sql::search_text::SqlSearchText;
+
 use crate::errors::LoreGuiError;
 
 #[derive(Debug, Clone)]
@@ -5,17 +7,17 @@ pub(crate) struct DbColViewState {
     search_text: String,
     entries: Vec<String>,
     selected_entry: Option<String>,
-    visible_entries: Vec<String>,
 }
 
 impl DbColViewState {
-    pub(crate) fn new() -> Self {
-        DbColViewState {
-            search_text: "".to_string(),
+    pub(crate) fn new(entries: Vec<String>) -> Self {
+        let mut state = DbColViewState {
+            search_text: String::new(),
             entries: vec![],
             selected_entry: None,
-            visible_entries: vec![],
-        }
+        };
+        state.set_entries(entries);
+        state
     }
 
     pub(crate) fn get_selected_int(&self) -> Result<Option<i32>, LoreGuiError> {
@@ -29,12 +31,19 @@ impl DbColViewState {
     }
 
     pub(crate) fn set_entries(&mut self, mut entries: Vec<String>) {
+        if entries.is_empty() {
+            return;
+        }
         if !entries.contains(&String::new()) {
             entries.push(String::new());
         }
         entries.sort();
         entries.dedup();
         self.entries = entries;
+    }
+
+    pub(crate) fn get_entries(&self) -> &Vec<String> {
+        &self.entries
     }
 
     pub(crate) fn set_selected(&mut self, entry: String) {
@@ -55,35 +64,19 @@ impl DbColViewState {
 
     pub(crate) fn set_search_text(&mut self, text: String) {
         self.search_text = text;
-        self.set_visible_entries();
     }
 
-    pub(crate) fn get_search_text(&self) -> &String {
+    pub(crate) fn get_search_text(&self) -> &str {
         &self.search_text
     }
 
-    pub(crate) fn get_visible_entries(&self) -> &Vec<String> {
-        &self.visible_entries
-    }
-
-    fn set_visible_entries(&mut self) {
-        self.visible_entries = match self.search_text.is_empty() {
-            true => self.entries.clone(),
-            false => {
-                let mut visible = vec![String::new()];
-                for entry in self.entries.iter() {
-                    if entry.contains(&self.search_text) {
-                        visible.push(entry.clone());
-                    }
-                }
-                visible
-            }
-        }
+    pub(crate) fn get_sql_search_text(&self) -> SqlSearchText {
+        SqlSearchText::new(&self.search_text)
     }
 }
 
 impl Default for DbColViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(vec![])
     }
 }

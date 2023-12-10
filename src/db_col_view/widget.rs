@@ -10,6 +10,7 @@ use iced_aw::{style::SelectionListStyles, SelectionList};
 
 pub(crate) struct DbColView<'a, M> {
     title: &'a str,
+    has_search_field: bool,
     button_infos: Vec<(String, Option<ColViewMes>)>,
     gui_message: M,
     state: &'a DbColViewState,
@@ -21,12 +22,14 @@ where
 {
     pub(crate) fn new(
         title: &'a str,
+        has_search_field: bool,
         button_infos: Vec<(String, Option<ColViewMes>)>,
         gui_message: M,
         state: &'a DbColViewState,
     ) -> Self {
         Self {
             title,
+            has_search_field,
             button_infos,
             gui_message,
             state,
@@ -47,14 +50,15 @@ where
     }
 
     fn search_field(&self) -> TextInput<ColViewMes> {
-        TextInput::new("Type to search...", self.state.get_search_text())
+        let search_text = self.state.get_search_text();
+        TextInput::new("Type to search...", search_text)
             .on_input(ColViewMes::SearchFieldUpd)
             .width(Length::Fill)
     }
 
     fn selection_list(&self) -> Element<ColViewMes> {
         let selection_list = SelectionList::new_with(
-            self.state.get_visible_entries(),
+            self.state.get_entries(),
             ColViewMes::Selected,
             20.0,
             0.0,
@@ -89,12 +93,11 @@ where
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
-        let mut col = Column::new()
-            .push(self.title())
-            .push(self.selected())
-            .push(self.search_field())
-            .push(self.selection_list());
-
+        let mut col = Column::new().push(self.title()).push(self.selected());
+        if self.has_search_field {
+            col = col.push(self.search_field());
+        }
+        col = col.push(self.selection_list());
         for info in self.button_infos.iter() {
             col = col.push(Self::button(info));
         }

@@ -23,12 +23,14 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Label",
+                true,
                 self.label_button_infos(),
                 GuiMes::EntityLabelViewUpd,
                 &self.state.label_view_state,
             ))
             .push(DbColView::new(
                 "Descriptor",
+                true,
                 self.descriptor_button_infos(),
                 GuiMes::DescriptorViewUpd,
                 &self.state.descriptor_view_state,
@@ -53,21 +55,11 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
 
 impl<'a> EntityView<'a> {
     fn new_entity_msg(&self) -> Option<ColViewMes> {
-        if self.lore_database.is_some() {
-            Some(ColViewMes::New)
-        } else {
-            None
-        }
+        Some(ColViewMes::New)
     }
 
     fn new_descriptor_msg(&self) -> Option<ColViewMes> {
-        if self.state.label_view_state.get_selected().is_some()
-            && !self
-                .state
-                .descriptor_view_state
-                .get_search_text()
-                .is_empty()
-        {
+        if self.state.label_view_state.get_selected().is_some() {
             Some(ColViewMes::New)
         } else {
             None

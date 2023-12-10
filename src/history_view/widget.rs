@@ -1,4 +1,5 @@
 use super::HistoryView;
+use crate::db_col_view::ColViewMes;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{component, Component};
 use iced::{
@@ -19,18 +20,21 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Year",
-                vec![],
+                false,
+                vec![("New History Item".to_string(), Some(ColViewMes::New))],
                 GuiMes::YearViewUpd,
                 &self.state.year_view_state,
             ))
             .push(DbColView::new(
                 "Day",
+                false,
                 vec![],
                 GuiMes::DayViewUpd,
                 &self.state.day_view_state,
             ))
             .push(DbColView::new(
                 "Label",
+                true,
                 vec![],
                 GuiMes::HistoryLabelViewUpd,
                 &self.state.label_view_state,

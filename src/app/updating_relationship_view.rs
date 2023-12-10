@@ -6,28 +6,42 @@ use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
     pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.parent_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.parent_view_state.set_search_text(text);
+                state.update_parents(db)?;
+            }
             ColViewMes::Selected(_index, parent) => {
                 state.parent_view_state.set_selected(parent);
-                state.update_children(&self.lore_database)?;
-                state.update_role(&self.lore_database)?;
+                state.update_children(db)?;
+                state.update_role(db)?;
             }
         };
         Ok(())
     }
 
     pub(super) fn update_child_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.child_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.child_view_state.set_search_text(text);
+                state.update_children(db)?;
+            }
             ColViewMes::Selected(_index, child) => {
                 state.child_view_state.set_selected(child);
-                state.update_parents(&self.lore_database)?;
-                state.update_role(&self.lore_database)?;
+                state.update_parents(db)?;
+                state.update_role(db)?;
             }
         };
         Ok(())
@@ -35,7 +49,7 @@ impl SqlGui {
 }
 
 impl RelationshipViewState {
-    pub(super) fn reset(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    pub(super) fn reset(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         self.reset_selections();
         self.update_parents(db)?;
         self.update_children(db)?;
@@ -48,31 +62,25 @@ impl RelationshipViewState {
         self.current_role = None;
     }
 
-    fn update_parents(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_parents(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let child = self.child_view_state.get_selected();
-        match db {
-            Some(db) => self.parent_view_state.set_entries(
-                db.get_parents(&child.as_ref())
-                    .map_err(LoreGuiError::LoreCoreError)?,
-            ),
-            None => self.parent_view_state.set_entries(vec![]),
-        }
+        self.parent_view_state.set_entries(
+            db.get_parents(&child.as_ref())
+                .map_err(LoreGuiError::LoreCoreError)?,
+        );
         Ok(())
     }
 
-    fn update_children(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_children(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let parent = self.parent_view_state.get_selected();
-        match db {
-            Some(db) => self.child_view_state.set_entries(
-                db.get_children(&parent.as_ref())
-                    .map_err(LoreGuiError::LoreCoreError)?,
-            ),
-            None => self.child_view_state.set_entries(vec![]),
-        }
+        self.child_view_state.set_entries(
+            db.get_children(&parent.as_ref())
+                .map_err(LoreGuiError::LoreCoreError)?,
+        );
         Ok(())
     }
 
-    fn update_role(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_role(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let parent = match self.parent_view_state.get_selected() {
             Some(parent) => parent,
             None => {
@@ -87,14 +95,9 @@ impl RelationshipViewState {
                 return Ok(());
             }
         };
-        match db {
-            Some(db) => {
-                self.current_role = db
-                    .get_relationship_role(parent, child)
-                    .map_err(LoreGuiError::LoreCoreError)?
-            }
-            None => self.current_role = None,
-        }
+        self.current_role = db
+            .get_relationship_role(parent, child)
+            .map_err(LoreGuiError::LoreCoreError)?;
         Ok(())
     }
 }

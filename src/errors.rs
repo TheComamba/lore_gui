@@ -4,6 +4,7 @@ use lorecore::errors::LoreCoreError;
 pub enum LoreGuiError {
     FileError(String),
     InputError(String),
+    NoDatabase,
     LoreCoreError(LoreCoreError),
 }
 

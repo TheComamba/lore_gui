@@ -1,5 +1,6 @@
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
+    dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
     errors::LoreGuiError,
     history_view::HistoryViewState,
 };
@@ -9,28 +10,42 @@ use super::SqlGui;
 
 impl SqlGui {
     pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
-            ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.year_view_state.set_search_text(text),
+            ColViewMes::New => self.dialog = Some(Box::new(NewHistoryDialog::new())),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.year_view_state.set_search_text(text);
+                state.update_years(db)?;
+            }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected_none();
-                state.update_days(&self.lore_database)?;
+                state.update_days(db)?;
             }
         };
         Ok(())
     }
 
     pub(super) fn update_day_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.day_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.day_view_state.set_search_text(text);
+                state.update_days(db)?;
+            }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
                 state.label_view_state.set_selected_none();
-                state.update_labels(&self.lore_database)?;
+                state.update_labels(db)?;
             }
         };
         Ok(())
@@ -40,21 +55,47 @@ impl SqlGui {
         &mut self,
         event: ColViewMes,
     ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::New => (),
-            ColViewMes::SearchFieldUpd(text) => state.label_view_state.set_search_text(text),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.label_view_state.set_search_text(text);
+                state.update_labels(db)?;
+            }
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
-                state.update_content(&self.lore_database)?;
+                state.update_content(db)?;
             }
         };
+        Ok(())
+    }
+
+    pub(super) fn write_new_history(&mut self, data: NewHistoryData) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let year = data.year.to_string();
+        let day = match data.day {
+            Some(day) => day.to_string(),
+            None => String::new(),
+        };
+        data.write_to_database(db)?;
+        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_year_view(ColViewMes::Selected(0, year))?;
+        self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_day_view(ColViewMes::Selected(0, day))?;
+        self.dialog = None;
         Ok(())
     }
 }
 
 impl HistoryViewState {
-    pub(super) fn reset(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    pub(super) fn reset(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         self.reset_selections();
         self.update_years(db)?;
         Ok(())
@@ -67,19 +108,14 @@ impl HistoryViewState {
         self.current_content = String::new();
     }
 
-    fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        match db {
-            Some(db) => {
-                let years = db
-                    .get_all_years()
-                    .map_err(LoreGuiError::LoreCoreError)?
-                    .iter()
-                    .map(|y| y.to_string())
-                    .collect();
-                self.year_view_state.set_entries(years);
-            }
-            None => self.year_view_state = DbColViewState::new(),
-        }
+    fn update_years(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+        let years = db
+            .get_all_years()
+            .map_err(LoreGuiError::LoreCoreError)?
+            .iter()
+            .map(|y| y.to_string())
+            .collect();
+        self.year_view_state.set_entries(years);
         self.update_days(db)?;
         Ok(())
     }
@@ -91,39 +127,43 @@ impl HistoryViewState {
         }
     }
 
-    fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_days(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let year = self.year_view_state.get_selected_int()?;
-        match db {
-            Some(db) => {
+        match year {
+            Some(year) => {
                 let days = db
-                    .get_all_days(year)
+                    .get_days(year)
                     .map_err(LoreGuiError::LoreCoreError)?
                     .iter()
                     .map(Self::optional_int_to_string)
                     .collect();
                 self.day_view_state.set_entries(days);
             }
-            None => self.day_view_state = DbColViewState::new(),
+            None => {
+                self.day_view_state = DbColViewState::default();
+            }
         }
         self.update_labels(db)?;
         Ok(())
     }
 
-    fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_labels(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let year = self.year_view_state.get_selected_int()?;
         let day = self.day_view_state.get_selected_int()?;
-        match db {
-            Some(db) => self.label_view_state.set_entries(
-                db.get_all_history_labels(year, day)
-                    .map_err(LoreGuiError::LoreCoreError)?,
-            ),
-            None => self.label_view_state = DbColViewState::new(),
+        match year {
+            Some(year) => {
+                self.label_view_state.set_entries(
+                    db.get_history_labels(year, day)
+                        .map_err(LoreGuiError::LoreCoreError)?,
+                );
+            }
+            None => (),
         }
         self.update_content(db)?;
         Ok(())
     }
 
-    fn update_content(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    fn update_content(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let label = match self.label_view_state.get_selected() {
             Some(label) => label,
             None => {
@@ -131,14 +171,9 @@ impl HistoryViewState {
                 return Ok(());
             }
         };
-        match db {
-            Some(db) => {
-                self.current_content = db
-                    .get_history_item_content(label)
-                    .map_err(LoreGuiError::LoreCoreError)?
-            }
-            None => self.current_content = String::new(),
-        }
+        self.current_content = db
+            .get_history_item_content(label)
+            .map_err(LoreGuiError::LoreCoreError)?;
         Ok(())
     }
 }

@@ -1,5 +1,12 @@
 use super::{SqlGui, ViewType};
-use crate::{db_col_view::ColViewMes, errors::LoreGuiError};
+use crate::{
+    db_col_view::ColViewMes,
+    dialog::{
+        new_descriptor::NewDescriptorData, new_entity::NewEntityData,
+        new_history_item::NewHistoryData,
+    },
+    errors::LoreGuiError,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMes {
@@ -14,7 +21,9 @@ pub(crate) enum GuiMes {
     ParentViewUpd(ColViewMes),
     ChildViewUpd(ColViewMes),
     DialogClosed,
-    EntitySubmit,
+    NewEntity(NewEntityData),
+    NewDescriptor(NewDescriptorData),
+    NewHistoryItem(NewHistoryData),
 }
 
 impl SqlGui {
@@ -31,7 +40,9 @@ impl SqlGui {
             GuiMes::ParentViewUpd(event) => self.update_parent_view(event)?,
             GuiMes::ChildViewUpd(event) => self.update_child_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,
-            GuiMes::EntitySubmit => self.entity_view_state.new_entity(&self.lore_database)?,
+            GuiMes::NewEntity(data) => self.write_new_entity(data)?,
+            GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
+            GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
         }
         Ok(())
     }

@@ -1,11 +1,9 @@
 use super::db_col_view::state::DbColViewState;
-use lorecore::sql::lore_database::LoreDatabase;
 
 mod widget;
 
 pub(super) struct EntityView<'a> {
     state: &'a EntityViewState,
-    lore_database: &'a Option<LoreDatabase>,
 }
 
 pub(super) struct EntityViewState {
@@ -15,19 +13,16 @@ pub(super) struct EntityViewState {
 }
 
 impl<'a> EntityView<'a> {
-    pub(super) fn new(state: &'a EntityViewState, lore_database: &'a Option<LoreDatabase>) -> Self {
-        Self {
-            state,
-            lore_database,
-        }
+    pub(super) fn new(state: &'a EntityViewState) -> Self {
+        Self { state }
     }
 }
 
 impl EntityViewState {
-    pub(super) fn new() -> Self {
+    pub(super) fn new(labels: Vec<String>) -> Self {
         Self {
-            label_view_state: DbColViewState::new(),
-            descriptor_view_state: DbColViewState::new(),
+            label_view_state: DbColViewState::new(labels),
+            descriptor_view_state: DbColViewState::default(),
             current_description: None,
         }
     }
@@ -35,6 +30,6 @@ impl EntityViewState {
 
 impl Default for EntityViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(vec![])
     }
 }

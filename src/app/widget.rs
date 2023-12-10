@@ -1,5 +1,8 @@
+use std::path::PathBuf;
+
 use super::{message_handling::GuiMes, SqlGui, ViewType};
 use crate::{
+    errors::LoreGuiError,
     APP_TITLE,
     {
         dialog::error::ErrorDialog,
@@ -21,14 +24,14 @@ impl Sandbox for SqlGui {
     fn new() -> Self {
         let mut gui = SqlGui {
             selected_view: super::ViewType::Entity,
-            entity_view_state: EntityViewState::new(),
-            history_view_state: HistoryViewState::new(),
-            relationship_view_state: RelationshipViewState::new(),
+            entity_view_state: EntityViewState::default(),
+            history_view_state: HistoryViewState::default(),
+            relationship_view_state: RelationshipViewState::default(),
             lore_database: None,
             dialog: None,
         };
         if let Some(path) = load_database_path() {
-            match gui.open_database(path) {
+            match gui.initialise(path) {
                 Ok(_) => (),
                 Err(e) => gui.dialog = Some(Box::new(ErrorDialog::new(e))),
             };
@@ -60,18 +63,15 @@ impl SqlGui {
     fn main_view(&self) -> Element<'_, GuiMes> {
         let mut col = Column::new()
             .push(self.menu_bar())
-            .push(self.current_database_display())
-            .push(self.view_selection_bar());
-        match self.selected_view {
-            ViewType::Entity => {
-                col = col.push(EntityView::new(
-                    &self.entity_view_state,
-                    &self.lore_database,
-                ))
-            }
-            ViewType::History => col = col.push(HistoryView::new(&self.history_view_state)),
-            ViewType::Relationship => {
-                col = col.push(RelationshipView::new(&self.relationship_view_state))
+            .push(self.current_database_display());
+        if self.lore_database.is_some() {
+            col = col.push(self.view_selection_bar());
+            match self.selected_view {
+                ViewType::Entity => col = col.push(EntityView::new(&self.entity_view_state)),
+                ViewType::History => col = col.push(HistoryView::new(&self.history_view_state)),
+                ViewType::Relationship => {
+                    col = col.push(RelationshipView::new(&self.relationship_view_state))
+                }
             }
         }
         col.into()
@@ -111,5 +111,17 @@ impl SqlGui {
             .padding(5)
             .spacing(5)
             .into()
+    }
+
+    fn initialise(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
+        self.open_database(path)?;
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        self.entity_view_state.reset(db)?;
+        self.history_view_state.reset(db)?;
+        self.relationship_view_state.reset(db)?;
+        Ok(())
     }
 }
