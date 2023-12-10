@@ -1,3 +1,5 @@
+use lorecore::sql::relationships::EntityRelationship;
+
 use crate::db_col_view::state::DbColViewState;
 
 mod widget;
@@ -13,6 +15,7 @@ impl<'a> RelationshipView<'a> {
 }
 
 pub(super) struct RelationshipViewState {
+    relationships: Vec<EntityRelationship>,
     pub(super) parent_view_state: DbColViewState,
     pub(super) child_view_state: DbColViewState,
     pub(super) current_role: Option<String>,
@@ -21,6 +24,7 @@ pub(super) struct RelationshipViewState {
 impl RelationshipViewState {
     pub(super) fn new(parents: Vec<String>, children: Vec<String>) -> Self {
         Self {
+            relationships: vec![],
             parent_view_state: DbColViewState::new(parents),
             child_view_state: DbColViewState::new(children),
             current_role: None,
