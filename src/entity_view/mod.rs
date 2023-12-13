@@ -30,6 +30,36 @@ impl EntityViewState {
             current_description: None,
         }
     }
+
+    pub(super) fn get_labels(&self, search_text: Option<&str>) -> Vec<String> {
+        self.entity_columns
+            .iter()
+            .filter(|e| match search_text {
+                Some(ref search_text) => e.label.contains(search_text),
+                None => true,
+            })
+            .map(|col| col.label.clone())
+            .collect()
+    }
+
+    pub(super) fn get_descriptors(&self, label: &str, search_text: Option<&str>) -> Vec<String> {
+        self.entity_columns
+            .iter()
+            .filter(|e| e.label == label)
+            .filter(|e| match search_text {
+                Some(ref search_text) => e.descriptor.contains(search_text),
+                None => true,
+            })
+            .map(|col| col.descriptor.clone())
+            .collect()
+    }
+
+    pub(super) fn get_description(&self, label: &str, descriptor: &str) -> Option<String> {
+        self.entity_columns
+            .iter()
+            .find(|e| e.label == label && e.descriptor == descriptor)
+            .map(|col| col.description.clone())?
+    }
 }
 
 impl Default for EntityViewState {

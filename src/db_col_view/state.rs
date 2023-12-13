@@ -64,8 +64,12 @@ impl DbColViewState {
         self.search_text = text;
     }
 
-    pub(crate) fn get_search_text(&self) -> &str {
-        &self.search_text
+    pub(crate) fn get_search_text(&self) -> Option<&str> {
+        if self.search_text.is_empty() {
+            None
+        } else {
+            Some(&self.search_text)
+        }
     }
 }
 

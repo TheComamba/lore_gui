@@ -103,10 +103,9 @@ impl EntityViewState {
     }
 
     fn update_labels(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        self.label_view_state.set_entries(
-            db.get_entity_labels(self.label_view_state.get_sql_search_text())
-                .map_err(LoreGuiError::LoreCoreError)?,
-        );
+        let search_text = self.label_view_state.get_search_text();
+        self.label_view_state
+            .set_entries(self.get_labels(search_text));
         self.update_descriptors(db)?;
         Ok(())
     }
@@ -115,11 +114,9 @@ impl EntityViewState {
         let label = self.label_view_state.get_selected();
         match label {
             Some(label) => {
-                let search_text = self.descriptor_view_state.get_sql_search_text();
-                self.descriptor_view_state.set_entries(
-                    db.get_descriptors(&label, search_text)
-                        .map_err(LoreGuiError::LoreCoreError)?,
-                );
+                let search_text = self.descriptor_view_state.get_search_text();
+                self.descriptor_view_state
+                    .set_entries(self.get_descriptors(&label, search_text));
             }
             None => {
                 self.descriptor_view_state = DbColViewState::default();
@@ -146,9 +143,7 @@ impl EntityViewState {
             }
         };
 
-        self.current_description = db
-            .get_description(label, descriptor)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        self.current_description = self.get_description(label, descriptor);
 
         Ok(())
     }
