@@ -101,7 +101,7 @@ impl EntityViewState {
             Some(label) => {
                 let search_text = self.descriptor_view_state.get_search_text();
                 self.descriptor_view_state
-                    .set_entries(self.get_descriptors(&label, search_text));
+                    .set_entries(self.get_descriptors(label, search_text));
             }
             None => {
                 self.descriptor_view_state = DbColViewState::default();

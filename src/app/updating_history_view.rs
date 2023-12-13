@@ -121,16 +121,13 @@ impl HistoryViewState {
     fn update_timestamps(&mut self) {
         let year = self.year_view_state.get_selected_as().unwrap_or(None);
         let day = self.day_view_state.get_selected_as().unwrap_or(None);
-        match year {
-            Some(year) => {
-                self.timestamp_view_state.set_entries(
-                    self.get_timestamps(year, day)
-                        .iter()
-                        .map(|t| t.to_string())
-                        .collect(),
-                );
-            }
-            None => (),
+        if let Some(year) = year {
+            self.timestamp_view_state.set_entries(
+                self.get_timestamps(year, day)
+                    .iter()
+                    .map(|t| t.to_string())
+                    .collect(),
+            );
         }
         self.update_content();
     }
