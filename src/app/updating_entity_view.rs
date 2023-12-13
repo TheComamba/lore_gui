@@ -11,10 +11,6 @@ use crate::{
 
 impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self
-            .lore_database
-            .as_ref()
-            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
@@ -32,10 +28,6 @@ impl SqlGui {
     }
 
     pub(super) fn update_descriptor_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
-        let db = self
-            .lore_database
-            .as_ref()
-            .ok_or(LoreGuiError::NoDatabase)?;
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::New => {

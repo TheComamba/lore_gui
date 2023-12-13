@@ -36,7 +36,7 @@ impl SqlGui {
             GuiMes::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
             GuiMes::YearViewUpd(event) => self.update_year_view(event)?,
             GuiMes::DayViewUpd(event) => self.update_day_view(event)?,
-            GuiMes::HistoryTimestampViewUpd(event) => self.update_history_timestamp_view(event)?,
+            GuiMes::HistoryTimestampViewUpd(event) => self.update_timestamp_view(event)?,
             GuiMes::ParentViewUpd(event) => self.update_parent_view(event)?,
             GuiMes::ChildViewUpd(event) => self.update_child_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,
