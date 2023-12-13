@@ -44,14 +44,14 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
-                state.label_view_state.set_selected_none();
-                state.update_labels(db)?;
+                state.timestamp_view_state.set_selected_none();
+                state.update_timestamps(db)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_history_label_view(
+    pub(super) fn update_history_timestamp_view(
         &mut self,
         event: ColViewMes,
     ) -> Result<(), LoreGuiError> {
@@ -63,11 +63,11 @@ impl SqlGui {
         match event {
             ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
-                state.label_view_state.set_search_text(text);
-                state.update_labels(db)?;
+                state.timestamp_view_state.set_search_text(text);
+                state.update_timestamps(db)?;
             }
-            ColViewMes::Selected(_index, label) => {
-                state.label_view_state.set_selected(label);
+            ColViewMes::Selected(_index, timestamp) => {
+                state.timestamp_view_state.set_selected(timestamp);
                 state.update_content(db)?;
             }
         };
@@ -104,17 +104,12 @@ impl HistoryViewState {
     fn reset_selections(&mut self) {
         self.year_view_state.set_selected_none();
         self.day_view_state.set_selected_none();
-        self.label_view_state.set_selected_none();
+        self.timestamp_view_state.set_selected_none();
         self.current_content = String::new();
     }
 
     fn update_years(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let years = db
-            .get_all_years()
-            .map_err(LoreGuiError::LoreCoreError)?
-            .iter()
-            .map(|y| y.to_string())
-            .collect();
+        let years = self.get_all_years().iter().map(|y| y.to_string()).collect();
         self.year_view_state.set_entries(years);
         self.update_days(db)?;
         Ok(())
@@ -128,12 +123,11 @@ impl HistoryViewState {
     }
 
     fn update_days(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let year = self.year_view_state.get_selected_int()?;
+        let year = self.year_view_state.get_selected_as()?;
         match year {
             Some(year) => {
-                let days = db
+                let days = self
                     .get_days(year)
-                    .map_err(LoreGuiError::LoreCoreError)?
                     .iter()
                     .map(Self::optional_int_to_string)
                     .collect();
@@ -143,18 +137,20 @@ impl HistoryViewState {
                 self.day_view_state = DbColViewState::default();
             }
         }
-        self.update_labels(db)?;
+        self.update_timestamps(db)?;
         Ok(())
     }
 
-    fn update_labels(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let year = self.year_view_state.get_selected_int()?;
-        let day = self.day_view_state.get_selected_int()?;
+    fn update_timestamps(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+        let year = self.year_view_state.get_selected_as()?;
+        let day = self.day_view_state.get_selected_as()?;
         match year {
             Some(year) => {
-                self.label_view_state.set_entries(
-                    db.get_history_labels(year, day)
-                        .map_err(LoreGuiError::LoreCoreError)?,
+                self.timestamp_view_state.set_entries(
+                    self.get_timestamps(year, day)
+                        .iter()
+                        .map(|t| t.to_string())
+                        .collect(),
                 );
             }
             None => (),
@@ -164,16 +160,14 @@ impl HistoryViewState {
     }
 
     fn update_content(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let label = match self.label_view_state.get_selected() {
-            Some(label) => label,
+        let timestamp = match self.timestamp_view_state.get_selected_as()? {
+            Some(timestamp) => timestamp,
             None => {
                 self.current_content = "".to_string();
                 return Ok(());
             }
         };
-        self.current_content = db
-            .get_history_item_content(label)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        self.current_content = self.get_content(timestamp);
         Ok(())
     }
 }

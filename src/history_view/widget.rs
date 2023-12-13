@@ -33,11 +33,11 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
                 &self.state.day_view_state,
             ))
             .push(DbColView::new(
-                "Label",
+                "Timestamp",
                 true,
                 vec![],
-                GuiMes::HistoryLabelViewUpd,
-                &self.state.label_view_state,
+                GuiMes::HistoryTimestampViewUpd,
+                &self.state.timestamp_view_state,
             ))
             .push(
                 Column::new()

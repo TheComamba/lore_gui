@@ -18,10 +18,14 @@ impl DbColViewState {
         state
     }
 
-    pub(crate) fn get_selected_int(&self) -> Result<Option<i32>, LoreGuiError> {
+    pub(crate) fn get_selected_as<T>(&self) -> Result<Option<T>, LoreGuiError>
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Display,
+    {
         let year = match self.selected_entry.as_ref() {
             Some(year) => year
-                .parse::<i32>()
+                .parse::<T>()
                 .map_err(|e| LoreGuiError::InputError(e.to_string()))?,
             None => return Ok(None),
         };
