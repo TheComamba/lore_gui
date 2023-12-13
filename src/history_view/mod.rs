@@ -23,15 +23,18 @@ pub(super) struct HistoryViewState {
 }
 
 impl HistoryViewState {
-    pub(super) fn new(years: Vec<i32>) -> Self {
-        let years = years.iter().map(|y| y.to_string()).collect();
+    pub(super) fn new(history_items: Vec<HistoryItem>) -> Self {
         Self {
-            history_items: vec![],
-            year_view_state: DbColViewState::new(years),
+            history_items,
+            year_view_state: DbColViewState::default(),
             day_view_state: DbColViewState::default(),
             timestamp_view_state: DbColViewState::default(),
             current_content: String::new(),
         }
+    }
+
+    pub(super) fn set_history_items(&mut self, history_items: Vec<HistoryItem>) {
+        self.history_items = history_items;
     }
 
     pub(super) fn get_all_years(&self) -> Vec<i32> {

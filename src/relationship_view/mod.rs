@@ -22,13 +22,17 @@ pub(super) struct RelationshipViewState {
 }
 
 impl RelationshipViewState {
-    pub(super) fn new(parents: Vec<String>, children: Vec<String>) -> Self {
+    pub(super) fn new(relationships: Vec<EntityRelationship>) -> Self {
         Self {
-            relationships: vec![],
-            parent_view_state: DbColViewState::new(parents),
-            child_view_state: DbColViewState::new(children),
+            relationships,
+            parent_view_state: DbColViewState::default(),
+            child_view_state: DbColViewState::default(),
             current_role: None,
         }
+    }
+
+    pub(super) fn set_relationships(&mut self, relationships: Vec<EntityRelationship>) {
+        self.relationships = relationships;
     }
 
     pub(super) fn get_parents(
@@ -88,6 +92,6 @@ impl RelationshipViewState {
 
 impl Default for RelationshipViewState {
     fn default() -> Self {
-        Self::new(vec![], vec![])
+        Self::new(vec![])
     }
 }

@@ -4,7 +4,6 @@ use crate::{
     errors::LoreGuiError,
     history_view::HistoryViewState,
 };
-use lorecore::sql::lore_database::LoreDatabase;
 
 use super::SqlGui;
 
@@ -19,12 +18,12 @@ impl SqlGui {
             ColViewMes::New => self.dialog = Some(Box::new(NewHistoryDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.year_view_state.set_search_text(text);
-                state.update_years(db)?;
+                state.update_years();
             }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected_none();
-                state.update_days(db)?;
+                state.update_days();
             }
         };
         Ok(())
@@ -40,12 +39,12 @@ impl SqlGui {
             ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.day_view_state.set_search_text(text);
-                state.update_days(db)?;
+                state.update_days();
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
                 state.timestamp_view_state.set_selected_none();
-                state.update_timestamps(db)?;
+                state.update_timestamps();
             }
         };
         Ok(())
@@ -64,11 +63,11 @@ impl SqlGui {
             ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.timestamp_view_state.set_search_text(text);
-                state.update_timestamps(db)?;
+                state.update_timestamps();
             }
             ColViewMes::Selected(_index, timestamp) => {
                 state.timestamp_view_state.set_selected(timestamp);
-                state.update_content(db)?;
+                state.update_content();
             }
         };
         Ok(())
@@ -95,24 +94,18 @@ impl SqlGui {
 }
 
 impl HistoryViewState {
-    pub(super) fn reset(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        self.reset_selections();
-        self.update_years(db)?;
-        Ok(())
-    }
-
-    fn reset_selections(&mut self) {
+    pub(super) fn reset_selections(&mut self) {
         self.year_view_state.set_selected_none();
         self.day_view_state.set_selected_none();
         self.timestamp_view_state.set_selected_none();
         self.current_content = String::new();
+        self.update_years();
     }
 
-    fn update_years(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+    fn update_years(&mut self) {
         let years = self.get_all_years().iter().map(|y| y.to_string()).collect();
         self.year_view_state.set_entries(years);
-        self.update_days(db)?;
-        Ok(())
+        self.update_days();
     }
 
     fn optional_int_to_string(opt: &Option<i32>) -> String {
@@ -122,8 +115,8 @@ impl HistoryViewState {
         }
     }
 
-    fn update_days(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let year = self.year_view_state.get_selected_as()?;
+    fn update_days(&mut self) {
+        let year = self.year_view_state.get_selected_as().unwrap_or(None);
         match year {
             Some(year) => {
                 let days = self
@@ -137,13 +130,12 @@ impl HistoryViewState {
                 self.day_view_state = DbColViewState::default();
             }
         }
-        self.update_timestamps(db)?;
-        Ok(())
+        self.update_timestamps();
     }
 
-    fn update_timestamps(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let year = self.year_view_state.get_selected_as()?;
-        let day = self.day_view_state.get_selected_as()?;
+    fn update_timestamps(&mut self) {
+        let year = self.year_view_state.get_selected_as().unwrap_or(None);
+        let day = self.day_view_state.get_selected_as().unwrap_or(None);
         match year {
             Some(year) => {
                 self.timestamp_view_state.set_entries(
@@ -155,19 +147,17 @@ impl HistoryViewState {
             }
             None => (),
         }
-        self.update_content(db)?;
-        Ok(())
+        self.update_content();
     }
 
-    fn update_content(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        let timestamp = match self.timestamp_view_state.get_selected_as()? {
+    fn update_content(&mut self) {
+        let timestamp = match self.timestamp_view_state.get_selected_as().unwrap_or(None) {
             Some(timestamp) => timestamp,
             None => {
                 self.current_content = "".to_string();
-                return Ok(());
+                return;
             }
         };
         self.current_content = self.get_content(timestamp);
-        Ok(())
     }
 }

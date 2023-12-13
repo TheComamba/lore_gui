@@ -22,13 +22,17 @@ impl<'a> EntityView<'a> {
 }
 
 impl EntityViewState {
-    pub(super) fn new(labels: Vec<String>) -> Self {
+    pub(super) fn new(entity_columns: Vec<EntityColumn>) -> Self {
         Self {
-            entity_columns: vec![],
-            label_view_state: DbColViewState::new(labels),
+            entity_columns,
+            label_view_state: DbColViewState::default(),
             descriptor_view_state: DbColViewState::default(),
             current_description: None,
         }
+    }
+
+    pub(super) fn set_entity_columns(&mut self, entity_columns: Vec<EntityColumn>) {
+        self.entity_columns = entity_columns;
     }
 
     pub(super) fn get_labels(&self, search_text: Option<&str>) -> Vec<String> {

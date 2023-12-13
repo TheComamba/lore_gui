@@ -8,7 +8,6 @@ use crate::{
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
-use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
@@ -21,12 +20,12 @@ impl SqlGui {
             ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.label_view_state.set_search_text(text);
-                state.update_labels(db)?;
+                state.update_labels();
             }
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
                 state.descriptor_view_state.set_selected_none();
-                state.update_descriptors(db)?;
+                state.update_descriptors();
             }
         };
         Ok(())
@@ -49,11 +48,11 @@ impl SqlGui {
             }
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
-                state.update_descriptors(db)?;
+                state.update_descriptors();
             }
             ColViewMes::Selected(_index, descriptor) => {
                 state.descriptor_view_state.set_selected(descriptor);
-                state.update_description(db)?;
+                state.update_description();
             }
         };
         Ok(())
@@ -90,27 +89,21 @@ impl SqlGui {
 }
 
 impl EntityViewState {
-    pub(super) fn reset(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        self.reset_selections();
-        self.update_labels(db)?;
-        Ok(())
-    }
-
-    fn reset_selections(&mut self) {
+    pub(super) fn reset_selections(&mut self) {
         self.label_view_state.set_selected_none();
         self.descriptor_view_state.set_selected_none();
         self.current_description = None;
+        self.update_labels();
     }
 
-    fn update_labels(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+    fn update_labels(&mut self) {
         let search_text = self.label_view_state.get_search_text();
         self.label_view_state
             .set_entries(self.get_labels(search_text));
-        self.update_descriptors(db)?;
-        Ok(())
+        self.update_descriptors();
     }
 
-    fn update_descriptors(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+    fn update_descriptors(&mut self) {
         let label = self.label_view_state.get_selected();
         match label {
             Some(label) => {
@@ -123,28 +116,25 @@ impl EntityViewState {
             }
         }
 
-        self.update_description(db)?;
-        Ok(())
+        self.update_description();
     }
 
-    fn update_description(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+    fn update_description(&mut self) {
         let label = match self.label_view_state.get_selected() {
             Some(label) => label,
             None => {
                 self.current_description = None;
-                return Ok(());
+                return;
             }
         };
         let descriptor = match self.descriptor_view_state.get_selected() {
             Some(descriptor) => descriptor,
             None => {
                 self.current_description = None;
-                return Ok(());
+                return;
             }
         };
 
         self.current_description = self.get_description(label, descriptor);
-
-        Ok(())
     }
 }
