@@ -64,19 +64,17 @@ impl RelationshipViewState {
 
     fn update_parents(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let child = self.child_view_state.get_selected();
-        self.parent_view_state.set_entries(
-            db.get_parents(&child.as_ref())
-                .map_err(LoreGuiError::LoreCoreError)?,
-        );
+        let search_text = self.parent_view_state.get_search_text();
+        self.parent_view_state
+            .set_entries(self.get_parents(child.as_deref(), search_text));
         Ok(())
     }
 
     fn update_children(&mut self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let parent = self.parent_view_state.get_selected();
-        self.child_view_state.set_entries(
-            db.get_children(&parent.as_ref())
-                .map_err(LoreGuiError::LoreCoreError)?,
-        );
+        let search_text = self.child_view_state.get_search_text();
+        self.child_view_state
+            .set_entries(self.get_children(parent.as_deref(), search_text));
         Ok(())
     }
 
@@ -95,9 +93,7 @@ impl RelationshipViewState {
                 return Ok(());
             }
         };
-        self.current_role = db
-            .get_relationship_role(parent, child)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        self.current_role = self.get_role(parent, child);
         Ok(())
     }
 }
