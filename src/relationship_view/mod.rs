@@ -35,29 +35,6 @@ impl RelationshipViewState {
         self.relationships = relationships;
     }
 
-    pub(super) fn get_children(
-        &self,
-        parent: Option<&str>,
-        search_text: Option<&str>,
-    ) -> Vec<String> {
-        let mut children: Vec<String> = self
-            .relationships
-            .iter()
-            .filter(|e| match parent {
-                Some(parent) => e.parent == parent,
-                None => true,
-            })
-            .filter(|e| match search_text {
-                Some(ref search_text) => e.child.contains(search_text),
-                None => true,
-            })
-            .map(|rel| rel.child.clone())
-            .collect();
-        children.sort();
-        children.dedup();
-        children
-    }
-
     pub(super) fn get_role(&self, parent: &str, child: &str) -> Option<String> {
         self.relationships
             .iter()
