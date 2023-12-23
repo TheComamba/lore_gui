@@ -17,7 +17,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, parent) => {
                 state.parent_view_state.set_selected(parent);
                 state.update_children(&self.lore_database)?;
-                state.update_role();
+                state.update_role(&self.lore_database)?;
             }
         };
         Ok(())
@@ -34,7 +34,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, child) => {
                 state.child_view_state.set_selected(child);
                 state.update_parents(&self.lore_database)?;
-                state.update_role();
+                state.update_role(&self.lore_database)?;
             }
         };
         Ok(())
@@ -104,21 +104,40 @@ impl RelationshipViewState {
         Ok(children)
     }
 
-    fn update_role(&mut self) {
+    fn update_role(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        self.current_role = self.get_role(db)?;
+        Ok(())
+    }
+
+    fn get_role(&self, db: &Option<LoreDatabase>) -> Result<Option<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(None),
+        };
         let parent = match self.parent_view_state.get_selected() {
             Some(parent) => parent,
-            None => {
-                self.current_role = None;
-                return;
-            }
+            None => return Ok(None),
         };
         let child = match self.child_view_state.get_selected() {
             Some(child) => child,
-            None => {
-                self.current_role = None;
-                return;
-            }
+            None => return Ok(None),
         };
-        self.current_role = self.get_role(parent, child);
+        let search_params = RelationshipSearchParams::new(
+            Some((parent.as_str(), true)),
+            Some((child.as_str(), true)),
+        );
+        let relationships = db
+            .get_relationships(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        if relationships.len() > 1 {
+            return Err(LoreGuiError::InputError(
+                "Multiple relationships found".to_string(),
+            ));
+        }
+        let role = match relationships.first() {
+            Some(relationship) => relationship.role.clone(),
+            None => None,
+        };
+        Ok(role)
     }
 }

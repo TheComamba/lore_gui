@@ -34,14 +34,6 @@ impl RelationshipViewState {
     pub(super) fn set_relationships(&mut self, relationships: Vec<EntityRelationship>) {
         self.relationships = relationships;
     }
-
-    pub(super) fn get_role(&self, parent: &str, child: &str) -> Option<String> {
-        self.relationships
-            .iter()
-            .find(|e| e.parent == parent && e.child == child)
-            .map(|rel| rel.role.clone())
-            .unwrap_or(None)
-    }
 }
 
 impl Default for RelationshipViewState {
