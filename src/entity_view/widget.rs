@@ -23,14 +23,12 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Label",
-                true,
                 self.label_button_infos(),
                 GuiMes::EntityLabelViewUpd,
                 &self.state.label_view_state,
             ))
             .push(DbColView::new(
                 "Descriptor",
-                true,
                 self.descriptor_button_infos(),
                 GuiMes::DescriptorViewUpd,
                 &self.state.descriptor_view_state,

@@ -1,7 +1,7 @@
 use lorecore::sql::{lore_database::LoreDatabase, search_text::HistoryItemSearchParams};
 
 use crate::{
-    db_col_view::{state::DbColViewState, ColViewMes},
+    db_col_view::ColViewMes,
     dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
     errors::LoreGuiError,
     history_view::HistoryViewState,
@@ -21,7 +21,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected_none();
-                state.update_days();
+                state.update_days(&self.lore_database)?;
             }
         };
         Ok(())
@@ -33,7 +33,7 @@ impl SqlGui {
             ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.day_view_state.set_search_text(text);
-                state.update_days();
+                state.update_days(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
@@ -94,20 +94,27 @@ impl HistoryViewState {
     }
 
     fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let years = if let Some(db) = db {
-            let years = db
-                .get_history_items(HistoryItemSearchParams::empty())
-                .map_err(LoreGuiError::LoreCoreError)?;
-            years
-                .iter()
-                .map(|item| item.year.to_string())
-                .collect::<Vec<String>>()
-        } else {
-            vec![]
-        };
+        let years = self.get_years(db)?;
         self.year_view_state.set_entries(years);
-        self.update_days();
+        self.update_days(db)?;
         Ok(())
+    }
+
+    fn get_years(&self, db: &Option<LoreDatabase>) -> Result<Vec<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let search_int = self.year_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(search_int, None);
+        let history_items = db
+            .get_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let years = history_items
+            .iter()
+            .map(|item| item.year.to_string())
+            .collect::<Vec<String>>();
+        Ok(years)
     }
 
     fn optional_int_to_string(opt: &Option<i32>) -> String {
@@ -117,22 +124,37 @@ impl HistoryViewState {
         }
     }
 
-    fn update_days(&mut self) {
-        let year = self.year_view_state.get_selected_as().unwrap_or(None);
-        match year {
-            Some(year) => {
-                let days = self
-                    .get_days(year)
-                    .iter()
-                    .map(Self::optional_int_to_string)
-                    .collect();
-                self.day_view_state.set_entries(days);
-            }
-            None => {
-                self.day_view_state = DbColViewState::default();
-            }
-        }
+    fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        let days = self
+            .get_days(db)?
+            .iter()
+            .map(Self::optional_int_to_string)
+            .collect::<Vec<String>>();
+        self.day_view_state.set_entries(days);
         self.update_timestamps();
+        Ok(())
+    }
+
+    fn get_days(&self, db: &Option<LoreDatabase>) -> Result<Vec<Option<i32>>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let year = match self.year_view_state.get_selected_as().unwrap_or(None) {
+            Some(year) => Some(year),
+            None => return Ok(vec![]),
+        };
+
+        let search_int = self.day_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(year, search_int);
+        let history_items = db
+            .get_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let days = history_items
+            .iter()
+            .map(|item| item.day)
+            .collect::<Vec<Option<i32>>>();
+        Ok(days)
     }
 
     fn update_timestamps(&mut self) {

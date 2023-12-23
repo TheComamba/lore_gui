@@ -19,14 +19,12 @@ impl<'a> Component<GuiMes, Renderer> for RelationshipView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Parent",
-                true,
                 vec![],
                 GuiMes::ParentViewUpd,
                 &self.state.parent_view_state,
             ))
             .push(DbColView::new(
                 "Child",
-                true,
                 vec![],
                 GuiMes::ChildViewUpd,
                 &self.state.child_view_state,

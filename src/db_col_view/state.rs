@@ -72,6 +72,16 @@ impl DbColViewState {
             Some(&self.search_text)
         }
     }
+
+    pub(crate) fn get_search_int(&self) -> Result<Option<i32>, LoreGuiError> {
+        let search_text = self.get_search_text().map(|t| t.parse::<i32>());
+        let search_int = match search_text {
+            Some(Ok(i)) => Some(i),
+            Some(Err(e)) => return Err(LoreGuiError::InputError(e.to_string())),
+            None => None,
+        };
+        Ok(search_int)
+    }
 }
 
 impl Default for DbColViewState {

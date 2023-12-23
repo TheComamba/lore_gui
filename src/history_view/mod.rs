@@ -37,18 +37,6 @@ impl HistoryViewState {
         self.history_items = history_items;
     }
 
-    pub(super) fn get_days(&self, year: i32) -> Vec<Option<i32>> {
-        let mut days: Vec<Option<i32>> = self
-            .history_items
-            .iter()
-            .filter(|item| item.year == year)
-            .map(|item| item.day)
-            .collect();
-        days.sort();
-        days.dedup();
-        days
-    }
-
     pub(super) fn get_timestamps(&self, year: i32, day: Option<i32>) -> Vec<i64> {
         let mut timestamps: Vec<i64> = self
             .history_items
