@@ -37,19 +37,6 @@ impl HistoryViewState {
         self.history_items = history_items;
     }
 
-    pub(super) fn get_timestamps(&self, year: i32, day: Option<i32>) -> Vec<i64> {
-        let mut timestamps: Vec<i64> = self
-            .history_items
-            .iter()
-            .filter(|item| item.year == year)
-            .filter(|item| item.day == day)
-            .map(|item| item.timestamp)
-            .collect();
-        timestamps.sort();
-        timestamps.dedup();
-        timestamps
-    }
-
     pub(super) fn get_content(&self, timestamp: i64) -> String {
         self.history_items
             .iter()
