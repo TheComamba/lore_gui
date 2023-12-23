@@ -24,7 +24,8 @@ impl SqlGui {
             .get_history_items(HistoryItemSearchParams::empty())
             .map_err(LoreGuiError::LoreCoreError)?;
         self.history_view_state.set_history_items(history_items);
-        self.history_view_state.reset_selections();
+        self.history_view_state
+            .reset_selections(&self.lore_database)?;
 
         let relationships = db
             .get_relationships(RelationshipSearchParams::empty())

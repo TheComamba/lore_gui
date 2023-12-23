@@ -1,3 +1,5 @@
+use lorecore::sql::{lore_database::LoreDatabase, search_text::HistoryItemSearchParams};
+
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
     dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
@@ -14,7 +16,7 @@ impl SqlGui {
             ColViewMes::New => self.dialog = Some(Box::new(NewHistoryDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.year_view_state.set_search_text(text);
-                state.update_years();
+                state.update_years(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
@@ -79,18 +81,33 @@ impl SqlGui {
 }
 
 impl HistoryViewState {
-    pub(super) fn reset_selections(&mut self) {
+    pub(super) fn reset_selections(
+        &mut self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<(), LoreGuiError> {
         self.year_view_state.set_selected_none();
         self.day_view_state.set_selected_none();
         self.timestamp_view_state.set_selected_none();
         self.current_content = String::new();
-        self.update_years();
+        self.update_years(db)?;
+        Ok(())
     }
 
-    fn update_years(&mut self) {
-        let years = self.get_all_years().iter().map(|y| y.to_string()).collect();
+    fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        let years = if let Some(db) = db {
+            let years = db
+                .get_history_items(HistoryItemSearchParams::empty())
+                .map_err(LoreGuiError::LoreCoreError)?;
+            years
+                .iter()
+                .map(|item| item.year.to_string())
+                .collect::<Vec<String>>()
+        } else {
+            vec![]
+        };
         self.year_view_state.set_entries(years);
         self.update_days();
+        Ok(())
     }
 
     fn optional_int_to_string(opt: &Option<i32>) -> String {

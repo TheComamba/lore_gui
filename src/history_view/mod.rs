@@ -37,13 +37,6 @@ impl HistoryViewState {
         self.history_items = history_items;
     }
 
-    pub(super) fn get_all_years(&self) -> Vec<i32> {
-        let mut years: Vec<i32> = self.history_items.iter().map(|item| item.year).collect();
-        years.sort();
-        years.dedup();
-        years
-    }
-
     pub(super) fn get_days(&self, year: i32) -> Vec<Option<i32>> {
         let mut days: Vec<Option<i32>> = self
             .history_items
