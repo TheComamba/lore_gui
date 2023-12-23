@@ -49,7 +49,7 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, descriptor) => {
                 state.descriptor_view_state.set_selected(descriptor);
-                state.update_description();
+                state.update_description(&self.lore_database)?;
             }
         };
         Ok(())
@@ -116,7 +116,7 @@ impl EntityViewState {
     fn update_descriptors(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let descriptors = self.get_descriptors(db)?;
         self.descriptor_view_state.set_entries(descriptors);
-        self.update_description();
+        self.update_description(db)?;
         Ok(())
     }
 
@@ -142,22 +142,40 @@ impl EntityViewState {
         Ok(descriptors)
     }
 
-    fn update_description(&mut self) {
+    fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        self.current_description = self.get_description(db)?;
+        Ok(())
+    }
+
+    fn get_description(&self, db: &Option<LoreDatabase>) -> Result<Option<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(None),
+        };
         let label = match self.label_view_state.get_selected() {
-            Some(label) => label,
-            None => {
-                self.current_description = None;
-                return;
-            }
+            Some(label) => Some((label.as_str(), true)),
+            None => return Ok(None),
         };
         let descriptor = match self.descriptor_view_state.get_selected() {
-            Some(descriptor) => descriptor,
-            None => {
-                self.current_description = None;
-                return;
-            }
+            Some(descriptor) => Some((descriptor.as_str(), true)),
+            None => return Ok(None),
         };
 
-        self.current_description = self.get_description(label, descriptor);
+        let search_params = EntityColumnSearchParams::new(label, descriptor);
+        let entity_columns = db
+            .get_entity_columns(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+
+        if entity_columns.len() > 1 {
+            return Err(LoreGuiError::InputError(
+                "More than one entity column found for label and descriptor.".to_string(),
+            ));
+        }
+
+        let description = entity_columns
+            .first()
+            .and_then(|col| col.description.clone());
+
+        Ok(description)
     }
 }

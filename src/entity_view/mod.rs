@@ -34,13 +34,6 @@ impl EntityViewState {
     pub(super) fn set_entity_columns(&mut self, entity_columns: Vec<EntityColumn>) {
         self.entity_columns = entity_columns;
     }
-
-    pub(super) fn get_description(&self, label: &str, descriptor: &str) -> Option<String> {
-        self.entity_columns
-            .iter()
-            .find(|e| e.label == label && e.descriptor == descriptor)
-            .map(|col| col.description.clone())?
-    }
 }
 
 impl Default for EntityViewState {
