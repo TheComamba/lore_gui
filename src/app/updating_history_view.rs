@@ -54,7 +54,7 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, timestamp) => {
                 state.timestamp_view_state.set_selected(timestamp);
-                state.update_content();
+                state.update_content(&self.lore_database)?;
             }
         };
         Ok(())
@@ -164,7 +164,7 @@ impl HistoryViewState {
             .map(|t| t.to_string())
             .collect::<Vec<String>>();
         self.timestamp_view_state.set_entries(timestamps);
-        self.update_content();
+        self.update_content(db)?;
         Ok(())
     }
 
@@ -190,14 +190,26 @@ impl HistoryViewState {
         Ok(timestamps)
     }
 
-    fn update_content(&mut self) {
-        let timestamp = match self.timestamp_view_state.get_selected_as().unwrap_or(None) {
-            Some(timestamp) => timestamp,
-            None => {
-                self.current_content = "".to_string();
-                return;
-            }
+    fn update_content(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        self.current_content = self.get_content(db)?;
+        Ok(())
+    }
+
+    fn get_content(&self, db: &Option<LoreDatabase>) -> Result<String, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(String::new()),
         };
-        self.current_content = self.get_content(timestamp);
+        let timestamp = match self.timestamp_view_state.get_selected() {
+            Some(timestamp) => timestamp,
+            None => return Ok(String::new()),
+        };
+
+        let search_params = HistoryItemSearchParams::new(None, None, timestamp);
+        let history_items = db
+            .get_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let content = history_items.iter().map(|item| item.content.clone());
+        Ok(content)
     }
 }
