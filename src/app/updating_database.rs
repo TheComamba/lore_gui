@@ -17,7 +17,8 @@ impl SqlGui {
             .get_entity_columns(EntityColumnSearchParams::empty())
             .map_err(LoreGuiError::LoreCoreError)?;
         self.entity_view_state.set_entity_columns(entity_columns);
-        self.entity_view_state.reset_selections();
+        self.entity_view_state
+            .reset_selections(&self.lore_database)?;
 
         let history_items = db
             .get_history_items(HistoryItemSearchParams::empty())

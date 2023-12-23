@@ -35,21 +35,6 @@ impl EntityViewState {
         self.entity_columns = entity_columns;
     }
 
-    pub(super) fn get_labels(&self, search_text: Option<&str>) -> Vec<String> {
-        let mut labels: Vec<String> = self
-            .entity_columns
-            .iter()
-            .filter(|e| match search_text {
-                Some(ref search_text) => e.label.contains(search_text),
-                None => true,
-            })
-            .map(|col| col.label.clone())
-            .collect();
-        labels.sort();
-        labels.dedup();
-        labels
-    }
-
     pub(super) fn get_descriptors(&self, label: &str, search_text: Option<&str>) -> Vec<String> {
         let mut descriptors: Vec<String> = self
             .entity_columns

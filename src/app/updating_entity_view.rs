@@ -8,6 +8,9 @@ use crate::{
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
+use lorecore::sql::{
+    entity::get_labels, lore_database::LoreDatabase, search_text::EntityColumnSearchParams,
+};
 
 impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
@@ -16,7 +19,7 @@ impl SqlGui {
             ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.label_view_state.set_search_text(text);
-                state.update_labels();
+                state.update_labels(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
@@ -81,18 +84,31 @@ impl SqlGui {
 }
 
 impl EntityViewState {
-    pub(super) fn reset_selections(&mut self) {
+    pub(super) fn reset_selections(
+        &mut self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<(), LoreGuiError> {
         self.label_view_state.set_selected_none();
         self.descriptor_view_state.set_selected_none();
         self.current_description = None;
-        self.update_labels();
+        self.update_labels(db)?;
+        Ok(())
     }
 
-    fn update_labels(&mut self) {
-        let search_text = self.label_view_state.get_search_text();
-        self.label_view_state
-            .set_entries(self.get_labels(search_text));
+    fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        let labels = if let Some(db) = db {
+            let search_text = self.label_view_state.get_search_text().map(|t| (t, false));
+            let search_params = EntityColumnSearchParams::new(search_text, None);
+            let entity_columns = db
+                .get_entity_columns(search_params)
+                .map_err(LoreGuiError::LoreCoreError)?;
+            get_labels(&entity_columns)
+        } else {
+            vec![]
+        };
+        self.label_view_state.set_entries(labels);
         self.update_descriptors();
+        Ok(())
     }
 
     fn update_descriptors(&mut self) {
