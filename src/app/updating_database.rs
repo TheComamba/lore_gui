@@ -32,7 +32,8 @@ impl SqlGui {
             .map_err(LoreGuiError::LoreCoreError)?;
         self.relationship_view_state
             .set_relationships(relationships);
-        self.relationship_view_state.reset_selections();
+        self.relationship_view_state
+            .reset_selections(&self.lore_database)?;
         Ok(())
     }
 
