@@ -1,6 +1,6 @@
 use super::SqlGui;
 use crate::{
-    db_col_view::{state::DbColViewState, ColViewMes},
+    db_col_view::ColViewMes,
     dialog::{
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
@@ -9,7 +9,9 @@ use crate::{
     errors::LoreGuiError,
 };
 use lorecore::sql::{
-    entity::get_labels, lore_database::LoreDatabase, search_text::EntityColumnSearchParams,
+    entity::{get_descriptors, get_labels},
+    lore_database::LoreDatabase,
+    search_text::EntityColumnSearchParams,
 };
 
 impl SqlGui {
@@ -24,7 +26,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
                 state.descriptor_view_state.set_selected_none();
-                state.update_descriptors();
+                state.update_descriptors(&self.lore_database)?;
             }
         };
         Ok(())
@@ -43,7 +45,7 @@ impl SqlGui {
             }
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
-                state.update_descriptors();
+                state.update_descriptors(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, descriptor) => {
                 state.descriptor_view_state.set_selected(descriptor);
@@ -107,24 +109,37 @@ impl EntityViewState {
             vec![]
         };
         self.label_view_state.set_entries(labels);
-        self.update_descriptors();
+        self.update_descriptors(db)?;
         Ok(())
     }
 
-    fn update_descriptors(&mut self) {
-        let label = self.label_view_state.get_selected();
-        match label {
-            Some(label) => {
-                let search_text = self.descriptor_view_state.get_search_text();
-                self.descriptor_view_state
-                    .set_entries(self.get_descriptors(label, search_text));
-            }
-            None => {
-                self.descriptor_view_state = DbColViewState::default();
-            }
-        }
-
+    fn update_descriptors(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+        let descriptors = self.get_descriptors(db)?;
+        self.descriptor_view_state.set_entries(descriptors);
         self.update_description();
+        Ok(())
+    }
+
+    fn get_descriptors(&mut self, db: &Option<LoreDatabase>) -> Result<Vec<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let label = match self.label_view_state.get_selected() {
+            Some(label) => Some((label.as_str(), true)),
+            None => return Ok(vec![]),
+        };
+
+        let search_text = self
+            .descriptor_view_state
+            .get_search_text()
+            .map(|t| (t, false));
+        let search_params = EntityColumnSearchParams::new(label, search_text);
+        let entity_columns = db
+            .get_entity_columns(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let descriptors = get_descriptors(&entity_columns);
+        Ok(descriptors)
     }
 
     fn update_description(&mut self) {

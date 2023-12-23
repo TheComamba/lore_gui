@@ -33,9 +33,6 @@ impl DbColViewState {
     }
 
     pub(crate) fn set_entries(&mut self, mut entries: Vec<String>) {
-        if entries.is_empty() {
-            return;
-        }
         if !entries.contains(&String::new()) {
             entries.push(String::new());
         }
