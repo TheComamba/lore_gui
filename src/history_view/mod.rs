@@ -1,4 +1,10 @@
 use super::db_col_view::state::DbColViewState;
+use crate::errors::LoreGuiError;
+use lorecore::sql::{
+    history::{extract_days, extract_years},
+    lore_database::LoreDatabase,
+    search_params::HistoryItemSearchParams,
+};
 
 mod widget;
 
@@ -15,24 +21,114 @@ impl<'a> HistoryView<'a> {
 pub(super) struct HistoryViewState {
     pub(super) year_view_state: DbColViewState,
     pub(super) day_view_state: DbColViewState,
-    pub(super) label_view_state: DbColViewState,
+    pub(super) timestamp_view_state: DbColViewState,
     pub(super) current_content: String,
 }
 
 impl HistoryViewState {
-    pub(super) fn new(years: Vec<i32>) -> Self {
-        let years = years.iter().map(|y| y.to_string()).collect();
+    pub(super) fn new() -> Self {
         Self {
-            year_view_state: DbColViewState::new(years),
+            year_view_state: DbColViewState::default(),
             day_view_state: DbColViewState::default(),
-            label_view_state: DbColViewState::default(),
+            timestamp_view_state: DbColViewState::default(),
             current_content: String::new(),
         }
+    }
+
+    pub(super) fn get_current_years(
+        &self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<Vec<i32>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let year = self.year_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(year, None, None, None);
+        let history_items = db
+            .read_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let years = extract_years(&history_items);
+        Ok(years)
+    }
+
+    pub(super) fn get_current_days(
+        &self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<Vec<Option<i32>>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let year = match self.year_view_state.get_selected_as().unwrap_or(None) {
+            Some(year) => Some(year),
+            None => return Ok(vec![]),
+        };
+
+        let day = self.day_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(year, day, None, None);
+        let history_items = db
+            .read_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let days = extract_days(&history_items);
+        Ok(days)
+    }
+
+    pub(super) fn get_current_timestamps(
+        &self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<Vec<i64>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let year = match self.year_view_state.get_selected_as().unwrap_or(None) {
+            Some(year) => Some(year),
+            None => return Ok(vec![]),
+        };
+        let day = self.day_view_state.get_selected_as().unwrap_or(None);
+
+        let search_params = HistoryItemSearchParams::new(year, day, None, None);
+        let history_items = db
+            .read_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        let timestamps = history_items
+            .iter()
+            .map(|item| item.timestamp)
+            .collect::<Vec<i64>>();
+        Ok(timestamps)
+    }
+
+    pub(super) fn get_current_content(
+        &self,
+        db: &Option<LoreDatabase>,
+    ) -> Result<String, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(String::new()),
+        };
+        let timestamp = match self.timestamp_view_state.get_selected_as().unwrap_or(None) {
+            Some(timestamp) => timestamp,
+            None => return Ok(String::new()),
+        };
+
+        let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp), None);
+        let history_items = db
+            .read_history_items(search_params)
+            .map_err(LoreGuiError::LoreCoreError)?;
+        if history_items.len() > 1 {
+            return Err(LoreGuiError::MultipleResults);
+        }
+        let content = match history_items.first() {
+            Some(item) => item.content.clone(),
+            None => String::new(),
+        };
+        Ok(content)
     }
 }
 
 impl Default for HistoryViewState {
     fn default() -> Self {
-        Self::new(vec![])
+        Self::new()
     }
 }

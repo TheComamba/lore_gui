@@ -35,11 +35,11 @@ pub(crate) struct NewHistoryData {
 impl NewHistoryData {
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let item = HistoryItem {
+            timestamp: lorecore::timestamp::current_timestamp(),
             year: self.year,
             day: self.day,
             content: self.content,
             properties: self.properties,
-            label: "Dayumn I forgot about the label!".to_string(),
         };
         db.write_history_items(vec![item])
             .map_err(LoreGuiError::LoreCoreError)?;

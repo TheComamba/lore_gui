@@ -1,5 +1,3 @@
-use lorecore::sql::search_text::SqlSearchText;
-
 use crate::errors::LoreGuiError;
 
 #[derive(Debug, Clone)]
@@ -20,10 +18,14 @@ impl DbColViewState {
         state
     }
 
-    pub(crate) fn get_selected_int(&self) -> Result<Option<i32>, LoreGuiError> {
+    pub(crate) fn get_selected_as<T>(&self) -> Result<Option<T>, LoreGuiError>
+    where
+        T: std::str::FromStr,
+        <T as std::str::FromStr>::Err: std::fmt::Display,
+    {
         let year = match self.selected_entry.as_ref() {
             Some(year) => year
-                .parse::<i32>()
+                .parse::<T>()
                 .map_err(|e| LoreGuiError::InputError(e.to_string()))?,
             None => return Ok(None),
         };
@@ -31,14 +33,9 @@ impl DbColViewState {
     }
 
     pub(crate) fn set_entries(&mut self, mut entries: Vec<String>) {
-        if entries.is_empty() {
-            return;
-        }
         if !entries.contains(&String::new()) {
-            entries.push(String::new());
+            entries.insert(0, String::new());
         }
-        entries.sort();
-        entries.dedup();
         self.entries = entries;
     }
 
@@ -66,12 +63,22 @@ impl DbColViewState {
         self.search_text = text;
     }
 
-    pub(crate) fn get_search_text(&self) -> &str {
-        &self.search_text
+    pub(crate) fn get_search_text(&self) -> Option<&str> {
+        if self.search_text.is_empty() {
+            None
+        } else {
+            Some(&self.search_text)
+        }
     }
 
-    pub(crate) fn get_sql_search_text(&self) -> SqlSearchText {
-        SqlSearchText::new(&self.search_text)
+    pub(crate) fn get_search_int(&self) -> Result<Option<i32>, LoreGuiError> {
+        let search_text = self.get_search_text().map(|t| t.parse::<i32>());
+        let search_int = match search_text {
+            Some(Ok(i)) => Some(i),
+            Some(Err(e)) => return Err(LoreGuiError::InputError(e.to_string())),
+            None => None,
+        };
+        Ok(search_int)
     }
 }
 

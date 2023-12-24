@@ -4,14 +4,13 @@ use lorecore::sql::lore_database::LoreDatabase;
 use std::path::PathBuf;
 
 impl SqlGui {
-    fn update_database_derived_data(&mut self) -> Result<(), LoreGuiError> {
-        let db = self
-            .lore_database
-            .as_ref()
-            .ok_or(LoreGuiError::NoDatabase)?;
-        self.entity_view_state.reset(db)?;
-        self.history_view_state.reset(db)?;
-        self.relationship_view_state.reset(db)?;
+    pub(super) fn update_database_derived_data(&mut self) -> Result<(), LoreGuiError> {
+        self.entity_view_state
+            .reset_selections(&self.lore_database)?;
+        self.history_view_state
+            .reset_selections(&self.lore_database)?;
+        self.relationship_view_state
+            .reset_selections(&self.lore_database)?;
         Ok(())
     }
 
