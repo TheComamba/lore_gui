@@ -102,9 +102,7 @@ impl EntityViewState {
             .map_err(LoreGuiError::LoreCoreError)?;
 
         if entity_columns.len() > 1 {
-            return Err(LoreGuiError::InputError(
-                "More than one entity column found for label and descriptor.".to_string(),
-            ));
+            return Err(LoreGuiError::MultipleResults);
         }
 
         let description = entity_columns

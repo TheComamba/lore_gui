@@ -5,6 +5,7 @@ pub enum LoreGuiError {
     FileError(String),
     InputError(String),
     NoDatabase,
+    MultipleResults,
     LoreCoreError(LoreCoreError),
 }
 

@@ -119,9 +119,7 @@ impl HistoryViewState {
             .get_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
         if history_items.len() > 1 {
-            return Err(LoreGuiError::InputError(
-                "Multiple history items found".to_string(),
-            ));
+            return Err(LoreGuiError::MultipleResults);
         }
         let content = match history_items.first() {
             Some(item) => item.content.clone(),

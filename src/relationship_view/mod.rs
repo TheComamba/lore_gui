@@ -105,9 +105,7 @@ impl RelationshipViewState {
             .get_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
         if relationships.len() > 1 {
-            return Err(LoreGuiError::InputError(
-                "Multiple relationships found".to_string(),
-            ));
+            return Err(LoreGuiError::MultipleResults);
         }
         let role = match relationships.first() {
             Some(relationship) => relationship.role.clone(),
