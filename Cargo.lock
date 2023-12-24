@@ -1456,7 +1456,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 [[package]]
 name = "lorecore"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/LoreCore.git?branch=dev/join-functions-for-database-access#eab0a338e95b773a49030c70ba03b39f403df834"
+source = "git+https://github.com/TheComamba/LoreCore.git?branch=dev/join-functions-for-database-access#9ac81959522a1978cd469a7deccd313e5e3dfff9"
 dependencies = [
  "cbindgen",
  "diesel",

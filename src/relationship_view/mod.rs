@@ -1,6 +1,7 @@
 use crate::{db_col_view::state::DbColViewState, errors::LoreGuiError};
 use lorecore::sql::{
     lore_database::LoreDatabase,
+    relationships::{extract_children, extract_parents},
     search_params::{RelationshipSearchParams, SqlSearchText},
 };
 
@@ -50,9 +51,9 @@ impl RelationshipViewState {
             .map(|t| SqlSearchText::partial(t));
         let search_params = RelationshipSearchParams::new(parent_search_text, child);
         let relationships = db
-            .get_relationships(search_params)
+            .read_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let parents = relationships.iter().map(|rel| rel.parent.clone()).collect();
+        let parents = extract_parents(&relationships);
         Ok(parents)
     }
 
@@ -75,9 +76,9 @@ impl RelationshipViewState {
             .map(|t| SqlSearchText::partial(t));
         let search_params = RelationshipSearchParams::new(parent, child_search_text);
         let relationships = db
-            .get_relationships(search_params)
+            .read_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let children = relationships.iter().map(|rel| rel.child.clone()).collect();
+        let children = extract_children(&relationships);
         Ok(children)
     }
 
@@ -102,7 +103,7 @@ impl RelationshipViewState {
             Some(SqlSearchText::exact(child.as_str())),
         );
         let relationships = db
-            .get_relationships(search_params)
+            .read_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
         if relationships.len() > 1 {
             return Err(LoreGuiError::MultipleResults);

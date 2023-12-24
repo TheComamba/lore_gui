@@ -1,6 +1,10 @@
 use super::db_col_view::state::DbColViewState;
 use crate::errors::LoreGuiError;
-use lorecore::sql::{lore_database::LoreDatabase, search_params::HistoryItemSearchParams};
+use lorecore::sql::{
+    history::{extract_days, extract_years},
+    lore_database::LoreDatabase,
+    search_params::HistoryItemSearchParams,
+};
 
 mod widget;
 
@@ -34,20 +38,17 @@ impl HistoryViewState {
     pub(super) fn get_current_years(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Vec<String>, LoreGuiError> {
+    ) -> Result<Vec<i32>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),
         };
         let year = self.year_view_state.get_search_int()?;
-        let search_params = HistoryItemSearchParams::new(year, None, None);
+        let search_params = HistoryItemSearchParams::new(year, None, None, None);
         let history_items = db
-            .get_history_items(search_params)
+            .read_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let years = history_items
-            .iter()
-            .map(|item| item.year.to_string())
-            .collect::<Vec<String>>();
+        let years = extract_years(&history_items);
         Ok(years)
     }
 
@@ -65,14 +66,11 @@ impl HistoryViewState {
         };
 
         let day = self.day_view_state.get_search_int()?;
-        let search_params = HistoryItemSearchParams::new(year, day, None);
+        let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db
-            .get_history_items(search_params)
+            .read_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let days = history_items
-            .iter()
-            .map(|item| item.day)
-            .collect::<Vec<Option<i32>>>();
+        let days = extract_days(&history_items);
         Ok(days)
     }
 
@@ -90,9 +88,9 @@ impl HistoryViewState {
         };
         let day = self.day_view_state.get_selected_as().unwrap_or(None);
 
-        let search_params = HistoryItemSearchParams::new(year, day, None);
+        let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db
-            .get_history_items(search_params)
+            .read_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
         let timestamps = history_items
             .iter()
@@ -114,9 +112,9 @@ impl HistoryViewState {
             None => return Ok(String::new()),
         };
 
-        let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp));
+        let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp), None);
         let history_items = db
-            .get_history_items(search_params)
+            .read_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
         if history_items.len() > 1 {
             return Err(LoreGuiError::MultipleResults);

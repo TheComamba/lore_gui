@@ -94,7 +94,11 @@ impl HistoryViewState {
     }
 
     fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let years = self.get_current_years(db)?;
+        let years = self
+            .get_current_years(db)?
+            .iter()
+            .map(|y| y.to_string())
+            .collect();
         self.year_view_state.set_entries(years);
         self.update_days(db)?;
         Ok(())

@@ -1,7 +1,7 @@
 use super::db_col_view::state::DbColViewState;
 use crate::errors::LoreGuiError;
 use lorecore::sql::{
-    entity::{get_descriptors, get_labels},
+    entity::{extract_descriptors, extract_labels},
     lore_database::LoreDatabase,
     search_params::{EntityColumnSearchParams, SqlSearchText},
 };
@@ -48,9 +48,9 @@ impl EntityViewState {
             .map(|t| SqlSearchText::partial(t));
         let search_params = EntityColumnSearchParams::new(label_search_text, None);
         let entity_columns = db
-            .get_entity_columns(search_params)
+            .read_entity_columns(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let labels = get_labels(&entity_columns);
+        let labels = extract_labels(&entity_columns);
         Ok(labels)
     }
 
@@ -73,9 +73,9 @@ impl EntityViewState {
             .map(|t| SqlSearchText::partial(t));
         let search_params = EntityColumnSearchParams::new(label, descriptor_search_text);
         let entity_columns = db
-            .get_entity_columns(search_params)
+            .read_entity_columns(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let descriptors = get_descriptors(&entity_columns);
+        let descriptors = extract_descriptors(&entity_columns);
         Ok(descriptors)
     }
 
@@ -98,7 +98,7 @@ impl EntityViewState {
 
         let search_params = EntityColumnSearchParams::new(label, descriptor);
         let entity_columns = db
-            .get_entity_columns(search_params)
+            .read_entity_columns(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
 
         if entity_columns.len() > 1 {

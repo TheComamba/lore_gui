@@ -34,10 +34,8 @@ impl DbColViewState {
 
     pub(crate) fn set_entries(&mut self, mut entries: Vec<String>) {
         if !entries.contains(&String::new()) {
-            entries.push(String::new());
+            entries.insert(0, String::new());
         }
-        entries.sort();
-        entries.dedup();
         self.entries = entries;
     }
 
