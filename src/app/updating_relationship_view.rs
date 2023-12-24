@@ -1,4 +1,7 @@
-use lorecore::sql::{lore_database::LoreDatabase, search_text::RelationshipSearchParams};
+use lorecore::sql::{
+    lore_database::LoreDatabase,
+    search_params::{RelationshipSearchParams, SqlSearchText},
+};
 
 use super::SqlGui;
 use crate::{
@@ -69,9 +72,12 @@ impl RelationshipViewState {
             .child_view_state
             .get_selected()
             .as_ref()
-            .map(|c| (c.as_str(), true));
-        let search_text = self.parent_view_state.get_search_text().map(|t| (t, false));
-        let search_params = RelationshipSearchParams::new(search_text, child);
+            .map(|c| SqlSearchText::exact(c.as_str()));
+        let parent_search_text = self
+            .parent_view_state
+            .get_search_text()
+            .map(|t| SqlSearchText::partial(t));
+        let search_params = RelationshipSearchParams::new(parent_search_text, child);
         let relationships = db
             .get_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -94,9 +100,12 @@ impl RelationshipViewState {
             .parent_view_state
             .get_selected()
             .as_ref()
-            .map(|p| (p.as_str(), true));
-        let search_text = self.child_view_state.get_search_text().map(|t| (t, false));
-        let search_params = RelationshipSearchParams::new(parent, search_text);
+            .map(|p| SqlSearchText::exact(p.as_str()));
+        let child_search_text = self
+            .child_view_state
+            .get_search_text()
+            .map(|t| SqlSearchText::partial(t));
+        let search_params = RelationshipSearchParams::new(parent, child_search_text);
         let relationships = db
             .get_relationships(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -123,8 +132,8 @@ impl RelationshipViewState {
             None => return Ok(None),
         };
         let search_params = RelationshipSearchParams::new(
-            Some((parent.as_str(), true)),
-            Some((child.as_str(), true)),
+            Some(SqlSearchText::exact(parent.as_str())),
+            Some(SqlSearchText::exact(child.as_str())),
         );
         let relationships = db
             .get_relationships(search_params)

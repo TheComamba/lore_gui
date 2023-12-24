@@ -11,7 +11,7 @@ use crate::{
 use lorecore::sql::{
     entity::{get_descriptors, get_labels},
     lore_database::LoreDatabase,
-    search_text::EntityColumnSearchParams,
+    search_params::{EntityColumnSearchParams, SqlSearchText},
 };
 
 impl SqlGui {
@@ -99,8 +99,11 @@ impl EntityViewState {
 
     fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let labels = if let Some(db) = db {
-            let search_text = self.label_view_state.get_search_text().map(|t| (t, false));
-            let search_params = EntityColumnSearchParams::new(search_text, None);
+            let label_search_text = self
+                .label_view_state
+                .get_search_text()
+                .map(|t| SqlSearchText::partial(t));
+            let search_params = EntityColumnSearchParams::new(label_search_text, None);
             let entity_columns = db
                 .get_entity_columns(search_params)
                 .map_err(LoreGuiError::LoreCoreError)?;
@@ -126,15 +129,15 @@ impl EntityViewState {
             None => return Ok(vec![]),
         };
         let label = match self.label_view_state.get_selected() {
-            Some(label) => Some((label.as_str(), true)),
+            Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(vec![]),
         };
 
-        let search_text = self
+        let descriptor_search_text = self
             .descriptor_view_state
             .get_search_text()
-            .map(|t| (t, false));
-        let search_params = EntityColumnSearchParams::new(label, search_text);
+            .map(|t| SqlSearchText::partial(t));
+        let search_params = EntityColumnSearchParams::new(label, descriptor_search_text);
         let entity_columns = db
             .get_entity_columns(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -153,11 +156,11 @@ impl EntityViewState {
             None => return Ok(None),
         };
         let label = match self.label_view_state.get_selected() {
-            Some(label) => Some((label.as_str(), true)),
+            Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(None),
         };
         let descriptor = match self.descriptor_view_state.get_selected() {
-            Some(descriptor) => Some((descriptor.as_str(), true)),
+            Some(descriptor) => Some(SqlSearchText::exact(descriptor.as_str())),
             None => return Ok(None),
         };
 

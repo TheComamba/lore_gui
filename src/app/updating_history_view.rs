@@ -1,4 +1,4 @@
-use lorecore::sql::{lore_database::LoreDatabase, search_text::HistoryItemSearchParams};
+use lorecore::sql::{lore_database::LoreDatabase, search_params::HistoryItemSearchParams};
 
 use crate::{
     db_col_view::ColViewMes,
@@ -105,8 +105,8 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let search_int = self.year_view_state.get_search_int()?;
-        let search_params = HistoryItemSearchParams::new(search_int, None);
+        let year = self.year_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(year, None, None);
         let history_items = db
             .get_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -145,8 +145,8 @@ impl HistoryViewState {
             None => return Ok(vec![]),
         };
 
-        let search_int = self.day_view_state.get_search_int()?;
-        let search_params = HistoryItemSearchParams::new(year, search_int);
+        let day = self.day_view_state.get_search_int()?;
+        let search_params = HistoryItemSearchParams::new(year, day, None);
         let history_items = db
             .get_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -179,7 +179,7 @@ impl HistoryViewState {
         };
         let day = self.day_view_state.get_selected_as().unwrap_or(None);
 
-        let search_params = HistoryItemSearchParams::new(year, day);
+        let search_params = HistoryItemSearchParams::new(year, day, None);
         let history_items = db
             .get_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
@@ -200,16 +200,24 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(String::new()),
         };
-        let timestamp = match self.timestamp_view_state.get_selected() {
+        let timestamp = match self.timestamp_view_state.get_selected_as().unwrap_or(None) {
             Some(timestamp) => timestamp,
             None => return Ok(String::new()),
         };
 
-        let search_params = HistoryItemSearchParams::new(None, None, timestamp);
+        let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp));
         let history_items = db
             .get_history_items(search_params)
             .map_err(LoreGuiError::LoreCoreError)?;
-        let content = history_items.iter().map(|item| item.content.clone());
+        if history_items.len() > 1 {
+            return Err(LoreGuiError::InputError(
+                "Multiple history items found".to_string(),
+            ));
+        }
+        let content = match history_items.first() {
+            Some(item) => item.content.clone(),
+            None => String::new(),
+        };
         Ok(content)
     }
 }
