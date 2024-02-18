@@ -50,9 +50,7 @@ impl RelationshipViewState {
             .get_search_text()
             .map(|t| SqlSearchText::partial(t));
         let search_params = RelationshipSearchParams::new(parent_search_text, child);
-        let relationships = db
-            .read_relationships(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let relationships = db.read_relationships(search_params)?;
         let parents = extract_parents(&relationships);
         Ok(parents)
     }
@@ -75,9 +73,7 @@ impl RelationshipViewState {
             .get_search_text()
             .map(|t| SqlSearchText::partial(t));
         let search_params = RelationshipSearchParams::new(parent, child_search_text);
-        let relationships = db
-            .read_relationships(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let relationships = db.read_relationships(search_params)?;
         let children = extract_children(&relationships);
         Ok(children)
     }
@@ -102,9 +98,7 @@ impl RelationshipViewState {
             Some(SqlSearchText::exact(parent.as_str())),
             Some(SqlSearchText::exact(child.as_str())),
         );
-        let relationships = db
-            .read_relationships(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let relationships = db.read_relationships(search_params)?;
         if relationships.len() > 1 {
             return Err(LoreGuiError::MultipleResults);
         }

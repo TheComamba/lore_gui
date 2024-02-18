@@ -70,10 +70,8 @@ impl NewEntityData {
             description: Some(self.category),
         };
 
-        db.write_entity_columns(vec![name_col])
-            .map_err(LoreGuiError::LoreCoreError)?;
-        db.write_entity_columns(vec![category_col])
-            .map_err(LoreGuiError::LoreCoreError)?;
+        db.write_entity_columns(vec![name_col])?;
+        db.write_entity_columns(vec![category_col])?;
 
         Ok(())
     }

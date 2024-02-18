@@ -50,7 +50,7 @@ impl NewDescriptorData {
             description: Some(self.description),
         };
         db.write_entity_columns(vec![col])
-            .map_err(LoreGuiError::LoreCoreError)
+            .map_err(LoreGuiError::from)
     }
 
     pub(crate) fn get_descriptor(&self) -> &str {

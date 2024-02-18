@@ -45,9 +45,7 @@ impl HistoryViewState {
         };
         let year = self.year_view_state.get_search_int()?;
         let search_params = HistoryItemSearchParams::new(year, None, None, None);
-        let history_items = db
-            .read_history_items(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let history_items = db.read_history_items(search_params)?;
         let years = extract_years(&history_items);
         Ok(years)
     }
@@ -67,9 +65,7 @@ impl HistoryViewState {
 
         let day = self.day_view_state.get_search_int()?;
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
-        let history_items = db
-            .read_history_items(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let history_items = db.read_history_items(search_params)?;
         let days = extract_days(&history_items);
         Ok(days)
     }
@@ -89,9 +85,7 @@ impl HistoryViewState {
         let day = self.day_view_state.get_selected_as().unwrap_or(None);
 
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
-        let history_items = db
-            .read_history_items(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let history_items = db.read_history_items(search_params)?;
         let timestamps = history_items
             .iter()
             .map(|item| item.timestamp)
@@ -113,9 +107,7 @@ impl HistoryViewState {
         };
 
         let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp), None);
-        let history_items = db
-            .read_history_items(search_params)
-            .map_err(LoreGuiError::LoreCoreError)?;
+        let history_items = db.read_history_items(search_params)?;
         if history_items.len() > 1 {
             return Err(LoreGuiError::MultipleResults);
         }

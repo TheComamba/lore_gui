@@ -25,7 +25,7 @@ impl SqlGui {
     }
 
     pub(super) fn new_database(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
-        self.lore_database = Some(LoreDatabase::open(path).map_err(LoreGuiError::LoreCoreError)?);
+        self.lore_database = Some(LoreDatabase::open(path)?);
         self.update_database_derived_data()?;
         Ok(())
     }
@@ -41,7 +41,7 @@ impl SqlGui {
     }
 
     pub(super) fn open_database(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
-        self.lore_database = Some(LoreDatabase::open(path).map_err(LoreGuiError::LoreCoreError)?);
+        self.lore_database = Some(LoreDatabase::open(path)?);
         self.update_database_derived_data()?;
         Ok(())
     }

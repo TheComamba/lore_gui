@@ -41,8 +41,7 @@ impl NewHistoryData {
             content: self.content,
             properties: self.properties,
         };
-        db.write_history_items(vec![item])
-            .map_err(LoreGuiError::LoreCoreError)?;
+        db.write_history_items(vec![item])?;
         Ok(())
     }
 }
