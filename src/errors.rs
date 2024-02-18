@@ -14,3 +14,9 @@ impl ToString for LoreGuiError {
         format!("{:?}", self)
     }
 }
+
+impl From<LoreCoreError> for LoreGuiError {
+    fn from(error: LoreCoreError) -> Self {
+        LoreGuiError::LoreCoreError(error)
+    }
+}
