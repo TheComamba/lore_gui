@@ -6,7 +6,7 @@ use crate::{
 };
 use iced::widget::{component, Component};
 use iced::{
-    widget::{Column, Row, Text},
+    widget::{text_editor, Column, Row},
     Alignment, Element, Length,
 };
 
@@ -77,12 +77,10 @@ impl<'a> EntityView<'a> {
     }
 
     fn desription_view(&self) -> Column<'_, GuiMes> {
+        let editor = text_editor(&self.state.current_description);
         Column::new()
             .push(header("Description"))
-            .push(Text::new(match &self.state.current_description {
-                Some(description) => description,
-                None => "",
-            }))
+            .push(editor)
             .padding(5)
             .spacing(5)
             .width(Length::Fill)
