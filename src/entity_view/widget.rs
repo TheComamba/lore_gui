@@ -77,10 +77,9 @@ impl<'a> EntityView<'a> {
     }
 
     fn desription_view(&self) -> Column<'_, GuiMes> {
-        let editor = text_editor(&self.state.current_description);
         Column::new()
             .push(header("Description"))
-            .push(editor)
+            .push(text_editor(&self.state.current_description))
             .padding(5)
             .spacing(5)
             .width(Length::Fill)
