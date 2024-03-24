@@ -7,10 +7,10 @@ use crate::{
 use iced::widget::{component, Component};
 use iced::{
     widget::{Column, Row, Text},
-    Alignment, Element, Length, Renderer,
+    Alignment, Element, Length,
 };
 
-impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
+impl<'a> Component<GuiMes> for EntityView<'a> {
     type State = ();
 
     type Event = GuiMes;
@@ -19,7 +19,7 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
         Some(event)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(DbColView::new(
                 "Label",

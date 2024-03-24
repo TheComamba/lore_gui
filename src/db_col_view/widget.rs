@@ -4,7 +4,7 @@ use iced::widget::{component, Component};
 use iced::Font;
 use iced::{
     widget::{button, Column, Container, Text, TextInput},
-    Element, Length, Renderer,
+    Element, Length,
 };
 use iced_aw::{style::SelectionListStyles, SelectionList};
 
@@ -76,7 +76,7 @@ where
     }
 }
 
-impl<'a, M> Component<GuiMes, Renderer> for DbColView<'a, M>
+impl<'a, M> Component<GuiMes> for DbColView<'a, M>
 where
     M: 'static + Clone + Fn(ColViewMes) -> GuiMes,
 {
@@ -89,7 +89,7 @@ where
         Some(m(event))
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let mut col = Column::new()
             .push(self.title())
             .push(self.selected())

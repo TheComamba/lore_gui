@@ -4,7 +4,7 @@ use crate::errors::LoreGuiError;
 use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text, TextInput},
-    Element, Renderer,
+    Element,
 };
 use lorecore::sql::entity::EntityColumn;
 use lorecore::sql::lore_database::LoreDatabase;
@@ -91,7 +91,7 @@ impl Dialog for NewEntityDialog {
     }
 }
 
-impl Component<GuiMes, Renderer> for NewEntityDialog {
+impl Component<GuiMes> for NewEntityDialog {
     type State = ();
 
     type Event = NewEntityMes;
@@ -114,7 +114,7 @@ impl Component<GuiMes, Renderer> for NewEntityDialog {
         }
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let label_input = TextInput::new("", &self.data.label).on_input(NewEntityMes::LabelUpd);
         let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
         let category_input =

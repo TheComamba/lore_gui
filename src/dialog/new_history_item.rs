@@ -2,7 +2,7 @@ use super::Dialog;
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
-    Element, Renderer,
+    Element,
 };
 use lorecore::sql::{history::HistoryItem, lore_database::LoreDatabase};
 
@@ -56,7 +56,7 @@ impl Dialog for NewHistoryDialog {
     }
 }
 
-impl Component<GuiMes, Renderer> for NewHistoryDialog {
+impl Component<GuiMes> for NewHistoryDialog {
     type State = ();
 
     type Event = NewHistoryMes;
@@ -93,7 +93,7 @@ impl Component<GuiMes, Renderer> for NewHistoryDialog {
         }
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input =
             TextInput::new("", &self.data.year.to_string()).on_input(NewHistoryMes::YearUpd);
         let day_string = match self.data.day {

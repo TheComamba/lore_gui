@@ -4,10 +4,10 @@ use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style
 use iced::widget::{component, Component};
 use iced::{
     widget::{Column, Row, Text},
-    Element, Length, Renderer,
+    Element, Length,
 };
 
-impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
+impl<'a> Component<GuiMes> for HistoryView<'a> {
     type State = ();
 
     type Event = GuiMes;
@@ -16,7 +16,7 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
         Some(event)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(DbColView::new(
                 "Year",
