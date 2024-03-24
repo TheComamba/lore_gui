@@ -2,6 +2,7 @@ use super::HistoryView;
 use crate::db_col_view::ColViewMes;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{component, Component};
+use iced::Alignment;
 use iced::{
     widget::{Column, Row, Text},
     Element, Length,
@@ -44,6 +45,9 @@ impl<'a> Component<GuiMes> for HistoryView<'a> {
                     .spacing(5)
                     .width(Length::Fill),
             )
+            .align_items(Alignment::Start)
+            .width(Length::Fill)
+            .height(Length::Fill)
             .into()
     }
 }
