@@ -1,6 +1,6 @@
 use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
-    Element, Renderer,
+    Element,
 };
 use lorecore::sql::lore_database::LoreDatabase;
 
@@ -68,7 +68,7 @@ impl Dialog for NewDescriptorDialog {
     }
 }
 
-impl Component<GuiMes, Renderer> for NewDescriptorDialog {
+impl Component<GuiMes> for NewDescriptorDialog {
     type State = ();
 
     type Event = NewDescriptorMessage;
@@ -87,7 +87,7 @@ impl Component<GuiMes, Renderer> for NewDescriptorDialog {
         }
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let descriptor_input =
             TextInput::new("", &self.data.descriptor).on_input(NewDescriptorMessage::DescriptorUpd);
         let description_input = TextInput::new("", &self.data.description)

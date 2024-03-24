@@ -1,12 +1,13 @@
 use super::RelationshipView;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{component, Component};
+use iced::Alignment;
 use iced::{
     widget::{Column, Row, Text},
-    Element, Length, Renderer,
+    Element, Length,
 };
 
-impl<'a> Component<GuiMes, Renderer> for RelationshipView<'a> {
+impl<'a> Component<GuiMes> for RelationshipView<'a> {
     type State = ();
 
     type Event = GuiMes;
@@ -15,7 +16,7 @@ impl<'a> Component<GuiMes, Renderer> for RelationshipView<'a> {
         Some(event)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(DbColView::new(
                 "Parent",
@@ -30,6 +31,9 @@ impl<'a> Component<GuiMes, Renderer> for RelationshipView<'a> {
                 &self.state.child_view_state,
             ))
             .push(self.role_view())
+            .align_items(Alignment::Start)
+            .width(Length::Fill)
+            .height(Length::Fill)
             .into()
     }
 }

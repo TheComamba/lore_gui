@@ -1,13 +1,14 @@
 use super::HistoryView;
 use crate::db_col_view::ColViewMes;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
-use iced::widget::{component, Component};
+use iced::widget::{component, text_editor, Component};
+use iced::Alignment;
 use iced::{
-    widget::{Column, Row, Text},
-    Element, Length, Renderer,
+    widget::{Column, Row},
+    Element, Length,
 };
 
-impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
+impl<'a> Component<GuiMes> for HistoryView<'a> {
     type State = ();
 
     type Event = GuiMes;
@@ -16,7 +17,7 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
         Some(event)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(DbColView::new(
                 "Year",
@@ -36,15 +37,22 @@ impl<'a> Component<GuiMes, Renderer> for HistoryView<'a> {
                 GuiMes::HistoryTimestampViewUpd,
                 &self.state.timestamp_view_state,
             ))
-            .push(
-                Column::new()
-                    .push(header("Content"))
-                    .push(Text::new(&self.state.current_content))
-                    .padding(5)
-                    .spacing(5)
-                    .width(Length::Fill),
-            )
+            .push(self.content_view())
+            .align_items(Alignment::Start)
+            .width(Length::Fill)
+            .height(Length::Fill)
             .into()
+    }
+}
+
+impl<'a> HistoryView<'a> {
+    fn content_view(&self) -> Column<'_, GuiMes> {
+        Column::new()
+            .push(header("Content"))
+            .push(text_editor(&self.state.current_content))
+            .padding(5)
+            .spacing(5)
+            .width(Length::Fill)
     }
 }
 

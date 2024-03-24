@@ -6,11 +6,11 @@ use crate::{
 };
 use iced::widget::{component, Component};
 use iced::{
-    widget::{Column, Row, Text},
-    Alignment, Element, Length, Renderer,
+    widget::{text_editor, Column, Row},
+    Alignment, Element, Length,
 };
 
-impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
+impl<'a> Component<GuiMes> for EntityView<'a> {
     type State = ();
 
     type Event = GuiMes;
@@ -19,7 +19,7 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
         Some(event)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(DbColView::new(
                 "Label",
@@ -33,17 +33,7 @@ impl<'a> Component<GuiMes, Renderer> for EntityView<'a> {
                 GuiMes::DescriptorViewUpd,
                 &self.state.descriptor_view_state,
             ))
-            .push(
-                Column::new()
-                    .push(header("Description"))
-                    .push(Text::new(match &self.state.current_description {
-                        Some(description) => description,
-                        None => "",
-                    }))
-                    .padding(5)
-                    .spacing(5)
-                    .width(Length::Fill),
-            )
+            .push(self.desription_view())
             .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -84,6 +74,15 @@ impl<'a> EntityView<'a> {
         .into_iter()
         .map(|(s, m)| (s.to_string(), m))
         .collect()
+    }
+
+    fn desription_view(&self) -> Column<'_, GuiMes> {
+        Column::new()
+            .push(header("Description"))
+            .push(text_editor(&self.state.current_description))
+            .padding(5)
+            .spacing(5)
+            .width(Length::Fill)
     }
 }
 

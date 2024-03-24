@@ -74,7 +74,7 @@ impl SqlGui {
                 }
             }
         }
-        col.into()
+        col.height(Length::Fill).into()
     }
 
     fn menu_bar(&self) -> Element<'_, GuiMes> {

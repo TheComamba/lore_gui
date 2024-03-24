@@ -8,6 +8,7 @@ use crate::{
     entity_view::EntityViewState,
     errors::LoreGuiError,
 };
+use iced::widget::text_editor;
 use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
@@ -88,7 +89,7 @@ impl EntityViewState {
     ) -> Result<(), LoreGuiError> {
         self.label_view_state.set_selected_none();
         self.descriptor_view_state.set_selected_none();
-        self.current_description = None;
+        self.current_description = text_editor::Content::with_text("");
         self.update_labels(db)?;
         Ok(())
     }
@@ -108,7 +109,8 @@ impl EntityViewState {
     }
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        self.current_description = self.get_current_description(db)?;
+        let description = self.get_current_description(db)?.unwrap_or_default();
+        self.current_description = text_editor::Content::with_text(&description);
         Ok(())
     }
 }
