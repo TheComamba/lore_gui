@@ -33,17 +33,7 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
                 GuiMes::DescriptorViewUpd,
                 &self.state.descriptor_view_state,
             ))
-            .push(
-                Column::new()
-                    .push(header("Description"))
-                    .push(Text::new(match &self.state.current_description {
-                        Some(description) => description,
-                        None => "",
-                    }))
-                    .padding(5)
-                    .spacing(5)
-                    .width(Length::Fill),
-            )
+            .push(self.desription_view())
             .align_items(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -84,6 +74,18 @@ impl<'a> EntityView<'a> {
         .into_iter()
         .map(|(s, m)| (s.to_string(), m))
         .collect()
+    }
+
+    fn desription_view(&self) -> Column<'_, GuiMes> {
+        Column::new()
+            .push(header("Description"))
+            .push(Text::new(match &self.state.current_description {
+                Some(description) => description,
+                None => "",
+            }))
+            .padding(5)
+            .spacing(5)
+            .width(Length::Fill)
     }
 }
 
