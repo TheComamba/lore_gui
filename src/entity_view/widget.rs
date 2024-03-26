@@ -20,25 +20,28 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let mut col = Column::new().push(self.label_buttons());
-        if self.state.label_view_state.get_selected().is_some() {
-            col = col.push(self.descriptor_buttons());
-        }
-        col.push(self.col_views()).into()
+        Column::new()
+            .push(self.label_buttons())
+            .push(self.descriptor_buttons())
+            .push(self.col_views())
+            .into()
     }
 }
 
 impl<'a> EntityView<'a> {
     fn label_buttons(&self) -> Row<'_, GuiMes> {
-        let row = Row::new()
-            .push(button("New Entity Label").on_press(GuiMes::EntityLabelViewUpd(ColViewMes::New)));
-        row.spacing(5).padding(5)
+        let new_entity =
+            button("New Entity Label").on_press(GuiMes::EntityLabelViewUpd(ColViewMes::New));
+        Row::new().push(new_entity).spacing(5).padding(5)
     }
 
     fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
-        let row = Row::new()
-            .push(button("New Descriptor").on_press(GuiMes::DescriptorViewUpd(ColViewMes::New)));
-        row.spacing(5).padding(5)
+        let mut new_descriptor = button("New Descriptor");
+        if self.state.label_view_state.get_selected().is_some() {
+            new_descriptor = new_descriptor.on_press(GuiMes::DescriptorViewUpd(ColViewMes::New));
+        }
+
+        Row::new().push(new_descriptor).spacing(5).padding(5)
     }
 
     fn desription_view(&self) -> Column<'_, GuiMes> {
