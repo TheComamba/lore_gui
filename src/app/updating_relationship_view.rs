@@ -1,8 +1,11 @@
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::sql::{
+    entity::extract_labels, lore_database::LoreDatabase, search_params::EntityColumnSearchParams,
+};
 
 use super::SqlGui;
 use crate::{
     db_col_view::ColViewMes,
+    dialog::new_relationship::{NewRelationshipData, NewRelationshipDialog},
     errors::LoreGuiError,
     relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
@@ -14,7 +17,11 @@ impl SqlGui {
     ) -> Result<(), LoreGuiError> {
         match event {
             RelationshipViewMessage::NewRelationship => {
-                todo!("New relationship")
+                let labels = self.get_all_labels(&self.lore_database)?;
+                self.dialog = Some(Box::new(NewRelationshipDialog::new(
+                    labels.clone(),
+                    labels.clone(),
+                )));
             }
             RelationshipViewMessage::ParentViewUpd(event) => {
                 self.update_parent_view(event)?;
@@ -72,6 +79,32 @@ impl SqlGui {
             }
         };
         Ok(())
+    }
+
+    pub(super) fn write_new_relationship(
+        &mut self,
+        data: NewRelationshipData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        data.write_to_database(db)?;
+        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    fn get_all_labels(&self, db: &Option<LoreDatabase>) -> Result<Vec<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let search_params = EntityColumnSearchParams::new(None, None);
+        let entity_columns = db.read_entity_columns(search_params)?;
+        let labels = extract_labels(&entity_columns);
+        Ok(labels)
     }
 }
 

@@ -9,6 +9,7 @@ pub(crate) mod error;
 pub(crate) mod new_descriptor;
 pub(crate) mod new_entity;
 pub(crate) mod new_history_item;
+pub(crate) mod new_relationship;
 
 pub(crate) trait Dialog {
     fn card_style(&self) -> CardStyles {
