@@ -20,22 +20,24 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        Column::new()
-            .push(self.new_buttons())
-            .push(self.col_views())
-            .into()
+        let mut col = Column::new().push(self.label_buttons());
+        if self.state.label_view_state.get_selected().is_some() {
+            col = col.push(self.descriptor_buttons());
+        }
+        col.push(self.col_views()).into()
     }
 }
 
 impl<'a> EntityView<'a> {
-    fn new_buttons(&self) -> Row<'_, GuiMes> {
-        let mut row = Row::new()
+    fn label_buttons(&self) -> Row<'_, GuiMes> {
+        let row = Row::new()
             .push(button("New Entity Label").on_press(GuiMes::EntityLabelViewUpd(ColViewMes::New)));
-        if self.state.label_view_state.get_selected().is_some() {
-            row = row.push(
-                button("New Descriptor").on_press(GuiMes::DescriptorViewUpd(ColViewMes::New)),
-            );
-        }
+        row.spacing(5).padding(5)
+    }
+
+    fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
+        let row = Row::new()
+            .push(button("New Descriptor").on_press(GuiMes::DescriptorViewUpd(ColViewMes::New)));
         row.spacing(5).padding(5)
     }
 
