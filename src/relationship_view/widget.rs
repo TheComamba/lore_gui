@@ -1,6 +1,7 @@
 use super::RelationshipView;
+use crate::db_col_view::ColViewMes;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
-use iced::widget::{component, Component};
+use iced::widget::{button, component, Component};
 use iced::Alignment;
 use iced::{
     widget::{Column, Row, Text},
@@ -17,6 +18,32 @@ impl<'a> Component<GuiMes> for RelationshipView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        Column::new()
+            .push(self.buttons())
+            .push(self.col_views())
+            .into()
+    }
+}
+
+impl<'a> RelationshipView<'a> {
+    fn buttons(&self) -> Row<'_, GuiMes> {
+        Row::new()
+            .push(button("New Relationship").on_press(GuiMes::ParentViewUpd(ColViewMes::New)))
+            .spacing(5)
+            .padding(5)
+    }
+
+    fn role_view(&self) -> Element<'a, GuiMes> {
+        let mut col = Column::new().push(header("Role"));
+        if let Some(role) = self.state.current_role.as_ref() {
+            col = col.push(Text::new(role));
+        }
+        col.padding(5).spacing(5).width(Length::Fill).into()
+    }
+
+    fn col_views(
+        &self,
+    ) -> iced::advanced::graphics::core::Element<'_, GuiMes, iced::Theme, iced::Renderer> {
         Row::new()
             .push(DbColView::new(
                 "Parent",
@@ -35,16 +62,6 @@ impl<'a> Component<GuiMes> for RelationshipView<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
-    }
-}
-
-impl<'a> RelationshipView<'a> {
-    fn role_view(&self) -> Element<'a, GuiMes> {
-        let mut col = Column::new().push(header("Role"));
-        if let Some(role) = self.state.current_role.as_ref() {
-            col = col.push(Text::new(role));
-        }
-        col.padding(5).spacing(5).width(Length::Fill).into()
     }
 }
 
