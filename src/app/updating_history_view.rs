@@ -31,7 +31,6 @@ impl SqlGui {
     pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
-            ColViewMes::New => self.dialog = Some(Box::new(NewHistoryDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.year_view_state.set_search_text(text);
                 state.update_years(&self.lore_database)?;
@@ -48,7 +47,6 @@ impl SqlGui {
     pub(super) fn update_day_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.day_view_state.set_search_text(text);
                 state.update_days(&self.lore_database)?;
@@ -65,7 +63,6 @@ impl SqlGui {
     pub(super) fn update_timestamp_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.timestamp_view_state.set_search_text(text);
                 state.update_timestamps(&self.lore_database)?;

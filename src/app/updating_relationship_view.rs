@@ -32,7 +32,6 @@ impl SqlGui {
     pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.parent_view_state.set_search_text(text);
                 state.update_parents(&self.lore_database)?;
@@ -49,7 +48,6 @@ impl SqlGui {
     pub(super) fn update_child_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.child_view_state.set_search_text(text);
                 state.update_children(&self.lore_database)?;
@@ -66,7 +64,6 @@ impl SqlGui {
     pub(super) fn update_role_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.current_role = None;
             }

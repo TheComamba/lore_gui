@@ -30,7 +30,6 @@ impl SqlGui {
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
-            ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.label_view_state.set_search_text(text);
                 state.update_labels(&self.lore_database)?;
@@ -47,14 +46,6 @@ impl SqlGui {
     pub(super) fn update_descriptor_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
-            ColViewMes::New => {
-                let label = state.label_view_state.get_selected().as_ref().ok_or(
-                    LoreGuiError::InputError(
-                        "No label selected for which to create new descriptor.".to_string(),
-                    ),
-                )?;
-                self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())));
-            }
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
                 state.update_descriptors(&self.lore_database)?;
