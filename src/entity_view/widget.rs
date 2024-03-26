@@ -55,13 +55,11 @@ impl<'a> EntityView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Label",
-                vec![],
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
                 &self.state.label_view_state,
             ))
             .push(DbColView::new(
                 "Descriptor",
-                vec![],
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
                 &self.state.descriptor_view_state,
             ))

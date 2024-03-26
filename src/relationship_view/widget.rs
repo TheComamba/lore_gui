@@ -50,13 +50,11 @@ impl<'a> RelationshipView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Parent",
-                vec![],
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
                 &self.state.parent_view_state,
             ))
             .push(DbColView::new(
                 "Child",
-                vec![],
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
                 &self.state.child_view_state,
             ))

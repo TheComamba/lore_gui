@@ -46,19 +46,16 @@ impl<'a> HistoryView<'a> {
         Row::new()
             .push(DbColView::new(
                 "Year",
-                vec![],
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
                 &self.state.year_view_state,
             ))
             .push(DbColView::new(
                 "Day",
-                vec![],
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
                 &self.state.day_view_state,
             ))
             .push(DbColView::new(
                 "Timestamp",
-                vec![],
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
                 &self.state.timestamp_view_state,
             ))
