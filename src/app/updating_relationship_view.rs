@@ -2,10 +2,33 @@ use lorecore::sql::lore_database::LoreDatabase;
 
 use super::SqlGui;
 use crate::{
-    db_col_view::ColViewMes, errors::LoreGuiError, relationship_view::RelationshipViewState,
+    db_col_view::ColViewMes,
+    errors::LoreGuiError,
+    relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
 
 impl SqlGui {
+    pub(super) fn update_relationship_view(
+        &mut self,
+        event: RelationshipViewMessage,
+    ) -> Result<(), LoreGuiError> {
+        match event {
+            RelationshipViewMessage::NewRelationship => {
+                todo!("New relationship")
+            }
+            RelationshipViewMessage::ParentViewUpd(event) => {
+                self.update_parent_view(event)?;
+            }
+            RelationshipViewMessage::ChildViewUpd(event) => {
+                self.update_child_view(event)?;
+            }
+            RelationshipViewMessage::RoleViewUpd(event) => {
+                self.update_role_view(event)?;
+            }
+        };
+        Ok(())
+    }
+
     pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
@@ -35,6 +58,20 @@ impl SqlGui {
                 state.child_view_state.set_selected(child);
                 state.update_parents(&self.lore_database)?;
                 state.update_role(&self.lore_database)?;
+            }
+        };
+        Ok(())
+    }
+
+    pub(super) fn update_role_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let state = &mut self.relationship_view_state;
+        match event {
+            ColViewMes::New => (),
+            ColViewMes::SearchFieldUpd(text) => {
+                state.current_role = None;
+            }
+            ColViewMes::Selected(_index, role) => {
+                state.current_role = Some(role);
             }
         };
         Ok(())

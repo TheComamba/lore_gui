@@ -1,5 +1,4 @@
-use super::RelationshipView;
-use crate::db_col_view::ColViewMes;
+use super::{RelationshipView, RelationshipViewMessage};
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{button, component, Component};
 use iced::Alignment;
@@ -28,7 +27,11 @@ impl<'a> Component<GuiMes> for RelationshipView<'a> {
 impl<'a> RelationshipView<'a> {
     fn buttons(&self) -> Row<'_, GuiMes> {
         Row::new()
-            .push(button("New Relationship").on_press(GuiMes::ParentViewUpd(ColViewMes::New)))
+            .push(
+                button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
+                    RelationshipViewMessage::NewRelationship,
+                )),
+            )
             .spacing(5)
             .padding(5)
     }
@@ -48,13 +51,13 @@ impl<'a> RelationshipView<'a> {
             .push(DbColView::new(
                 "Parent",
                 vec![],
-                GuiMes::ParentViewUpd,
+                |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
                 &self.state.parent_view_state,
             ))
             .push(DbColView::new(
                 "Child",
                 vec![],
-                GuiMes::ChildViewUpd,
+                |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
                 &self.state.child_view_state,
             ))
             .push(self.role_view())

@@ -1,4 +1,7 @@
-use crate::{db_col_view::state::DbColViewState, errors::LoreGuiError};
+use crate::{
+    db_col_view::{state::DbColViewState, ColViewMes},
+    errors::LoreGuiError,
+};
 use lorecore::sql::{
     lore_database::LoreDatabase,
     relationships::{extract_children, extract_parents},
@@ -21,6 +24,14 @@ pub(super) struct RelationshipViewState {
     pub(super) parent_view_state: DbColViewState,
     pub(super) child_view_state: DbColViewState,
     pub(super) current_role: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub(super) enum RelationshipViewMessage {
+    NewRelationship,
+    ParentViewUpd(ColViewMes),
+    ChildViewUpd(ColViewMes),
+    RoleViewUpd(ColViewMes),
 }
 
 impl RelationshipViewState {
