@@ -7,6 +7,7 @@ use crate::{
     },
     entity_view::EntityViewMessage,
     errors::LoreGuiError,
+    history_view::HistoryViewMessage,
 };
 
 #[derive(Debug, Clone)]
@@ -15,9 +16,7 @@ pub(crate) enum GuiMes {
     NewDatabase,
     OpenDatabase,
     EntityViewUpd(EntityViewMessage),
-    YearViewUpd(ColViewMes),
-    DayViewUpd(ColViewMes),
-    HistoryTimestampViewUpd(ColViewMes),
+    HistoryViewUpd(HistoryViewMessage),
     ParentViewUpd(ColViewMes),
     ChildViewUpd(ColViewMes),
     DialogClosed,
@@ -33,9 +32,7 @@ impl SqlGui {
             GuiMes::NewDatabase => self.new_database_from_dialog()?,
             GuiMes::OpenDatabase => self.open_database_from_dialog()?,
             GuiMes::EntityViewUpd(event) => self.update_entity_view(event)?,
-            GuiMes::YearViewUpd(event) => self.update_year_view(event)?,
-            GuiMes::DayViewUpd(event) => self.update_day_view(event)?,
-            GuiMes::HistoryTimestampViewUpd(event) => self.update_timestamp_view(event)?,
+            GuiMes::HistoryViewUpd(event) => self.update_history_view(event)?,
             GuiMes::ParentViewUpd(event) => self.update_parent_view(event)?,
             GuiMes::ChildViewUpd(event) => self.update_child_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,

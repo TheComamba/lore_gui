@@ -1,5 +1,4 @@
-use super::HistoryView;
-use crate::db_col_view::ColViewMes;
+use super::{HistoryView, HistoryViewMessage};
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{button, component, text_editor, Component};
 use iced::Alignment;
@@ -27,13 +26,9 @@ impl<'a> Component<GuiMes> for HistoryView<'a> {
 
 impl<'a> HistoryView<'a> {
     fn buttons(&self) -> Row<'_, GuiMes> {
-        Row::new()
-            .push(
-                button("New History Item")
-                    .on_press(GuiMes::HistoryTimestampViewUpd(ColViewMes::New)),
-            )
-            .spacing(5)
-            .padding(5)
+        let new_item = button("New History Item")
+            .on_press(GuiMes::HistoryViewUpd(HistoryViewMessage::NewHistoryItem));
+        Row::new().push(new_item).spacing(5).padding(5)
     }
 
     fn content_view(&self) -> Column<'_, GuiMes> {
@@ -52,19 +47,19 @@ impl<'a> HistoryView<'a> {
             .push(DbColView::new(
                 "Year",
                 vec![],
-                GuiMes::YearViewUpd,
+                |m| GuiMes::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
                 &self.state.year_view_state,
             ))
             .push(DbColView::new(
                 "Day",
                 vec![],
-                GuiMes::DayViewUpd,
+                |m| GuiMes::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
                 &self.state.day_view_state,
             ))
             .push(DbColView::new(
                 "Timestamp",
                 vec![],
-                GuiMes::HistoryTimestampViewUpd,
+                |m| GuiMes::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
                 &self.state.timestamp_view_state,
             ))
             .push(self.content_view())

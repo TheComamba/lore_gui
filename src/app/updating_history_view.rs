@@ -5,12 +5,29 @@ use crate::{
     db_col_view::ColViewMes,
     dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
     errors::LoreGuiError,
-    history_view::HistoryViewState,
+    history_view::{HistoryViewMessage, HistoryViewState},
 };
 
 use super::SqlGui;
 
 impl SqlGui {
+    pub(super) fn update_history_view(
+        &mut self,
+        event: HistoryViewMessage,
+    ) -> Result<(), LoreGuiError> {
+        match event {
+            HistoryViewMessage::NewHistoryItem => {
+                self.dialog = Some(Box::new(NewHistoryDialog::new()))
+            }
+            HistoryViewMessage::YearViewUpd(event) => self.update_year_view(event)?,
+            HistoryViewMessage::DayViewUpd(event) => self.update_day_view(event)?,
+            HistoryViewMessage::HistoryTimestampViewUpd(event) => {
+                self.update_timestamp_view(event)?
+            }
+        };
+        Ok(())
+    }
+
     pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
