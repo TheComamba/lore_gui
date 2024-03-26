@@ -1,7 +1,7 @@
 use super::HistoryView;
 use crate::db_col_view::ColViewMes;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
-use iced::widget::{component, text_editor, Component};
+use iced::widget::{button, component, text_editor, Component};
 use iced::Alignment;
 use iced::{
     widget::{Column, Row},
@@ -18,10 +18,40 @@ impl<'a> Component<GuiMes> for HistoryView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        Column::new()
+            .push(self.buttons())
+            .push(self.col_views())
+            .into()
+    }
+}
+
+impl<'a> HistoryView<'a> {
+    fn buttons(&self) -> Row<'_, GuiMes> {
+        Row::new()
+            .push(
+                button("New History Item")
+                    .on_press(GuiMes::HistoryTimestampViewUpd(ColViewMes::New)),
+            )
+            .spacing(5)
+            .padding(5)
+    }
+
+    fn content_view(&self) -> Column<'_, GuiMes> {
+        Column::new()
+            .push(header("Content"))
+            .push(text_editor(&self.state.current_content))
+            .padding(5)
+            .spacing(5)
+            .width(Length::Fill)
+    }
+
+    fn col_views(
+        &self,
+    ) -> iced::advanced::graphics::core::Element<'_, GuiMes, iced::Theme, iced::Renderer> {
         Row::new()
             .push(DbColView::new(
                 "Year",
-                vec![("New History Item".to_string(), Some(ColViewMes::New))],
+                vec![],
                 GuiMes::YearViewUpd,
                 &self.state.year_view_state,
             ))
@@ -42,17 +72,6 @@ impl<'a> Component<GuiMes> for HistoryView<'a> {
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
-    }
-}
-
-impl<'a> HistoryView<'a> {
-    fn content_view(&self) -> Column<'_, GuiMes> {
-        Column::new()
-            .push(header("Content"))
-            .push(text_editor(&self.state.current_content))
-            .padding(5)
-            .spacing(5)
-            .width(Length::Fill)
     }
 }
 
