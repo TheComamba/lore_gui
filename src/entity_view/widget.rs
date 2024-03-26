@@ -1,9 +1,5 @@
-use super::EntityView;
-use crate::{
-    app::message_handling::GuiMes,
-    db_col_view::{widget::DbColView, ColViewMes},
-    style::header,
-};
+use super::{EntityView, EntityViewMessage};
+use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{button, component, Component};
 use iced::{
     widget::{text_editor, Column, Row},
@@ -30,15 +26,17 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
 
 impl<'a> EntityView<'a> {
     fn label_buttons(&self) -> Row<'_, GuiMes> {
-        let new_entity =
-            button("New Entity Label").on_press(GuiMes::EntityLabelViewUpd(ColViewMes::New));
+        let new_entity = button("New Entity Label")
+            .on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
         Row::new().push(new_entity).spacing(5).padding(5)
     }
 
     fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
         let mut new_descriptor = button("New Descriptor");
-        if self.state.label_view_state.get_selected().is_some() {
-            new_descriptor = new_descriptor.on_press(GuiMes::DescriptorViewUpd(ColViewMes::New));
+        if let Some(label) = self.state.label_view_state.get_selected() {
+            new_descriptor = new_descriptor.on_press(GuiMes::EntityViewUpd(
+                EntityViewMessage::NewDescriptor(label.clone()),
+            ));
         }
 
         Row::new().push(new_descriptor).spacing(5).padding(5)
@@ -58,13 +56,13 @@ impl<'a> EntityView<'a> {
             .push(DbColView::new(
                 "Label",
                 vec![],
-                GuiMes::EntityLabelViewUpd,
+                |m| GuiMes::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
                 &self.state.label_view_state,
             ))
             .push(DbColView::new(
                 "Descriptor",
                 vec![],
-                GuiMes::DescriptorViewUpd,
+                |m| GuiMes::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
                 &self.state.descriptor_view_state,
             ))
             .push(self.desription_view())

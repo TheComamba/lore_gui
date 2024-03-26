@@ -1,5 +1,5 @@
 use super::db_col_view::state::DbColViewState;
-use crate::errors::LoreGuiError;
+use crate::{db_col_view::ColViewMes, errors::LoreGuiError};
 use iced::widget::text_editor;
 use lorecore::sql::{
     entity::{extract_descriptors, extract_labels},
@@ -17,6 +17,14 @@ pub(super) struct EntityViewState {
     pub(super) label_view_state: DbColViewState,
     pub(super) descriptor_view_state: DbColViewState,
     pub(super) current_description: text_editor::Content,
+}
+
+#[derive(Debug, Clone)]
+pub(super) enum EntityViewMessage {
+    NewEntity,
+    NewDescriptor(String),
+    LabelViewUpd(ColViewMes),
+    DescriptorViewUpd(ColViewMes),
 }
 
 impl<'a> EntityView<'a> {

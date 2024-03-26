@@ -5,13 +5,28 @@ use crate::{
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
     },
-    entity_view::EntityViewState,
+    entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
 use iced::widget::text_editor;
 use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
+    pub(super) fn update_entity_view(
+        &mut self,
+        event: EntityViewMessage,
+    ) -> Result<(), LoreGuiError> {
+        match event {
+            EntityViewMessage::NewEntity => self.dialog = Some(Box::new(NewEntityDialog::new())),
+            EntityViewMessage::NewDescriptor(label) => {
+                self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())))
+            }
+            EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
+            EntityViewMessage::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
+        };
+        Ok(())
+    }
+
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {

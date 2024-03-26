@@ -5,6 +5,7 @@ use crate::{
         new_descriptor::NewDescriptorData, new_entity::NewEntityData,
         new_history_item::NewHistoryData,
     },
+    entity_view::EntityViewMessage,
     errors::LoreGuiError,
 };
 
@@ -13,8 +14,7 @@ pub(crate) enum GuiMes {
     ViewSelected(ViewType),
     NewDatabase,
     OpenDatabase,
-    EntityLabelViewUpd(ColViewMes),
-    DescriptorViewUpd(ColViewMes),
+    EntityViewUpd(EntityViewMessage),
     YearViewUpd(ColViewMes),
     DayViewUpd(ColViewMes),
     HistoryTimestampViewUpd(ColViewMes),
@@ -32,8 +32,7 @@ impl SqlGui {
             GuiMes::ViewSelected(view) => self.selected_view = view,
             GuiMes::NewDatabase => self.new_database_from_dialog()?,
             GuiMes::OpenDatabase => self.open_database_from_dialog()?,
-            GuiMes::EntityLabelViewUpd(event) => self.update_label_view(event)?,
-            GuiMes::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
+            GuiMes::EntityViewUpd(event) => self.update_entity_view(event)?,
             GuiMes::YearViewUpd(event) => self.update_year_view(event)?,
             GuiMes::DayViewUpd(event) => self.update_day_view(event)?,
             GuiMes::HistoryTimestampViewUpd(event) => self.update_timestamp_view(event)?,
