@@ -65,10 +65,10 @@ impl SqlGui {
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
-                state.current_role = None;
+                state.role_view_state.set_search_text(text);
             }
             ColViewMes::Selected(_index, role) => {
-                state.current_role = Some(role);
+                state.role_view_state.set_selected(role);
             }
         };
         Ok(())
@@ -82,9 +82,10 @@ impl RelationshipViewState {
     ) -> Result<(), LoreGuiError> {
         self.parent_view_state.set_selected_none();
         self.child_view_state.set_selected_none();
-        self.current_role = None;
+        self.role_view_state.set_selected_none();
         self.update_parents(db)?;
         self.update_children(db)?;
+        self.update_role(db)?;
         Ok(())
     }
 
@@ -101,7 +102,8 @@ impl RelationshipViewState {
     }
 
     fn update_role(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        self.current_role = self.get_current_role(db)?;
+        let roles = self.get_current_roles(db)?;
+        self.role_view_state.set_entries(roles);
         Ok(())
     }
 }
