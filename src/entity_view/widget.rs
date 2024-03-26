@@ -4,7 +4,7 @@ use crate::{
     db_col_view::{widget::DbColView, ColViewMes},
     style::header,
 };
-use iced::widget::{component, Component};
+use iced::widget::{button, component, Component};
 use iced::{
     widget::{text_editor, Column, Row},
     Alignment, Element, Length,
@@ -20,60 +20,23 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        Row::new()
-            .push(DbColView::new(
-                "Label",
-                self.label_button_infos(),
-                GuiMes::EntityLabelViewUpd,
-                &self.state.label_view_state,
-            ))
-            .push(DbColView::new(
-                "Descriptor",
-                self.descriptor_button_infos(),
-                GuiMes::DescriptorViewUpd,
-                &self.state.descriptor_view_state,
-            ))
-            .push(self.desription_view())
-            .align_items(Alignment::Start)
-            .width(Length::Fill)
-            .height(Length::Fill)
+        Column::new()
+            .push(self.new_buttons())
+            .push(self.col_views())
             .into()
     }
 }
 
 impl<'a> EntityView<'a> {
-    fn new_entity_msg(&self) -> Option<ColViewMes> {
-        Some(ColViewMes::New)
-    }
-
-    fn new_descriptor_msg(&self) -> Option<ColViewMes> {
+    fn new_buttons(&self) -> Row<'_, GuiMes> {
+        let mut row = Row::new()
+            .push(button("New Entity Label").on_press(GuiMes::EntityLabelViewUpd(ColViewMes::New)));
         if self.state.label_view_state.get_selected().is_some() {
-            Some(ColViewMes::New)
-        } else {
-            None
+            row = row.push(
+                button("New Descriptor").on_press(GuiMes::DescriptorViewUpd(ColViewMes::New)),
+            );
         }
-    }
-
-    fn label_button_infos(&self) -> Vec<(String, Option<ColViewMes>)> {
-        vec![
-            ("New Entity Label", self.new_entity_msg()),
-            ("Delete Entity", None),
-            ("Relabel Entity", None),
-        ]
-        .into_iter()
-        .map(|(s, m)| (s.to_string(), m))
-        .collect()
-    }
-
-    fn descriptor_button_infos(&self) -> Vec<(String, Option<ColViewMes>)> {
-        vec![
-            ("New Descriptor", self.new_descriptor_msg()),
-            ("Delete Descriptor", None),
-            ("Rename Descriptor", None),
-        ]
-        .into_iter()
-        .map(|(s, m)| (s.to_string(), m))
-        .collect()
+        row.spacing(5).padding(5)
     }
 
     fn desription_view(&self) -> Column<'_, GuiMes> {
@@ -83,6 +46,27 @@ impl<'a> EntityView<'a> {
             .padding(5)
             .spacing(5)
             .width(Length::Fill)
+    }
+
+    fn col_views(&self) -> Element<'_, GuiMes> {
+        Row::new()
+            .push(DbColView::new(
+                "Label",
+                vec![],
+                GuiMes::EntityLabelViewUpd,
+                &self.state.label_view_state,
+            ))
+            .push(DbColView::new(
+                "Descriptor",
+                vec![],
+                GuiMes::DescriptorViewUpd,
+                &self.state.descriptor_view_state,
+            ))
+            .push(self.desription_view())
+            .align_items(Alignment::Start)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
     }
 }
 
