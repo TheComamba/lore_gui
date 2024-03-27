@@ -5,6 +5,7 @@ use iced::{
 };
 use iced_aw::{style::CardStyles, Card};
 
+pub(crate) mod confirmation;
 pub(crate) mod error;
 pub(crate) mod new_descriptor;
 pub(crate) mod new_entity;
