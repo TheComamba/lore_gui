@@ -22,16 +22,20 @@ impl RedateHistoryDialog {
 #[derive(Debug, Clone)]
 pub(crate) struct RedateHistoryData {
     pub(self) timestamp: i64,
-    pub(self) new_year: Option<i32>,
+    pub(self) old_year: i32,
+    pub(self) old_day: Option<i32>,
+    pub(self) new_year: i32,
     pub(self) new_day: Option<i32>,
 }
 
 impl RedateHistoryData {
-    pub(crate) fn new(timestamp: i64) -> Self {
+    pub(crate) fn new(timestamp: i64, old_year: i32, old_day: Option<i32>) -> Self {
         RedateHistoryData {
             timestamp,
-            new_year: None,
-            new_day: None,
+            new_year: old_year,
+            new_day: old_day.clone(),
+            old_year,
+            old_day,
         }
     }
 
@@ -40,7 +44,12 @@ impl RedateHistoryData {
 
 impl Dialog for RedateHistoryDialog {
     fn header(&self) -> String {
-        format!("Redate history for entity: {}", self.data.timestamp)
+        format!(
+            "Redate history for entity: year {}, day {} ({})",
+            self.data.old_year,
+            self.data.old_day.unwrap_or(0),
+            self.data.timestamp
+        )
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
@@ -56,7 +65,7 @@ impl Component<GuiMes> for RedateHistoryDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             RedateHistoryMes::YearUpd(year) => {
-                self.data.new_year = Some(year);
+                self.data.new_year = year;
                 None
             }
             RedateHistoryMes::DayUpd(day) => {
@@ -68,7 +77,7 @@ impl Component<GuiMes> for RedateHistoryDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let year_input = TextInput::new("", &self.data.new_year.unwrap_or_default().to_string())
+        let year_input = TextInput::new("", &self.data.new_year.to_string())
             .on_input(|input| RedateHistoryMes::YearUpd(input.parse().unwrap_or_default()));
         let day_string = match self.data.new_day {
             Some(day) => day.to_string(),
