@@ -14,10 +14,8 @@ pub(crate) struct ChangeRoleDialog {
 }
 
 impl ChangeRoleDialog {
-    pub(crate) fn new(parent: String, child: String, old_role: String) -> Self {
-        ChangeRoleDialog {
-            data: ChangeRoleData::new(parent, child, old_role),
-        }
+    pub(crate) fn new(data: ChangeRoleData) -> Self {
+        ChangeRoleDialog { data }
     }
 }
 

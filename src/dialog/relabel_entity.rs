@@ -14,10 +14,8 @@ pub(crate) struct RelabelEntityDialog {
 }
 
 impl RelabelEntityDialog {
-    pub(crate) fn new(old_label: String) -> Self {
-        RelabelEntityDialog {
-            data: RelabelEntityData::new(old_label),
-        }
+    pub(crate) fn new(data: RelabelEntityData) -> Self {
+        RelabelEntityDialog { data }
     }
 }
 

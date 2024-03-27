@@ -5,6 +5,8 @@ use crate::{
         confirmation::ConfirmationDialog,
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
+        relabel_entity::RelabelEntityDialog,
+        rename_descriptor::RenameDescriptorDialog,
     },
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
@@ -19,6 +21,9 @@ impl SqlGui {
     ) -> Result<(), LoreGuiError> {
         match event {
             EntityViewMessage::NewEntity => self.dialog = Some(Box::new(NewEntityDialog::new())),
+            EntityViewMessage::RelabelEntity(data) => {
+                self.dialog = Some(Box::new(RelabelEntityDialog::new(data)))
+            }
             EntityViewMessage::DeleteEntity(label) => {
                 let message = format!("Do you really want to delete {}?", label);
                 let on_confirm = GuiMes::DeleteEntity(label);
@@ -26,6 +31,9 @@ impl SqlGui {
             }
             EntityViewMessage::NewDescriptor(label) => {
                 self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())))
+            }
+            EntityViewMessage::RenameDescriptor(data) => {
+                self.dialog = Some(Box::new(RenameDescriptorDialog::new(data)))
             }
             EntityViewMessage::DeleteDescriptor(label, descriptor) => {
                 let message = format!(

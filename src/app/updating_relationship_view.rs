@@ -6,6 +6,7 @@ use super::{message_handling::GuiMes, SqlGui};
 use crate::{
     db_col_view::ColViewMes,
     dialog::{
+        change_role::ChangeRoleDialog,
         confirmation::ConfirmationDialog,
         new_relationship::{NewRelationshipData, NewRelationshipDialog},
     },
@@ -25,6 +26,9 @@ impl SqlGui {
                     labels.clone(),
                     labels.clone(),
                 )));
+            }
+            RelationshipViewMessage::ChangeRole(data) => {
+                self.dialog = Some(Box::new(ChangeRoleDialog::new(data.clone())));
             }
             RelationshipViewMessage::DeleteRelationship(parent, child, role) => {
                 let message = format!(

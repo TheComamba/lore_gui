@@ -10,28 +10,26 @@ use super::Dialog;
 
 #[derive(Debug, Clone)]
 pub(crate) struct RenameDescriptorDialog {
-    label: String,
     data: RenameDescriptorData,
 }
 
 impl RenameDescriptorDialog {
-    pub(crate) fn new(label: String, old_descriptor: String) -> Self {
-        RenameDescriptorDialog {
-            label,
-            data: RenameDescriptorData::new(old_descriptor),
-        }
+    pub(crate) fn new(data: RenameDescriptorData) -> Self {
+        RenameDescriptorDialog { data }
     }
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct RenameDescriptorData {
+    pub(self) label: String,
     pub(self) old_descriptor: String,
     pub(self) new_descriptor: String,
 }
 
 impl RenameDescriptorData {
-    pub(crate) fn new(old_descriptor: String) -> Self {
+    pub(crate) fn new(label: String, old_descriptor: String) -> Self {
         RenameDescriptorData {
+            label,
             old_descriptor,
             new_descriptor: String::new(),
         }
@@ -65,7 +63,10 @@ impl RenameDescriptorData {
 
 impl Dialog for RenameDescriptorDialog {
     fn header(&self) -> String {
-        format!("Rename descriptor for entity: {}", self.label)
+        format!(
+            "Rename descriptor {} of entity {}",
+            self.data.old_descriptor, self.data.label
+        )
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {

@@ -1,5 +1,7 @@
 use super::db_col_view::state::DbColViewState;
-use crate::{db_col_view::ColViewMes, errors::LoreGuiError};
+use crate::{
+    db_col_view::ColViewMes, dialog::redate_history::RedateHistoryData, errors::LoreGuiError,
+};
 use iced::widget::text_editor;
 use lorecore::sql::{
     history::{extract_days, extract_years},
@@ -29,6 +31,7 @@ pub(super) struct HistoryViewState {
 #[derive(Debug, Clone)]
 pub(super) enum HistoryViewMessage {
     NewHistoryItem,
+    RedateHistoryItem(RedateHistoryData),
     DeleteHistoryItem(i64),
     YearViewUpd(ColViewMes),
     DayViewUpd(ColViewMes),

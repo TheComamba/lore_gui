@@ -6,6 +6,7 @@ use crate::{
     dialog::{
         confirmation::ConfirmationDialog,
         new_history_item::{NewHistoryData, NewHistoryDialog},
+        redate_history::RedateHistoryDialog,
     },
     errors::LoreGuiError,
     history_view::{HistoryViewMessage, HistoryViewState},
@@ -21,6 +22,9 @@ impl SqlGui {
         match event {
             HistoryViewMessage::NewHistoryItem => {
                 self.dialog = Some(Box::new(NewHistoryDialog::new()))
+            }
+            HistoryViewMessage::RedateHistoryItem(data) => {
+                self.dialog = Some(Box::new(RedateHistoryDialog::new(data)))
             }
             HistoryViewMessage::DeleteHistoryItem(timestamp) => {
                 let message = format!("Do you really want to delete {}?", timestamp);

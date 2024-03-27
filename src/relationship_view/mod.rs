@@ -1,5 +1,6 @@
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
+    dialog::change_role::ChangeRoleData,
     errors::LoreGuiError,
 };
 use lorecore::sql::{
@@ -29,6 +30,7 @@ pub(super) struct RelationshipViewState {
 #[derive(Debug, Clone)]
 pub(super) enum RelationshipViewMessage {
     NewRelationship,
+    ChangeRole(ChangeRoleData),
     DeleteRelationship(String, String, String),
     ParentViewUpd(ColViewMes),
     ChildViewUpd(ColViewMes),

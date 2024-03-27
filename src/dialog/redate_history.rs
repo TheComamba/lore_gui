@@ -10,16 +10,12 @@ use super::Dialog;
 
 #[derive(Debug, Clone)]
 pub(crate) struct RedateHistoryDialog {
-    label: String,
     data: RedateHistoryData,
 }
 
 impl RedateHistoryDialog {
-    pub(crate) fn new(label: String, timestamp: i64) -> Self {
-        RedateHistoryDialog {
-            label,
-            data: RedateHistoryData::new(timestamp),
-        }
+    pub(crate) fn new(data: RedateHistoryData) -> Self {
+        RedateHistoryDialog { data }
     }
 }
 
@@ -44,7 +40,7 @@ impl RedateHistoryData {
 
 impl Dialog for RedateHistoryDialog {
     fn header(&self) -> String {
-        format!("Redate history for entity: {}", self.label)
+        format!("Redate history for entity: {}", self.data.timestamp)
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
