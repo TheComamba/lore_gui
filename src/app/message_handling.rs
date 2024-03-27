@@ -2,7 +2,7 @@ use super::{SqlGui, ViewType};
 use crate::{
     dialog::{
         new_descriptor::NewDescriptorData, new_entity::NewEntityData,
-        new_history_item::NewHistoryData, new_relationship::NewRelationshipData,
+        new_history_item::NewHistoryData, new_relationship::NewRelationshipData, relabel_entity::RelabelEntityData, rename_descriptor::RenameDescriptorData,
     },
     entity_view::EntityViewMessage,
     errors::LoreGuiError,
@@ -20,12 +20,16 @@ pub(crate) enum GuiMes {
     RelationshipViewUpd(RelationshipViewMessage),
     DialogClosed,
     NewEntity(NewEntityData),
+    RelabelEntity(RelabelEntityData),
     DeleteEntity(String),
     NewDescriptor(NewDescriptorData),
+    RenameDescriptor(RenameDescriptorData),
     DeleteDescriptor(String, String),
     NewHistoryItem(NewHistoryData),
+    RedateHistoryItem(i32, Option<i32>, i64),
     DeleteHistoryItem(i64),
     NewRelationship(NewRelationshipData),
+    ChangeRole(String, String, String, String),
     DeleteRelationship(String, String, String),
 }
 
@@ -40,12 +44,16 @@ impl SqlGui {
             GuiMes::RelationshipViewUpd(event) => self.update_relationship_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,
             GuiMes::NewEntity(data) => self.write_new_entity(data)?,
+            GuiMes::RelabelEntity(data) => todo!(),
             GuiMes::DeleteEntity(label) => todo!(),
             GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
+            GuiMes::RenameDescriptor(data) => todo!(),
             GuiMes::DeleteDescriptor(label, descriptor) => todo!(),
             GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
+            GuiMes::RedateHistoryItem(year, month, timestamp) => todo!(),
             GuiMes::DeleteHistoryItem(timestamp) => todo!(),
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
+            GuiMes::ChangeRole(parent, child, old_role, new_role) => todo!(),
             GuiMes::DeleteRelationship(parent, child, role) => todo!(),
         }
         Ok(())
