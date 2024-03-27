@@ -1,7 +1,7 @@
 use super::Dialog;
 use crate::app::message_handling::GuiMes;
-use iced::widget::{component, Button, Column, Component, Text};
-use iced::Element;
+use iced::widget::{component, Button, Column, Component, Row, Text};
+use iced::{Alignment, Element, Length};
 use iced_aw::CardStyles;
 
 #[derive(Debug, Clone)]
@@ -45,10 +45,14 @@ impl Component<GuiMes> for ConfirmationDialog {
         let message = Text::new(&self.message);
         let yes_button = Button::new(Text::new("Yes")).on_press(self.on_confirm.clone());
         let no_button = Button::new(Text::new("No")).on_press(GuiMes::DialogClosed);
+
+        let buttons = Row::new().push(yes_button).push(no_button).spacing(50);
+
         Column::new()
             .push(message)
-            .push(yes_button)
-            .push(no_button)
+            .push(buttons)
+            .width(Length::Fill)
+            .align_items(Alignment::Center)
             .into()
     }
 }
