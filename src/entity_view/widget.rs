@@ -28,7 +28,17 @@ impl<'a> EntityView<'a> {
     fn label_buttons(&self) -> Row<'_, GuiMes> {
         let new_entity = button("New Entity Label")
             .on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
-        Row::new().push(new_entity).spacing(5).padding(5)
+        let mut delete_entity = button("Delete Entity Label");
+        if let Some(label) = self.state.label_view_state.get_selected() {
+            delete_entity = delete_entity.on_press(GuiMes::EntityViewUpd(
+                EntityViewMessage::DeleteEntity(label.clone()),
+            ));
+        }
+        Row::new()
+            .push(new_entity)
+            .push(delete_entity)
+            .spacing(5)
+            .padding(5)
     }
 
     fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
@@ -38,8 +48,19 @@ impl<'a> EntityView<'a> {
                 EntityViewMessage::NewDescriptor(label.clone()),
             ));
         }
-
-        Row::new().push(new_descriptor).spacing(5).padding(5)
+        let mut delete_descriptor = button("Delete Descriptor");
+        if let Some(descriptor) = self.state.descriptor_view_state.get_selected() {
+            if let Some(label) = self.state.label_view_state.get_selected() {
+                delete_descriptor = delete_descriptor.on_press(GuiMes::EntityViewUpd(
+                    EntityViewMessage::DeleteDescriptor(label.clone(), descriptor.clone()),
+                ));
+            }
+        }
+        Row::new()
+            .push(new_descriptor)
+            .push(delete_descriptor)
+            .spacing(5)
+            .padding(5)
     }
 
     fn desription_view(&self) -> Column<'_, GuiMes> {

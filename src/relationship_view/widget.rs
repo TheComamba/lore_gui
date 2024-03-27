@@ -26,12 +26,27 @@ impl<'a> Component<GuiMes> for RelationshipView<'a> {
 
 impl<'a> RelationshipView<'a> {
     fn buttons(&self) -> Row<'_, GuiMes> {
+        let new_relationship = button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
+            RelationshipViewMessage::NewRelationship,
+        ));
+        let mut delete_relationship = button("Delete Relationship");
+        if let (Some(parent), Some(child)) = (
+            self.state.parent_view_state.get_selected(),
+            self.state.child_view_state.get_selected(),
+        ) {
+            let role = self
+                .state
+                .role_view_state
+                .get_selected()
+                .clone()
+                .unwrap_or_default();
+            delete_relationship = delete_relationship.on_press(GuiMes::RelationshipViewUpd(
+                RelationshipViewMessage::DeleteRelationship(parent.clone(), child.clone(), role),
+            ));
+        }
         Row::new()
-            .push(
-                button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
-                    RelationshipViewMessage::NewRelationship,
-                )),
-            )
+            .push(new_relationship)
+            .push(delete_relationship)
             .spacing(5)
             .padding(5)
     }

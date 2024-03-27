@@ -28,7 +28,17 @@ impl<'a> HistoryView<'a> {
     fn buttons(&self) -> Row<'_, GuiMes> {
         let new_item = button("New History Item")
             .on_press(GuiMes::HistoryViewUpd(HistoryViewMessage::NewHistoryItem));
-        Row::new().push(new_item).spacing(5).padding(5)
+        let mut delete_item = button("Delete History Item");
+        if let Ok(Some(timestamp)) = self.state.timestamp_view_state.get_selected_as::<i64>() {
+            delete_item = delete_item.on_press(GuiMes::HistoryViewUpd(
+                HistoryViewMessage::DeleteHistoryItem(timestamp),
+            ));
+        }
+        Row::new()
+            .push(new_item)
+            .push(delete_item)
+            .spacing(5)
+            .padding(5)
     }
 
     fn content_view(&self) -> Column<'_, GuiMes> {
