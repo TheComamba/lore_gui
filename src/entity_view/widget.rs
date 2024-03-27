@@ -1,4 +1,6 @@
 use super::{EntityView, EntityViewMessage};
+use crate::dialog::relabel_entity::RelabelEntityData;
+use crate::dialog::rename_descriptor::RenameDescriptorData;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{button, component, Component};
 use iced::{
@@ -28,14 +30,20 @@ impl<'a> EntityView<'a> {
     fn label_buttons(&self) -> Row<'_, GuiMes> {
         let new_entity = button("New Entity Label")
             .on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
+        let mut relabel_entity = button("Relabel Entity Label");
         let mut delete_entity = button("Delete Entity Label");
         if let Some(label) = self.state.label_view_state.get_selected() {
+            let relabel_entity_data = RelabelEntityData::new(label.clone());
+            relabel_entity = relabel_entity.on_press(GuiMes::EntityViewUpd(
+                EntityViewMessage::RelabelEntity(relabel_entity_data),
+            ));
             delete_entity = delete_entity.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::DeleteEntity(label.clone()),
             ));
         }
         Row::new()
             .push(new_entity)
+            .push(relabel_entity)
             .push(delete_entity)
             .spacing(5)
             .padding(5)
@@ -43,14 +51,18 @@ impl<'a> EntityView<'a> {
 
     fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
         let mut new_descriptor = button("New Descriptor");
+        let mut rename_descriptor = button("Rename Descriptor");
+        let mut delete_descriptor = button("Delete Descriptor");
         if let Some(label) = self.state.label_view_state.get_selected() {
             new_descriptor = new_descriptor.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::NewDescriptor(label.clone()),
             ));
-        }
-        let mut delete_descriptor = button("Delete Descriptor");
-        if let Some(descriptor) = self.state.descriptor_view_state.get_selected() {
-            if let Some(label) = self.state.label_view_state.get_selected() {
+            if let Some(descriptor) = self.state.descriptor_view_state.get_selected() {
+                let rename_descriptor_data =
+                    RenameDescriptorData::new(label.clone(), descriptor.clone());
+                rename_descriptor = rename_descriptor.on_press(GuiMes::EntityViewUpd(
+                    EntityViewMessage::RenameDescriptor(rename_descriptor_data),
+                ));
                 delete_descriptor = delete_descriptor.on_press(GuiMes::EntityViewUpd(
                     EntityViewMessage::DeleteDescriptor(label.clone(), descriptor.clone()),
                 ));
@@ -58,6 +70,7 @@ impl<'a> EntityView<'a> {
         }
         Row::new()
             .push(new_descriptor)
+            .push(rename_descriptor)
             .push(delete_descriptor)
             .spacing(5)
             .padding(5)

@@ -1,4 +1,5 @@
 use super::{HistoryView, HistoryViewMessage};
+use crate::dialog::redate_history::RedateHistoryData;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
 use iced::widget::{button, component, text_editor, Component};
 use iced::Alignment;
@@ -28,14 +29,20 @@ impl<'a> HistoryView<'a> {
     fn buttons(&self) -> Row<'_, GuiMes> {
         let new_item = button("New History Item")
             .on_press(GuiMes::HistoryViewUpd(HistoryViewMessage::NewHistoryItem));
+        let mut redate_history = button("Redate History Item");
         let mut delete_item = button("Delete History Item");
         if let Ok(Some(timestamp)) = self.state.timestamp_view_state.get_selected_as::<i64>() {
+            let redate_history_data = RedateHistoryData::new(timestamp);
+            redate_history = redate_history.on_press(GuiMes::HistoryViewUpd(
+                HistoryViewMessage::RedateHistoryItem(redate_history_data),
+            ));
             delete_item = delete_item.on_press(GuiMes::HistoryViewUpd(
                 HistoryViewMessage::DeleteHistoryItem(timestamp),
             ));
         }
         Row::new()
             .push(new_item)
+            .push(redate_history)
             .push(delete_item)
             .spacing(5)
             .padding(5)

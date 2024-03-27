@@ -1,4 +1,5 @@
 use super::{RelationshipView, RelationshipViewMessage};
+use crate::dialog::change_role::ChangeRoleData;
 use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView};
 use iced::widget::{button, component, Component};
 use iced::Alignment;
@@ -29,6 +30,7 @@ impl<'a> RelationshipView<'a> {
         let new_relationship = button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
             RelationshipViewMessage::NewRelationship,
         ));
+        let mut change_role = button("Change Role");
         let mut delete_relationship = button("Delete Relationship");
         if let (Some(parent), Some(child)) = (
             self.state.parent_view_state.get_selected(),
@@ -40,12 +42,17 @@ impl<'a> RelationshipView<'a> {
                 .get_selected()
                 .clone()
                 .unwrap_or_default();
+            let change_role_data = ChangeRoleData::new(parent.clone(), child.clone(), role.clone());
+            change_role = change_role.on_press(GuiMes::RelationshipViewUpd(
+                RelationshipViewMessage::ChangeRole(change_role_data),
+            ));
             delete_relationship = delete_relationship.on_press(GuiMes::RelationshipViewUpd(
                 RelationshipViewMessage::DeleteRelationship(parent.clone(), child.clone(), role),
             ));
         }
         Row::new()
             .push(new_relationship)
+            .push(change_role)
             .push(delete_relationship)
             .spacing(5)
             .padding(5)
