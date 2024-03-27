@@ -38,10 +38,7 @@ impl Component<GuiMes> for ConfirmationDialog {
     type Event = GuiMes;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            GuiMes::DialogClosed => Some(GuiMes::DialogClosed),
-            _ => None,
-        }
+        Some(event)
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
