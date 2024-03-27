@@ -28,8 +28,8 @@ pub(crate) struct RelabelEntityData {
 impl RelabelEntityData {
     pub(crate) fn new(old_label: String) -> Self {
         RelabelEntityData {
+            new_label: old_label.clone(),
             old_label,
-            new_label: String::new(),
         }
     }
 
@@ -58,7 +58,7 @@ impl RelabelEntityData {
 
 impl Dialog for RelabelEntityDialog {
     fn header(&self) -> String {
-        "Relabel entity".to_string()
+        format!("Relabel entity: {}", self.data.old_label)
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
@@ -73,10 +73,6 @@ impl Component<GuiMes> for RelabelEntityDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
-            RelabelEntityMes::LabelUpd(label) => {
-                self.data.old_label = label;
-                None
-            }
             RelabelEntityMes::NewLabelUpd(new_label) => {
                 self.data.new_label = new_label;
                 None
@@ -86,14 +82,10 @@ impl Component<GuiMes> for RelabelEntityDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let label_input =
-            TextInput::new("", &self.data.old_label).on_input(RelabelEntityMes::LabelUpd);
         let new_label_input =
             TextInput::new("", &self.data.new_label).on_input(RelabelEntityMes::NewLabelUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(RelabelEntityMes::Submit);
         Column::new()
-            .push(Text::new("Current Label:"))
-            .push(label_input)
             .push(Text::new("New Label"))
             .push(new_label_input)
             .push(submit_button)
@@ -105,7 +97,6 @@ impl Component<GuiMes> for RelabelEntityDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum RelabelEntityMes {
-    LabelUpd(String),
     NewLabelUpd(String),
     Submit,
 }

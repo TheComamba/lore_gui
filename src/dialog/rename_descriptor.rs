@@ -30,8 +30,8 @@ impl RenameDescriptorData {
     pub(crate) fn new(label: String, old_descriptor: String) -> Self {
         RenameDescriptorData {
             label,
+            new_descriptor: old_descriptor.clone(),
             old_descriptor,
-            new_descriptor: String::new(),
         }
     }
 
@@ -81,10 +81,6 @@ impl Component<GuiMes> for RenameDescriptorDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
-            RenameDescriptorMes::DescriptorUpd(descriptor) => {
-                self.data.old_descriptor = descriptor;
-                None
-            }
             RenameDescriptorMes::NewDescriptorUpd(new_descriptor) => {
                 self.data.new_descriptor = new_descriptor;
                 None
@@ -94,14 +90,10 @@ impl Component<GuiMes> for RenameDescriptorDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let descriptor_input = TextInput::new("", &self.data.old_descriptor)
-            .on_input(RenameDescriptorMes::DescriptorUpd);
         let new_descriptor_input = TextInput::new("", &self.data.new_descriptor)
             .on_input(RenameDescriptorMes::NewDescriptorUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
         Column::new()
-            .push(Text::new("Current Descriptor:"))
-            .push(descriptor_input)
             .push(Text::new("New Descriptor"))
             .push(new_descriptor_input)
             .push(submit_button)
@@ -113,7 +105,6 @@ impl Component<GuiMes> for RenameDescriptorDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum RenameDescriptorMes {
-    DescriptorUpd(String),
     NewDescriptorUpd(String),
     Submit,
 }

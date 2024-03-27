@@ -32,8 +32,8 @@ impl ChangeRoleData {
         ChangeRoleData {
             parent,
             child,
+            new_role: old_role.clone(),
             old_role,
-            new_role: String::new(),
         }
     }
 
@@ -63,8 +63,8 @@ impl ChangeRoleData {
 impl Dialog for ChangeRoleDialog {
     fn header(&self) -> String {
         format!(
-            "Change role for relationship between {} and {}",
-            self.data.parent, self.data.child
+            "Change role {} for relationship between {} and {}",
+            self.data.old_role, self.data.parent, self.data.child
         )
     }
 
@@ -80,10 +80,6 @@ impl Component<GuiMes> for ChangeRoleDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
-            ChangeRoleMes::RoleUpd(role) => {
-                self.data.old_role = role;
-                None
-            }
             ChangeRoleMes::NewRoleUpd(new_role) => {
                 self.data.new_role = new_role;
                 None
@@ -93,13 +89,10 @@ impl Component<GuiMes> for ChangeRoleDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let role_input = TextInput::new("", &self.data.old_role).on_input(ChangeRoleMes::RoleUpd);
         let new_role_input =
             TextInput::new("", &self.data.new_role).on_input(ChangeRoleMes::NewRoleUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(ChangeRoleMes::Submit);
         Column::new()
-            .push(Text::new("Current Role:"))
-            .push(role_input)
             .push(Text::new("New Role"))
             .push(new_role_input)
             .push(submit_button)
@@ -111,7 +104,6 @@ impl Component<GuiMes> for ChangeRoleDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum ChangeRoleMes {
-    RoleUpd(String),
     NewRoleUpd(String),
     Submit,
 }
