@@ -1,4 +1,7 @@
-use iced::{widget::{component, Button, Column, Component, Text, TextInput}, Element};
+use iced::{
+    widget::{component, Button, Column, Component, Text, TextInput},
+    Element,
+};
 use lorecore::sql::lore_database::LoreDatabase;
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
@@ -34,7 +37,10 @@ impl RenameDescriptorData {
         }
     }
 
-    pub(crate) fn update_descriptor_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+    pub(crate) fn update_descriptor_in_database(
+        self,
+        db: &LoreDatabase,
+    ) -> Result<(), LoreGuiError> {
         if self.old_descriptor.is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot rename descriptor with empty descriptor.".to_string(),
@@ -87,8 +93,10 @@ impl Component<GuiMes> for RenameDescriptorDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let descriptor_input = TextInput::new("", &self.data.old_descriptor).on_input(RenameDescriptorMes::DescriptorUpd);
-        let new_descriptor_input = TextInput::new("", &self.data.new_descriptor).on_input(RenameDescriptorMes::NewDescriptorUpd);
+        let descriptor_input = TextInput::new("", &self.data.old_descriptor)
+            .on_input(RenameDescriptorMes::DescriptorUpd);
+        let new_descriptor_input = TextInput::new("", &self.data.new_descriptor)
+            .on_input(RenameDescriptorMes::NewDescriptorUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
         Column::new()
             .push(Text::new("Current Descriptor:"))

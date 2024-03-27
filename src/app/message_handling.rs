@@ -2,7 +2,9 @@ use super::{SqlGui, ViewType};
 use crate::{
     dialog::{
         new_descriptor::NewDescriptorData, new_entity::NewEntityData,
-        new_history_item::NewHistoryData, new_relationship::NewRelationshipData, relabel_entity::RelabelEntityData, rename_descriptor::RenameDescriptorData,
+        new_history_item::NewHistoryData, new_relationship::NewRelationshipData,
+        redate_history::RedateHistoryData, relabel_entity::RelabelEntityData,
+        rename_descriptor::RenameDescriptorData,
     },
     entity_view::EntityViewMessage,
     errors::LoreGuiError,
@@ -26,7 +28,7 @@ pub(crate) enum GuiMes {
     RenameDescriptor(RenameDescriptorData),
     DeleteDescriptor(String, String),
     NewHistoryItem(NewHistoryData),
-    RedateHistoryItem(i32, Option<i32>, i64),
+    RedateHistoryItem(RedateHistoryData),
     DeleteHistoryItem(i64),
     NewRelationship(NewRelationshipData),
     ChangeRole(String, String, String, String),
@@ -50,7 +52,7 @@ impl SqlGui {
             GuiMes::RenameDescriptor(data) => todo!(),
             GuiMes::DeleteDescriptor(label, descriptor) => todo!(),
             GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
-            GuiMes::RedateHistoryItem(year, month, timestamp) => todo!(),
+            GuiMes::RedateHistoryItem(data) => todo!(),
             GuiMes::DeleteHistoryItem(timestamp) => todo!(),
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
             GuiMes::ChangeRole(parent, child, old_role, new_role) => todo!(),

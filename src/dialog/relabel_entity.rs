@@ -1,4 +1,7 @@
-use iced::{widget::{component, Button, Column, Component, Text, TextInput}, Element};
+use iced::{
+    widget::{component, Button, Column, Component, Text, TextInput},
+    Element,
+};
 use lorecore::sql::lore_database::LoreDatabase;
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
@@ -85,8 +88,10 @@ impl Component<GuiMes> for RelabelEntityDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let label_input = TextInput::new("", &self.data.old_label).on_input(RelabelEntityMes::LabelUpd);
-        let new_label_input = TextInput::new("", &self.data.new_label).on_input(RelabelEntityMes::NewLabelUpd);
+        let label_input =
+            TextInput::new("", &self.data.old_label).on_input(RelabelEntityMes::LabelUpd);
+        let new_label_input =
+            TextInput::new("", &self.data.new_label).on_input(RelabelEntityMes::NewLabelUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(RelabelEntityMes::Submit);
         Column::new()
             .push(Text::new("Current Label:"))
