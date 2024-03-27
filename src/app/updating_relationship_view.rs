@@ -2,10 +2,13 @@ use lorecore::sql::{
     entity::extract_labels, lore_database::LoreDatabase, search_params::EntityColumnSearchParams,
 };
 
-use super::SqlGui;
+use super::{message_handling::GuiMes, SqlGui};
 use crate::{
     db_col_view::ColViewMes,
-    dialog::new_relationship::{NewRelationshipData, NewRelationshipDialog},
+    dialog::{
+        confirmation::ConfirmationDialog,
+        new_relationship::{NewRelationshipData, NewRelationshipDialog},
+    },
     errors::LoreGuiError,
     relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
@@ -22,6 +25,14 @@ impl SqlGui {
                     labels.clone(),
                     labels.clone(),
                 )));
+            }
+            RelationshipViewMessage::DeleteRelationship(parent, child, role) => {
+                let message = format!(
+                    "Do you really want to delete the {} relationship between {} and {}?",
+                    role, parent, child
+                );
+                let on_confirm = GuiMes::DeleteRelationship(parent, child, role);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             RelationshipViewMessage::ParentViewUpd(event) => {
                 self.update_parent_view(event)?;

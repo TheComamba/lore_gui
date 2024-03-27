@@ -29,6 +29,7 @@ pub(super) struct RelationshipViewState {
 #[derive(Debug, Clone)]
 pub(super) enum RelationshipViewMessage {
     NewRelationship,
+    DeleteRelationship(String, String, String),
     ParentViewUpd(ColViewMes),
     ChildViewUpd(ColViewMes),
     RoleViewUpd(ColViewMes),

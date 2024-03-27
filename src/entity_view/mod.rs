@@ -22,7 +22,9 @@ pub(super) struct EntityViewState {
 #[derive(Debug, Clone)]
 pub(super) enum EntityViewMessage {
     NewEntity,
+    DeleteEntity(String),
     NewDescriptor(String),
+    DeleteDescriptor(String, String),
     LabelViewUpd(ColViewMes),
     DescriptorViewUpd(ColViewMes),
 }

@@ -29,6 +29,7 @@ pub(super) struct HistoryViewState {
 #[derive(Debug, Clone)]
 pub(super) enum HistoryViewMessage {
     NewHistoryItem,
+    DeleteHistoryItem(i64),
     YearViewUpd(ColViewMes),
     DayViewUpd(ColViewMes),
     HistoryTimestampViewUpd(ColViewMes),

@@ -3,12 +3,15 @@ use lorecore::sql::lore_database::LoreDatabase;
 
 use crate::{
     db_col_view::ColViewMes,
-    dialog::new_history_item::{NewHistoryData, NewHistoryDialog},
+    dialog::{
+        confirmation::ConfirmationDialog,
+        new_history_item::{NewHistoryData, NewHistoryDialog},
+    },
     errors::LoreGuiError,
     history_view::{HistoryViewMessage, HistoryViewState},
 };
 
-use super::SqlGui;
+use super::{message_handling::GuiMes, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_history_view(
@@ -18,6 +21,11 @@ impl SqlGui {
         match event {
             HistoryViewMessage::NewHistoryItem => {
                 self.dialog = Some(Box::new(NewHistoryDialog::new()))
+            }
+            HistoryViewMessage::DeleteHistoryItem(timestamp) => {
+                let message = format!("Do you really want to delete {}?", timestamp);
+                let on_confirm = GuiMes::DeleteHistoryItem(timestamp);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             HistoryViewMessage::YearViewUpd(event) => self.update_year_view(event)?,
             HistoryViewMessage::DayViewUpd(event) => self.update_day_view(event)?,

@@ -1,7 +1,8 @@
-use super::SqlGui;
+use super::{message_handling::GuiMes, SqlGui};
 use crate::{
     db_col_view::ColViewMes,
     dialog::{
+        confirmation::ConfirmationDialog,
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
     },
@@ -18,8 +19,21 @@ impl SqlGui {
     ) -> Result<(), LoreGuiError> {
         match event {
             EntityViewMessage::NewEntity => self.dialog = Some(Box::new(NewEntityDialog::new())),
+            EntityViewMessage::DeleteEntity(label) => {
+                let message = format!("Do you really want to delete {}?", label);
+                let on_confirm = GuiMes::DeleteEntity(label);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
+            }
             EntityViewMessage::NewDescriptor(label) => {
                 self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())))
+            }
+            EntityViewMessage::DeleteDescriptor(label, descriptor) => {
+                let message = format!(
+                    "Do you really want to delete {}'s descriptor {}?",
+                    label, descriptor
+                );
+                let on_confirm = GuiMes::DeleteDescriptor(label, descriptor);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
             EntityViewMessage::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,

@@ -20,9 +20,13 @@ pub(crate) enum GuiMes {
     RelationshipViewUpd(RelationshipViewMessage),
     DialogClosed,
     NewEntity(NewEntityData),
+    DeleteEntity(String),
     NewDescriptor(NewDescriptorData),
+    DeleteDescriptor(String, String),
     NewHistoryItem(NewHistoryData),
+    DeleteHistoryItem(i64),
     NewRelationship(NewRelationshipData),
+    DeleteRelationship(String, String, String),
 }
 
 impl SqlGui {
@@ -36,9 +40,13 @@ impl SqlGui {
             GuiMes::RelationshipViewUpd(event) => self.update_relationship_view(event)?,
             GuiMes::DialogClosed => self.dialog = None,
             GuiMes::NewEntity(data) => self.write_new_entity(data)?,
+            GuiMes::DeleteEntity(label) => todo!(),
             GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
+            GuiMes::DeleteDescriptor(label, descriptor) => todo!(),
             GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
+            GuiMes::DeleteHistoryItem(timestamp) => todo!(),
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
+            GuiMes::DeleteRelationship(parent, child, role) => todo!(),
         }
         Ok(())
     }
