@@ -6,7 +6,7 @@ use crate::{
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
         relabel_entity::{RelabelEntityData, RelabelEntityDialog},
-        rename_descriptor::RenameDescriptorDialog,
+        rename_descriptor::{RenameDescriptorData, RenameDescriptorDialog},
     },
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
@@ -128,6 +128,22 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let descriptor = data.get_descriptor().to_string();
         data.write_to_database(db)?;
+        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn change_descriptor(
+        &mut self,
+        data: RenameDescriptorData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let descriptor = data.get_descriptor().to_string();
+        data.update_descriptor_in_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
         self.dialog = None;

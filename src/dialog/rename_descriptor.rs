@@ -50,9 +50,7 @@ impl RenameDescriptorData {
             ));
         }
 
-        todo!();
-        //db.update_descriptor_name(&self.descriptor, &self.new_descriptor)?;
-
+        db.change_entity_descriptor((&self.label, self.old_descriptor), &self.new_descriptor)?;
         Ok(())
     }
 

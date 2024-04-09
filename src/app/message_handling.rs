@@ -49,7 +49,7 @@ impl SqlGui {
             GuiMes::RelabelEntity(data) => self.relable_entity(data)?,
             GuiMes::DeleteEntity(label) => self.delete_entity(label)?,
             GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
-            GuiMes::RenameDescriptor(data) => todo!(),
+            GuiMes::RenameDescriptor(data) => self.change_descriptor(data)?,
             GuiMes::DeleteDescriptor(label, descriptor) => todo!(),
             GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
             GuiMes::RedateHistoryItem(data) => todo!(),
