@@ -1,21 +1,57 @@
-use super::SqlGui;
+use super::{message_handling::GuiMes, SqlGui};
 use crate::{
     db_col_view::ColViewMes,
     dialog::{
+        confirmation::ConfirmationDialog,
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
+        relabel_entity::{RelabelEntityData, RelabelEntityDialog},
+        rename_descriptor::{RenameDescriptorData, RenameDescriptorDialog},
     },
-    entity_view::EntityViewState,
+    entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
 use iced::widget::text_editor;
 use lorecore::sql::lore_database::LoreDatabase;
 
 impl SqlGui {
+    pub(super) fn update_entity_view(
+        &mut self,
+        event: EntityViewMessage,
+    ) -> Result<(), LoreGuiError> {
+        match event {
+            EntityViewMessage::NewEntity => self.dialog = Some(Box::new(NewEntityDialog::new())),
+            EntityViewMessage::RelabelEntity(data) => {
+                self.dialog = Some(Box::new(RelabelEntityDialog::new(data)))
+            }
+            EntityViewMessage::DeleteEntity(label) => {
+                let message = format!("Do you really want to delete {}?", label);
+                let on_confirm = GuiMes::DeleteEntity(label);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
+            }
+            EntityViewMessage::NewDescriptor(label) => {
+                self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())))
+            }
+            EntityViewMessage::RenameDescriptor(data) => {
+                self.dialog = Some(Box::new(RenameDescriptorDialog::new(data)))
+            }
+            EntityViewMessage::DeleteDescriptor(label, descriptor) => {
+                let message = format!(
+                    "Do you really want to delete {}'s descriptor {}?",
+                    label, descriptor
+                );
+                let on_confirm = GuiMes::DeleteDescriptor(label, descriptor);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
+            }
+            EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
+            EntityViewMessage::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
+        };
+        Ok(())
+    }
+
     pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
-            ColViewMes::New => self.dialog = Some(Box::new(NewEntityDialog::new())),
             ColViewMes::SearchFieldUpd(text) => {
                 state.label_view_state.set_search_text(text);
                 state.update_labels(&self.lore_database)?;
@@ -32,14 +68,6 @@ impl SqlGui {
     pub(super) fn update_descriptor_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
-            ColViewMes::New => {
-                let label = state.label_view_state.get_selected().as_ref().ok_or(
-                    LoreGuiError::InputError(
-                        "No label selected for which to create new descriptor.".to_string(),
-                    ),
-                )?;
-                self.dialog = Some(Box::new(NewDescriptorDialog::new(label.clone())));
-            }
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
                 state.update_descriptors(&self.lore_database)?;
@@ -65,6 +93,31 @@ impl SqlGui {
         Ok(())
     }
 
+    pub(super) fn relable_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let new_label = data.get_label();
+        data.update_label_in_database(db)?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_label_view(ColViewMes::Selected(0, new_label))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn delete_entity(&mut self, label: String) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_entity(label)?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_label_view(ColViewMes::Selected(0, "".to_string()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
     pub(super) fn write_new_descriptor(
         &mut self,
         data: NewDescriptorData,
@@ -77,6 +130,38 @@ impl SqlGui {
         data.write_to_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn change_descriptor(
+        &mut self,
+        data: RenameDescriptorData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let descriptor = data.get_descriptor().to_string();
+        data.update_descriptor_in_database(db)?;
+        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn delete_descriptor(
+        &mut self,
+        label: String,
+        descriptor: String,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_entity_column((label, descriptor))?;
+        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, "".to_string()))?;
         self.dialog = None;
         Ok(())
     }

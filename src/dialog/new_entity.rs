@@ -55,7 +55,6 @@ impl NewEntityData {
             ));
         }
 
-        //TODO: These should be constants somewhere.
         let category_descriptor = "_category".to_string();
         let name_descriptor = "_name".to_string();
 

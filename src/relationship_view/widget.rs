@@ -1,11 +1,13 @@
-use super::RelationshipView;
-use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
-use iced::widget::{component, Component};
+use super::{RelationshipView, RelationshipViewMessage};
+use crate::dialog::change_role::ChangeRoleData;
+use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView};
+use iced::widget::{button, component, Component};
 use iced::Alignment;
 use iced::{
-    widget::{Column, Row, Text},
+    widget::{Column, Row},
     Element, Length,
 };
+use lorecore::sql::relationships::EntityRelationship;
 
 impl<'a> Component<GuiMes> for RelationshipView<'a> {
     type State = ();
@@ -17,34 +19,74 @@ impl<'a> Component<GuiMes> for RelationshipView<'a> {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        Row::new()
-            .push(DbColView::new(
-                "Parent",
-                vec![],
-                GuiMes::ParentViewUpd,
-                &self.state.parent_view_state,
-            ))
-            .push(DbColView::new(
-                "Child",
-                vec![],
-                GuiMes::ChildViewUpd,
-                &self.state.child_view_state,
-            ))
-            .push(self.role_view())
-            .align_items(Alignment::Start)
-            .width(Length::Fill)
-            .height(Length::Fill)
+        Column::new()
+            .push(self.buttons())
+            .push(self.col_views())
             .into()
     }
 }
 
 impl<'a> RelationshipView<'a> {
-    fn role_view(&self) -> Element<'a, GuiMes> {
-        let mut col = Column::new().push(header("Role"));
-        if let Some(role) = self.state.current_role.as_ref() {
-            col = col.push(Text::new(role));
+    fn buttons(&self) -> Row<'_, GuiMes> {
+        let new_relationship = button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
+            RelationshipViewMessage::NewRelationship,
+        ));
+        let mut change_role = button("Change Role");
+        let mut delete_relationship = button("Delete Relationship");
+        if let (Some(parent), Some(child)) = (
+            self.state.parent_view_state.get_selected(),
+            self.state.child_view_state.get_selected(),
+        ) {
+            let role = self
+                .state
+                .role_view_state
+                .get_selected()
+                .clone()
+                .unwrap_or_default();
+            let relationship = EntityRelationship {
+                parent: parent.clone(),
+                child: child.clone(),
+                role: Some(role.clone()),
+            };
+            let change_role_data = ChangeRoleData::new(relationship.clone());
+            change_role = change_role.on_press(GuiMes::RelationshipViewUpd(
+                RelationshipViewMessage::ChangeRole(change_role_data),
+            ));
+            delete_relationship = delete_relationship.on_press(GuiMes::RelationshipViewUpd(
+                RelationshipViewMessage::DeleteRelationship(relationship),
+            ));
         }
-        col.padding(5).spacing(5).width(Length::Fill).into()
+        Row::new()
+            .push(new_relationship)
+            .push(change_role)
+            .push(delete_relationship)
+            .spacing(5)
+            .padding(5)
+    }
+
+    fn col_views(
+        &self,
+    ) -> iced::advanced::graphics::core::Element<'_, GuiMes, iced::Theme, iced::Renderer> {
+        Row::new()
+            .push(DbColView::new(
+                "Parent",
+                |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
+                &self.state.parent_view_state,
+            ))
+            .push(DbColView::new(
+                "Child",
+                |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
+                &self.state.child_view_state,
+            ))
+            .push(DbColView::new(
+                "Role",
+                |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
+                &self.state.role_view_state,
+            ))
+            .align_items(Alignment::Start)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
     }
 }
 

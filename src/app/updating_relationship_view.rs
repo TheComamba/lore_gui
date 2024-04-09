@@ -1,15 +1,62 @@
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::sql::{
+    entity::extract_labels, lore_database::LoreDatabase, relationships::EntityRelationship,
+    search_params::EntityColumnSearchParams,
+};
 
-use super::SqlGui;
+use super::{message_handling::GuiMes, SqlGui};
 use crate::{
-    db_col_view::ColViewMes, errors::LoreGuiError, relationship_view::RelationshipViewState,
+    db_col_view::ColViewMes,
+    dialog::{
+        change_role::{ChangeRoleData, ChangeRoleDialog},
+        confirmation::ConfirmationDialog,
+        new_relationship::{NewRelationshipData, NewRelationshipDialog},
+    },
+    errors::LoreGuiError,
+    relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
 
 impl SqlGui {
+    pub(super) fn update_relationship_view(
+        &mut self,
+        event: RelationshipViewMessage,
+    ) -> Result<(), LoreGuiError> {
+        match event {
+            RelationshipViewMessage::NewRelationship => {
+                let labels = self.get_all_labels(&self.lore_database)?;
+                self.dialog = Some(Box::new(NewRelationshipDialog::new(
+                    labels.clone(),
+                    labels.clone(),
+                )));
+            }
+            RelationshipViewMessage::ChangeRole(data) => {
+                self.dialog = Some(Box::new(ChangeRoleDialog::new(data.clone())));
+            }
+            RelationshipViewMessage::DeleteRelationship(rel) => {
+                let message = format!(
+                    "Do you really want to delete the {} relationship between {} and {}?",
+                    rel.role.clone().unwrap_or_default(),
+                    rel.parent,
+                    rel.child
+                );
+                let on_confirm = GuiMes::DeleteRelationship(rel);
+                self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
+            }
+            RelationshipViewMessage::ParentViewUpd(event) => {
+                self.update_parent_view(event)?;
+            }
+            RelationshipViewMessage::ChildViewUpd(event) => {
+                self.update_child_view(event)?;
+            }
+            RelationshipViewMessage::RoleViewUpd(event) => {
+                self.update_role_view(event)?;
+            }
+        };
+        Ok(())
+    }
+
     pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.parent_view_state.set_search_text(text);
                 state.update_parents(&self.lore_database)?;
@@ -26,7 +73,6 @@ impl SqlGui {
     pub(super) fn update_child_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
-            ColViewMes::New => (),
             ColViewMes::SearchFieldUpd(text) => {
                 state.child_view_state.set_search_text(text);
                 state.update_children(&self.lore_database)?;
@@ -39,6 +85,74 @@ impl SqlGui {
         };
         Ok(())
     }
+
+    pub(super) fn update_role_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+        let state = &mut self.relationship_view_state;
+        match event {
+            ColViewMes::SearchFieldUpd(text) => {
+                state.role_view_state.set_search_text(text);
+            }
+            ColViewMes::Selected(_index, role) => {
+                state.role_view_state.set_selected(role);
+            }
+        };
+        Ok(())
+    }
+
+    pub(super) fn write_new_relationship(
+        &mut self,
+        data: NewRelationshipData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        data.write_to_database(db)?;
+        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn change_relationship_role(
+        &mut self,
+        data: ChangeRoleData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        data.write_to_database(db)?;
+        self.update_role_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn delete_relationship(
+        &mut self,
+        rel: EntityRelationship,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_relationship(rel)?;
+        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    fn get_all_labels(&self, db: &Option<LoreDatabase>) -> Result<Vec<String>, LoreGuiError> {
+        let db = match db {
+            Some(db) => db,
+            None => return Ok(vec![]),
+        };
+        let search_params = EntityColumnSearchParams::new(None, None);
+        let entity_columns = db.read_entity_columns(search_params)?;
+        let labels = extract_labels(&entity_columns);
+        Ok(labels)
+    }
 }
 
 impl RelationshipViewState {
@@ -48,9 +162,10 @@ impl RelationshipViewState {
     ) -> Result<(), LoreGuiError> {
         self.parent_view_state.set_selected_none();
         self.child_view_state.set_selected_none();
-        self.current_role = None;
+        self.role_view_state.set_selected_none();
         self.update_parents(db)?;
         self.update_children(db)?;
+        self.update_role(db)?;
         Ok(())
     }
 
@@ -67,7 +182,8 @@ impl RelationshipViewState {
     }
 
     fn update_role(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        self.current_role = self.get_current_role(db)?;
+        let roles = self.get_current_roles(db)?;
+        self.role_view_state.set_entries(roles);
         Ok(())
     }
 }

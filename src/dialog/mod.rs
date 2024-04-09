@@ -5,10 +5,16 @@ use iced::{
 };
 use iced_aw::{style::CardStyles, Card};
 
+pub(crate) mod change_role;
+pub(crate) mod confirmation;
 pub(crate) mod error;
 pub(crate) mod new_descriptor;
 pub(crate) mod new_entity;
 pub(crate) mod new_history_item;
+pub(crate) mod new_relationship;
+pub(crate) mod redate_history;
+pub(crate) mod relabel_entity;
+pub(crate) mod rename_descriptor;
 
 pub(crate) trait Dialog {
     fn card_style(&self) -> CardStyles {

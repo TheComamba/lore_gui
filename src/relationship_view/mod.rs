@@ -1,7 +1,11 @@
-use crate::{db_col_view::state::DbColViewState, errors::LoreGuiError};
+use crate::{
+    db_col_view::{state::DbColViewState, ColViewMes},
+    dialog::change_role::ChangeRoleData,
+    errors::LoreGuiError,
+};
 use lorecore::sql::{
     lore_database::LoreDatabase,
-    relationships::{extract_children, extract_parents},
+    relationships::{extract_children, extract_parents, extract_roles, EntityRelationship},
     search_params::{RelationshipSearchParams, SqlSearchText},
 };
 
@@ -20,7 +24,17 @@ impl<'a> RelationshipView<'a> {
 pub(super) struct RelationshipViewState {
     pub(super) parent_view_state: DbColViewState,
     pub(super) child_view_state: DbColViewState,
-    pub(super) current_role: Option<String>,
+    pub(super) role_view_state: DbColViewState,
+}
+
+#[derive(Debug, Clone)]
+pub(super) enum RelationshipViewMessage {
+    NewRelationship,
+    ChangeRole(ChangeRoleData),
+    DeleteRelationship(EntityRelationship),
+    ParentViewUpd(ColViewMes),
+    ChildViewUpd(ColViewMes),
+    RoleViewUpd(ColViewMes),
 }
 
 impl RelationshipViewState {
@@ -28,7 +42,7 @@ impl RelationshipViewState {
         Self {
             parent_view_state: DbColViewState::default(),
             child_view_state: DbColViewState::default(),
-            current_role: None,
+            role_view_state: DbColViewState::default(),
         }
     }
 
@@ -78,35 +92,29 @@ impl RelationshipViewState {
         Ok(children)
     }
 
-    pub(super) fn get_current_role(
+    pub(super) fn get_current_roles(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Option<String>, LoreGuiError> {
+    ) -> Result<Vec<String>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
-            None => return Ok(None),
+            None => return Ok(vec![]),
         };
         let parent = match self.parent_view_state.get_selected() {
             Some(parent) => parent,
-            None => return Ok(None),
+            None => return Ok(vec![]),
         };
         let child = match self.child_view_state.get_selected() {
             Some(child) => child,
-            None => return Ok(None),
+            None => return Ok(vec![]),
         };
         let search_params = RelationshipSearchParams::new(
             Some(SqlSearchText::exact(parent.as_str())),
             Some(SqlSearchText::exact(child.as_str())),
         );
         let relationships = db.read_relationships(search_params)?;
-        if relationships.len() > 1 {
-            return Err(LoreGuiError::MultipleResults);
-        }
-        let role = match relationships.first() {
-            Some(relationship) => relationship.role.clone(),
-            None => None,
-        };
-        Ok(role)
+        let roles = extract_roles(&relationships);
+        Ok(roles)
     }
 }
 

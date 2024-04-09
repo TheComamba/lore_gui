@@ -3,14 +3,13 @@ use crate::{app::message_handling::GuiMes, style::header};
 use iced::widget::{component, Component};
 use iced::Font;
 use iced::{
-    widget::{button, Column, Container, Text, TextInput},
+    widget::{Column, Container, Text, TextInput},
     Element, Length,
 };
 use iced_aw::{style::SelectionListStyles, SelectionList};
 
 pub(crate) struct DbColView<'a, M> {
     title: &'a str,
-    button_infos: Vec<(String, Option<ColViewMes>)>,
     gui_message: M,
     state: &'a DbColViewState,
 }
@@ -19,15 +18,9 @@ impl<'a, M> DbColView<'a, M>
 where
     M: 'static + Clone + Fn(ColViewMes) -> GuiMes,
 {
-    pub(crate) fn new(
-        title: &'a str,
-        button_infos: Vec<(String, Option<ColViewMes>)>,
-        gui_message: M,
-        state: &'a DbColViewState,
-    ) -> Self {
+    pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState) -> Self {
         Self {
             title,
-            button_infos,
             gui_message,
             state,
         }
@@ -65,15 +58,6 @@ where
         );
         Container::new(selection_list).height(Length::Fill).into()
     }
-
-    fn button(info: &(String, Option<ColViewMes>)) -> Element<ColViewMes> {
-        let (text, press_message) = info;
-        let mut button = button(Text::new(text)).width(Length::Fill);
-        if let Some(message) = press_message.clone() {
-            button = button.on_press(message);
-        }
-        button.into()
-    }
 }
 
 impl<'a, M> Component<GuiMes> for DbColView<'a, M>
@@ -90,16 +74,12 @@ where
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let mut col = Column::new()
+        Column::new()
             .push(self.title())
             .push(self.selected())
             .push(self.search_field())
-            .push(self.selection_list());
-        for info in self.button_infos.iter() {
-            col = col.push(Self::button(info));
-        }
-
-        col.width(Length::Fill)
+            .push(self.selection_list())
+            .width(Length::Fill)
             .height(Length::Fill)
             .padding(5)
             .spacing(5)

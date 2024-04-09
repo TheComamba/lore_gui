@@ -1,0 +1,23 @@
+name: Check for TODOs
+
+on:
+    pull_request:
+        paths:
+            - '**.rs'
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v2
+
+            -   name: Check for TODOs
+                run: |
+                    if grep -ri todo * --include=*.rs; then
+                        echo "TODOs found!"
+                        exit 1
+                    else
+                        echo "No TODOs found."
+                    fi
