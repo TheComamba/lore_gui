@@ -47,7 +47,7 @@ impl SqlGui {
             GuiMes::DialogClosed => self.dialog = None,
             GuiMes::NewEntity(data) => self.write_new_entity(data)?,
             GuiMes::RelabelEntity(data) => self.relable_entity(data)?,
-            GuiMes::DeleteEntity(label) => todo!(),
+            GuiMes::DeleteEntity(label) => self.delete_entity(label)?,
             GuiMes::NewDescriptor(data) => self.write_new_descriptor(data)?,
             GuiMes::RenameDescriptor(data) => todo!(),
             GuiMes::DeleteDescriptor(label, descriptor) => todo!(),

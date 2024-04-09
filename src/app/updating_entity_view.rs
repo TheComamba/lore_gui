@@ -106,6 +106,18 @@ impl SqlGui {
         Ok(())
     }
 
+    pub(super) fn delete_entity(&mut self, label: String) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_entity(label)?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_label_view(ColViewMes::Selected(0, "".to_string()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
     pub(super) fn write_new_descriptor(
         &mut self,
         data: NewDescriptorData,
