@@ -1,3 +1,5 @@
+use lorecore::sql::relationships::EntityRelationship;
+
 use super::{SqlGui, ViewType};
 use crate::{
     dialog::{
@@ -32,7 +34,7 @@ pub(crate) enum GuiMes {
     DeleteHistoryItem(i64),
     NewRelationship(NewRelationshipData),
     ChangeRole(ChangeRoleData),
-    DeleteRelationship(String, String, String),
+    DeleteRelationship(EntityRelationship),
 }
 
 impl SqlGui {
@@ -58,7 +60,7 @@ impl SqlGui {
             GuiMes::DeleteHistoryItem(timestamp) => self.delete_history_item(timestamp)?,
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
             GuiMes::ChangeRole(data) => self.change_relationship_role(data)?,
-            GuiMes::DeleteRelationship(parent, child, role) => todo!(),
+            GuiMes::DeleteRelationship(relationship) => self.delete_relationship(relationship)?,
         }
         Ok(())
     }

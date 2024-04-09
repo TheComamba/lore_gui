@@ -1,5 +1,6 @@
 use lorecore::sql::{
-    entity::extract_labels, lore_database::LoreDatabase, search_params::EntityColumnSearchParams,
+    entity::extract_labels, lore_database::LoreDatabase, relationships::EntityRelationship,
+    search_params::EntityColumnSearchParams,
 };
 
 use super::{message_handling::GuiMes, SqlGui};
@@ -30,12 +31,14 @@ impl SqlGui {
             RelationshipViewMessage::ChangeRole(data) => {
                 self.dialog = Some(Box::new(ChangeRoleDialog::new(data.clone())));
             }
-            RelationshipViewMessage::DeleteRelationship(parent, child, role) => {
+            RelationshipViewMessage::DeleteRelationship(rel) => {
                 let message = format!(
                     "Do you really want to delete the {} relationship between {} and {}?",
-                    role, parent, child
+                    rel.role.clone().unwrap_or_default(),
+                    rel.parent,
+                    rel.child
                 );
-                let on_confirm = GuiMes::DeleteRelationship(parent, child, role);
+                let on_confirm = GuiMes::DeleteRelationship(rel);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             RelationshipViewMessage::ParentViewUpd(event) => {
@@ -121,6 +124,21 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         data.write_to_database(db)?;
         self.update_role_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn delete_relationship(
+        &mut self,
+        rel: EntityRelationship,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_relationship(rel)?;
+        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())
     }

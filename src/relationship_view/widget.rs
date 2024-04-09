@@ -48,12 +48,12 @@ impl<'a> RelationshipView<'a> {
                 child: child.clone(),
                 role: Some(role.clone()),
             };
-            let change_role_data = ChangeRoleData::new(relationship);
+            let change_role_data = ChangeRoleData::new(relationship.clone());
             change_role = change_role.on_press(GuiMes::RelationshipViewUpd(
                 RelationshipViewMessage::ChangeRole(change_role_data),
             ));
             delete_relationship = delete_relationship.on_press(GuiMes::RelationshipViewUpd(
-                RelationshipViewMessage::DeleteRelationship(parent.clone(), child.clone(), role),
+                RelationshipViewMessage::DeleteRelationship(relationship),
             ));
         }
         Row::new()

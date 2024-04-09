@@ -5,7 +5,7 @@ use crate::{
 };
 use lorecore::sql::{
     lore_database::LoreDatabase,
-    relationships::{extract_children, extract_parents, extract_roles},
+    relationships::{extract_children, extract_parents, extract_roles, EntityRelationship},
     search_params::{RelationshipSearchParams, SqlSearchText},
 };
 
@@ -31,7 +31,7 @@ pub(super) struct RelationshipViewState {
 pub(super) enum RelationshipViewMessage {
     NewRelationship,
     ChangeRole(ChangeRoleData),
-    DeleteRelationship(String, String, String),
+    DeleteRelationship(EntityRelationship),
     ParentViewUpd(ColViewMes),
     ChildViewUpd(ColViewMes),
     RoleViewUpd(ColViewMes),
