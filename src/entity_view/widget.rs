@@ -28,10 +28,10 @@ impl<'a> Component<GuiMes> for EntityView<'a> {
 
 impl<'a> EntityView<'a> {
     fn label_buttons(&self) -> Row<'_, GuiMes> {
-        let new_entity = button("New Entity Label")
-            .on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
-        let mut relabel_entity = button("Relabel Entity Label");
-        let mut delete_entity = button("Delete Entity Label");
+        let new_entity =
+            button("New Entity").on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
+        let mut relabel_entity = button("Relabel Entity");
+        let mut delete_entity = button("Delete Entity");
         if let Some(label) = self.state.label_view_state.get_selected() {
             let relabel_entity_data = RelabelEntityData::new(label.clone());
             relabel_entity = relabel_entity.on_press(GuiMes::EntityViewUpd(

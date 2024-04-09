@@ -5,7 +5,7 @@ use crate::{
         confirmation::ConfirmationDialog,
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
         new_entity::{NewEntityData, NewEntityDialog},
-        relabel_entity::RelabelEntityDialog,
+        relabel_entity::{RelabelEntityData, RelabelEntityDialog},
         rename_descriptor::RenameDescriptorDialog,
     },
     entity_view::{EntityViewMessage, EntityViewState},
@@ -89,6 +89,19 @@ impl SqlGui {
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_label_view(ColViewMes::Selected(0, label))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn relable_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        let new_label = data.get_label();
+        data.update_label_in_database(db)?;
+        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_label_view(ColViewMes::Selected(0, new_label))?;
         self.dialog = None;
         Ok(())
     }

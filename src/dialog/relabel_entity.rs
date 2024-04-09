@@ -45,14 +45,12 @@ impl RelabelEntityData {
             ));
         }
 
-        todo!();
-        //db.update_entity_label(&self.label, &self.new_label)?;
-
+        db.relabel_entity(&self.old_label, &self.new_label)?;
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &str {
-        &self.old_label
+    pub(crate) fn get_label(&self) -> String {
+        self.new_label.clone()
     }
 }
 
