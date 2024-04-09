@@ -54,8 +54,8 @@ impl SqlGui {
                 self.delete_descriptor(label, descriptor)?
             }
             GuiMes::NewHistoryItem(data) => self.write_new_history(data)?,
-            GuiMes::RedateHistoryItem(data) => todo!(),
-            GuiMes::DeleteHistoryItem(timestamp) => todo!(),
+            GuiMes::RedateHistoryItem(data) => self.redate_history_item(data)?,
+            GuiMes::DeleteHistoryItem(timestamp) => self.delete_history_item(timestamp)?,
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
             GuiMes::ChangeRole(data) => self.change_relationship_role(data)?,
             GuiMes::DeleteRelationship(parent, child, role) => todo!(),

@@ -39,7 +39,10 @@ impl RedateHistoryData {
         }
     }
 
-    // Add your logic to update the history in the database
+    pub(crate) fn update_date_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+        db.redate_history_item(self.timestamp, self.new_year, self.new_day)?;
+        Ok(())
+    }
 }
 
 impl Dialog for RedateHistoryDialog {

@@ -6,7 +6,7 @@ use crate::{
     dialog::{
         confirmation::ConfirmationDialog,
         new_history_item::{NewHistoryData, NewHistoryDialog},
-        redate_history::RedateHistoryDialog,
+        redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
     errors::LoreGuiError,
     history_view::{HistoryViewMessage, HistoryViewState},
@@ -102,6 +102,34 @@ impl SqlGui {
         self.update_year_view(ColViewMes::Selected(0, year))?;
         self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_day_view(ColViewMes::Selected(0, day))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn redate_history_item(
+        &mut self,
+        data: RedateHistoryData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        data.update_date_in_database(db)?;
+        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_year_view(ColViewMes::Selected(0, String::new()))?;
+        self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.update_day_view(ColViewMes::Selected(0, String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn delete_history_item(&mut self, timestamp: i64) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        db.delete_history_item(timestamp)?;
+        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())
     }
