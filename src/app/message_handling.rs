@@ -55,7 +55,7 @@ impl SqlGui {
             GuiMes::RedateHistoryItem(data) => todo!(),
             GuiMes::DeleteHistoryItem(timestamp) => todo!(),
             GuiMes::NewRelationship(data) => self.write_new_relationship(data)?,
-            GuiMes::ChangeRole(data) => todo!(),
+            GuiMes::ChangeRole(data) => self.change_relationship_role(data)?,
             GuiMes::DeleteRelationship(parent, child, role) => todo!(),
         }
         Ok(())

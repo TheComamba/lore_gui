@@ -7,6 +7,7 @@ use iced::{
     widget::{Column, Row},
     Element, Length,
 };
+use lorecore::sql::relationships::EntityRelationship;
 
 impl<'a> Component<GuiMes> for RelationshipView<'a> {
     type State = ();
@@ -42,7 +43,12 @@ impl<'a> RelationshipView<'a> {
                 .get_selected()
                 .clone()
                 .unwrap_or_default();
-            let change_role_data = ChangeRoleData::new(parent.clone(), child.clone(), role.clone());
+            let relationship = EntityRelationship {
+                parent: parent.clone(),
+                child: child.clone(),
+                role: Some(role.clone()),
+            };
+            let change_role_data = ChangeRoleData::new(relationship);
             change_role = change_role.on_press(GuiMes::RelationshipViewUpd(
                 RelationshipViewMessage::ChangeRole(change_role_data),
             ));

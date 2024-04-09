@@ -2,7 +2,7 @@ use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::sql::{lore_database::LoreDatabase, relationships::EntityRelationship};
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
@@ -21,42 +21,21 @@ impl ChangeRoleDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct ChangeRoleData {
-    pub(self) parent: String,
-    pub(self) child: String,
-    pub(self) old_role: String,
-    pub(self) new_role: String,
+    pub(self) old_relationship: EntityRelationship,
+    pub(self) new_role: Option<String>,
 }
 
 impl ChangeRoleData {
-    pub(crate) fn new(parent: String, child: String, old_role: String) -> Self {
+    pub(crate) fn new(old_relationship: EntityRelationship) -> Self {
         ChangeRoleData {
-            parent,
-            child,
-            new_role: old_role.clone(),
-            old_role,
+            new_role: old_relationship.role.clone(),
+            old_relationship,
         }
     }
 
-    pub(crate) fn update_role_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.old_role.is_empty() {
-            return Err(LoreGuiError::InputError(
-                "Cannot change role with empty role.".to_string(),
-            ));
-        }
-        if self.new_role.is_empty() {
-            return Err(LoreGuiError::InputError(
-                "Cannot change role with empty new role.".to_string(),
-            ));
-        }
-
-        todo!();
-        //db.update_role_name(&self.role, &self.new_role)?;
-
+    pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
+        db.change_relationship_role(self.old_relationship, &self.new_role)?;
         Ok(())
-    }
-
-    pub(crate) fn get_role(&self) -> &str {
-        &self.old_role
     }
 }
 
@@ -64,7 +43,13 @@ impl Dialog for ChangeRoleDialog {
     fn header(&self) -> String {
         format!(
             "Change role {} for relationship between {} and {}",
-            self.data.old_role, self.data.parent, self.data.child
+            self.data
+                .old_relationship
+                .role
+                .as_ref()
+                .unwrap_or(&String::new()),
+            self.data.old_relationship.parent,
+            self.data.old_relationship.child
         )
     }
 
@@ -81,7 +66,11 @@ impl Component<GuiMes> for ChangeRoleDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             ChangeRoleMes::NewRoleUpd(new_role) => {
-                self.data.new_role = new_role;
+                self.data.new_role = if new_role.is_empty() {
+                    None
+                } else {
+                    Some(new_role)
+                };
                 None
             }
             ChangeRoleMes::Submit => Some(GuiMes::ChangeRole(self.data.to_owned())),
@@ -89,8 +78,8 @@ impl Component<GuiMes> for ChangeRoleDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_role_input =
-            TextInput::new("", &self.data.new_role).on_input(ChangeRoleMes::NewRoleUpd);
+        let new_role = self.data.new_role.clone().unwrap_or_default();
+        let new_role_input = TextInput::new("", &new_role).on_input(ChangeRoleMes::NewRoleUpd);
         let submit_button = Button::new(Text::new("Update")).on_press(ChangeRoleMes::Submit);
         Column::new()
             .push(Text::new("New Role"))

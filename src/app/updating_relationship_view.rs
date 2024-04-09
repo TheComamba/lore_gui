@@ -6,7 +6,7 @@ use super::{message_handling::GuiMes, SqlGui};
 use crate::{
     db_col_view::ColViewMes,
     dialog::{
-        change_role::ChangeRoleDialog,
+        change_role::{ChangeRoleData, ChangeRoleDialog},
         confirmation::ConfirmationDialog,
         new_relationship::{NewRelationshipData, NewRelationshipDialog},
     },
@@ -107,6 +107,20 @@ impl SqlGui {
         data.write_to_database(db)?;
         self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
+        self.dialog = None;
+        Ok(())
+    }
+
+    pub(super) fn change_relationship_role(
+        &mut self,
+        data: ChangeRoleData,
+    ) -> Result<(), LoreGuiError> {
+        let db = self
+            .lore_database
+            .as_ref()
+            .ok_or(LoreGuiError::NoDatabase)?;
+        data.write_to_database(db)?;
+        self.update_role_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())
     }
