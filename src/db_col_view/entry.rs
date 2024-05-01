@@ -24,7 +24,7 @@ impl<T: DbColViewEntry> DbColViewEntry for Option<T> {
     fn column_representation(&self) -> String {
         match self {
             Some(value) => value.column_representation(),
-            None => String::new(),
+            None => "[none]".to_string(),
         }
     }
 }
