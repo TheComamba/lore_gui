@@ -1,14 +1,16 @@
 use crate::errors::LoreGuiError;
 
+use super::entry::DbColViewEntry;
+
 #[derive(Debug, Clone)]
-pub(crate) struct DbColViewState {
+pub(crate) struct DbColViewState<E: DbColViewEntry> {
     search_text: String,
-    entries: Vec<String>,
-    selected_entry: Option<String>,
+    entries: Vec<E>,
+    selected_entry: Option<E>,
 }
 
-impl DbColViewState {
-    pub(crate) fn new(entries: Vec<String>) -> Self {
+impl<E: DbColViewEntry> DbColViewState<E> {
+    pub(crate) fn new(entries: Vec<E>) -> Self {
         let mut state = DbColViewState {
             search_text: String::new(),
             entries: vec![],
@@ -18,44 +20,23 @@ impl DbColViewState {
         state
     }
 
-    pub(crate) fn get_selected_as<T>(&self) -> Result<Option<T>, LoreGuiError>
-    where
-        T: std::str::FromStr,
-        <T as std::str::FromStr>::Err: std::fmt::Display,
-    {
-        let year = match self.selected_entry.as_ref() {
-            Some(year) => year
-                .parse::<T>()
-                .map_err(|e| LoreGuiError::InputError(e.to_string()))?,
-            None => return Ok(None),
-        };
-        Ok(Some(year))
-    }
-
-    pub(crate) fn set_entries(&mut self, mut entries: Vec<String>) {
-        if !entries.contains(&String::new()) {
-            entries.insert(0, String::new());
-        }
+    pub(crate) fn set_entries(&mut self, mut entries: Vec<E>) {
         self.entries = entries;
     }
 
-    pub(crate) fn get_entries(&self) -> &Vec<String> {
-        &self.entries
+    pub(super) fn get_entries(&self) -> Vec<Option<E>> {
+        //TODO: Fix this.
+        // if !entries.contains(&String::new()) {
+        //     entries.insert(0, String::new());
+        // }
+        self.entries.iter().map(|e| Some(*e.clone())).collect()
     }
 
-    pub(crate) fn set_selected(&mut self, entry: String) {
-        if entry.is_empty() {
-            self.selected_entry = None;
-        } else {
-            self.selected_entry = Some(entry);
-        }
+    pub(crate) fn set_selected(&mut self, entry: Option<E>) {
+        self.selected_entry = entry;
     }
 
-    pub(crate) fn set_selected_none(&mut self) {
-        self.selected_entry = None;
-    }
-
-    pub(crate) fn get_selected(&self) -> &Option<String> {
+    pub(crate) fn get_selected(&self) -> &Option<E> {
         &self.selected_entry
     }
 
@@ -82,7 +63,7 @@ impl DbColViewState {
     }
 }
 
-impl Default for DbColViewState {
+impl<E: DbColViewEntry> Default for DbColViewState<E> {
     fn default() -> Self {
         Self::new(vec![])
     }

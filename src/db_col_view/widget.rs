@@ -1,3 +1,7 @@
+use std::fmt::Display;
+use std::hash::Hash;
+
+use super::entry::DbColViewEntry;
 use super::{state::DbColViewState, ColViewMes};
 use crate::{app::message_handling::GuiMes, style::header};
 use iced::widget::{component, Component};
@@ -8,17 +12,18 @@ use iced::{
 };
 use iced_aw::{style::SelectionListStyles, SelectionList};
 
-pub(crate) struct DbColView<'a, M> {
+pub(crate) struct DbColView<'a, M, E: DbColViewEntry> {
     title: &'a str,
     gui_message: M,
-    state: &'a DbColViewState,
+    state: &'a DbColViewState<E>,
 }
 
-impl<'a, M> DbColView<'a, M>
+impl<'a, M, E> DbColView<'a, M, E>
 where
-    M: 'static + Clone + Fn(ColViewMes) -> GuiMes,
+    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
+    E: DbColViewEntry + Clone + Display + Eq + Hash,
 {
-    pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState) -> Self {
+    pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
         Self {
             title,
             gui_message,
@@ -33,20 +38,20 @@ where
     fn selected(&self) -> Text {
         let content = "Selected: ".to_string()
             + match self.state.get_selected() {
-                Some(sel) => sel,
+                Some(sel) => &sel.column_representation(),
                 None => "[None]",
             };
         Text::new(content)
     }
 
-    fn search_field(&self) -> TextInput<ColViewMes> {
+    fn search_field(&self) -> TextInput<ColViewMes<E>> {
         let search_text = self.state.get_search_text().unwrap_or("");
         TextInput::new("Type to search...", search_text)
             .on_input(ColViewMes::SearchFieldUpd)
             .width(Length::Fill)
     }
 
-    fn selection_list(&self) -> Element<ColViewMes> {
+    fn selection_list(&self) -> Element<ColViewMes<E>> {
         let selection_list = SelectionList::new_with(
             self.state.get_entries(),
             ColViewMes::Selected,
@@ -60,13 +65,13 @@ where
     }
 }
 
-impl<'a, M> Component<GuiMes> for DbColView<'a, M>
+impl<'a, M, E: DbColViewEntry> Component<GuiMes> for DbColView<'a, M, E>
 where
-    M: 'static + Clone + Fn(ColViewMes) -> GuiMes,
+    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
 {
-    type State = DbColViewState;
+    type State = DbColViewState<E>;
 
-    type Event = ColViewMes;
+    type Event = ColViewMes<E>;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         let m = self.gui_message.clone();
@@ -87,11 +92,11 @@ where
     }
 }
 
-impl<'a, M> From<DbColView<'a, M>> for Element<'a, GuiMes>
+impl<'a, M, E: DbColViewEntry> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
 where
-    M: 'static + Clone + Fn(ColViewMes) -> GuiMes,
+    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
 {
-    fn from(col_view: DbColView<'a, M>) -> Self {
+    fn from(col_view: DbColView<'a, M, E>) -> Self {
         component(col_view)
     }
 }

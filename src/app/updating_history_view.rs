@@ -40,7 +40,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_year_view(&mut self, event: ColViewMes<i32>) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -49,14 +49,17 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
-                state.day_view_state.set_selected_none();
+                state.day_view_state.set_selected(None);
                 state.update_days(&self.lore_database)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_day_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_day_view(
+        &mut self,
+        event: ColViewMes<Option<i32>>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -65,14 +68,17 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
-                state.timestamp_view_state.set_selected_none();
+                state.timestamp_view_state.set_selected(None);
                 state.update_timestamps(&self.lore_database)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_timestamp_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_timestamp_view(
+        &mut self,
+        event: ColViewMes<i64>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -92,16 +98,11 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.year.to_string();
-        let day = match data.day {
-            Some(day) => day.to_string(),
-            None => String::new(),
-        };
         data.write_to_database(db)?;
         self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_year_view(ColViewMes::Selected(0, year))?;
+        self.update_year_view(ColViewMes::Selected(0, Some(data.year)))?;
         self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_day_view(ColViewMes::Selected(0, day))?;
+        self.update_day_view(ColViewMes::Selected(0, Some(data.day)))?;
         self.dialog = None;
         Ok(())
     }
@@ -115,10 +116,6 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         data.update_date_in_database(db)?;
-        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_year_view(ColViewMes::Selected(0, String::new()))?;
-        self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_day_view(ColViewMes::Selected(0, String::new()))?;
         self.dialog = None;
         Ok(())
     }
@@ -129,7 +126,6 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_history_item(timestamp)?;
-        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())
     }
@@ -140,42 +136,30 @@ impl HistoryViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.year_view_state.set_selected_none();
-        self.day_view_state.set_selected_none();
-        self.timestamp_view_state.set_selected_none();
+        self.year_view_state.set_selected(None);
+        self.day_view_state.set_selected(None);
+        self.timestamp_view_state.set_selected(None);
         self.current_content = text_editor::Content::with_text("");
         self.update_years(db)?;
         Ok(())
     }
 
     fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let years = self
-            .get_current_years(db)?
-            .iter()
-            .map(|y| y.to_string())
-            .collect();
+        let years = self.get_current_years(db)?;
         self.year_view_state.set_entries(years);
         self.update_days(db)?;
         Ok(())
     }
 
     fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let days = self
-            .get_current_days(db)?
-            .iter()
-            .map(Self::optional_int_to_string)
-            .collect::<Vec<String>>();
+        let days = self.get_current_days(db)?;
         self.day_view_state.set_entries(days);
         self.update_timestamps(db)?;
         Ok(())
     }
 
     fn update_timestamps(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let timestamps = self
-            .get_current_timestamps(db)?
-            .iter()
-            .map(|t| t.to_string())
-            .collect::<Vec<String>>();
+        let timestamps = self.get_current_timestamps(db)?;
         self.timestamp_view_state.set_entries(timestamps);
         self.update_content(db)?;
         Ok(())

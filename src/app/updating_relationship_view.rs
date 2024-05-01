@@ -54,7 +54,10 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_parent_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_parent_view(
+        &mut self,
+        event: ColViewMes<String>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -70,7 +73,10 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_child_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_child_view(
+        &mut self,
+        event: ColViewMes<String>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -86,7 +92,10 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_role_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_role_view(
+        &mut self,
+        event: ColViewMes<String>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -160,9 +169,9 @@ impl RelationshipViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.parent_view_state.set_selected_none();
-        self.child_view_state.set_selected_none();
-        self.role_view_state.set_selected_none();
+        self.parent_view_state.set_selected(None);
+        self.child_view_state.set_selected(None);
+        self.role_view_state.set_selected(None);
         self.update_parents(db)?;
         self.update_children(db)?;
         self.update_role(db)?;

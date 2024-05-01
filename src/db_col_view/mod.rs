@@ -1,9 +1,11 @@
+use self::entry::DbColViewEntry;
+
+pub(super) mod entry;
 pub(super) mod state;
 pub(super) mod widget;
-pub(super) mod entry;
 
 #[derive(Debug, Clone)]
-pub(crate) enum ColViewMes {
+pub(crate) enum ColViewMes<E: DbColViewEntry> {
     SearchFieldUpd(String),
-    Selected(usize, String),
+    Selected(usize, Option<E>),
 }

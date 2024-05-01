@@ -18,8 +18,8 @@ pub(super) struct EntityView<'a> {
 }
 
 pub(super) struct EntityViewState {
-    pub(super) label_view_state: DbColViewState,
-    pub(super) descriptor_view_state: DbColViewState,
+    pub(super) label_view_state: DbColViewState<String>,
+    pub(super) descriptor_view_state: DbColViewState<String>,
     pub(super) current_description: text_editor::Content,
 }
 
@@ -31,8 +31,8 @@ pub(super) enum EntityViewMessage {
     NewDescriptor(String),
     RenameDescriptor(RenameDescriptorData),
     DeleteDescriptor(String, String),
-    LabelViewUpd(ColViewMes),
-    DescriptorViewUpd(ColViewMes),
+    LabelViewUpd(ColViewMes<String>),
+    DescriptorViewUpd(ColViewMes<String>),
 }
 
 impl<'a> EntityView<'a> {

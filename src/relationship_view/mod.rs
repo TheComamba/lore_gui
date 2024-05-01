@@ -22,9 +22,9 @@ impl<'a> RelationshipView<'a> {
 }
 
 pub(super) struct RelationshipViewState {
-    pub(super) parent_view_state: DbColViewState,
-    pub(super) child_view_state: DbColViewState,
-    pub(super) role_view_state: DbColViewState,
+    pub(super) parent_view_state: DbColViewState<String>,
+    pub(super) child_view_state: DbColViewState<String>,
+    pub(super) role_view_state: DbColViewState<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -32,9 +32,9 @@ pub(super) enum RelationshipViewMessage {
     NewRelationship,
     ChangeRole(ChangeRoleData),
     DeleteRelationship(EntityRelationship),
-    ParentViewUpd(ColViewMes),
-    ChildViewUpd(ColViewMes),
-    RoleViewUpd(ColViewMes),
+    ParentViewUpd(ColViewMes<String>),
+    ChildViewUpd(ColViewMes<String>),
+    RoleViewUpd(ColViewMes<String>),
 }
 
 impl RelationshipViewState {
