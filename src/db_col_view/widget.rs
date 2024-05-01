@@ -21,7 +21,7 @@ pub(crate) struct DbColView<'a, M, E: DbColViewEntry> {
 impl<'a, M, E> DbColView<'a, M, E>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
-    E: DbColViewEntry + Clone + Display + Eq + Hash,
+    E: DbColViewEntry + Clone,
 {
     pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
         Self {

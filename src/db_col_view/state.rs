@@ -24,12 +24,15 @@ impl<E: DbColViewEntry> DbColViewState<E> {
         self.entries = entries;
     }
 
-    pub(super) fn get_entries(&self) -> Vec<Option<E>> {
+    pub(super) fn get_entries(&self) -> Vec<String> {
         //TODO: Fix this.
         // if !entries.contains(&String::new()) {
         //     entries.insert(0, String::new());
         // }
-        self.entries.iter().map(|e| Some(*e.clone())).collect()
+        self.entries
+            .iter()
+            .map(|e| e.column_representation())
+            .collect()
     }
 
     pub(crate) fn set_selected(&mut self, entry: Option<E>) {
