@@ -1,6 +1,3 @@
-use std::fmt::Display;
-use std::hash::Hash;
-
 use super::entry::DbColViewEntry;
 use super::{state::DbColViewState, ColViewMes};
 use crate::{app::message_handling::GuiMes, style::header};
@@ -12,7 +9,7 @@ use iced::{
 };
 use iced_aw::{style::SelectionListStyles, SelectionList};
 
-pub(crate) struct DbColView<'a, M, E: DbColViewEntry> {
+pub(crate) struct DbColView<'a, M, E> {
     title: &'a str,
     gui_message: M,
     state: &'a DbColViewState<E>,
@@ -21,7 +18,6 @@ pub(crate) struct DbColView<'a, M, E: DbColViewEntry> {
 impl<'a, M, E> DbColView<'a, M, E>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
-    E: DbColViewEntry + Clone,
 {
     pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
         Self {
@@ -65,7 +61,7 @@ where
     }
 }
 
-impl<'a, M, E: DbColViewEntry> Component<GuiMes> for DbColView<'a, M, E>
+impl<'a, M, E> Component<GuiMes> for DbColView<'a, M, E>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
 {
@@ -92,7 +88,7 @@ where
     }
 }
 
-impl<'a, M, E: DbColViewEntry> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
+impl<'a, M, E> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
 {

@@ -3,13 +3,13 @@ use crate::errors::LoreGuiError;
 use super::entry::DbColViewEntry;
 
 #[derive(Debug, Clone)]
-pub(crate) struct DbColViewState<E: DbColViewEntry> {
+pub(crate) struct DbColViewState<E> {
     search_text: String,
-    entries: Vec<E>,
-    selected_entry: Option<E>,
+    entries: Vec<DbColViewEntry<E>>,
+    selected_entry: DbColViewEntry<E>,
 }
 
-impl<E: DbColViewEntry> DbColViewState<E> {
+impl<E> DbColViewState<E> {
     pub(crate) fn new(entries: Vec<E>) -> Self {
         let mut state = DbColViewState {
             search_text: String::new(),
@@ -66,7 +66,7 @@ impl<E: DbColViewEntry> DbColViewState<E> {
     }
 }
 
-impl<E: DbColViewEntry> Default for DbColViewState<E> {
+impl<E> Default for DbColViewState<E> {
     fn default() -> Self {
         Self::new(vec![])
     }

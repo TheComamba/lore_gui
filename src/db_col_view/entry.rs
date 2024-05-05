@@ -1,30 +1,13 @@
-pub(super) trait DbColViewEntry {
-    fn column_representation(&self) -> String;
-}
+use std::fmt::Display;
 
-impl DbColViewEntry for String {
-    fn column_representation(&self) -> String {
-        self.clone()
-    }
-}
+#[derive(Clone, Debug)]
+pub(super) struct DbColViewEntry<T>(pub Option<T>);
 
-impl DbColViewEntry for i32 {
-    fn column_representation(&self) -> String {
-        self.to_string()
-    }
-}
-
-impl DbColViewEntry for i64 {
-    fn column_representation(&self) -> String {
-        self.to_string()
-    }
-}
-
-impl<T: DbColViewEntry> DbColViewEntry for Option<T> {
-    fn column_representation(&self) -> String {
+impl<T> Display for DbColViewEntry<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Some(value) => value.column_representation(),
-            None => "[none]".to_string(),
+            Some(value) => value.fmt(f),
+            None => "[none]".fmt(f),
         }
     }
 }

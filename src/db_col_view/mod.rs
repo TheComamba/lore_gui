@@ -5,7 +5,7 @@ pub(super) mod state;
 pub(super) mod widget;
 
 #[derive(Debug, Clone)]
-pub(crate) enum ColViewMes<E: DbColViewEntry> {
+pub(crate) enum ColViewMes<E> {
     SearchFieldUpd(String),
-    Selected(usize, Option<E>),
+    Selected(usize, DbColViewEntry<E>),
 }
