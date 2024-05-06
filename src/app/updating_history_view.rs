@@ -183,11 +183,4 @@ impl HistoryViewState {
         self.current_content = text_editor::Content::with_text(&content);
         Ok(())
     }
-
-    fn optional_int_to_string(opt: &Option<i32>) -> String {
-        match opt {
-            None => String::new(),
-            Some(i) => i.to_string(),
-        }
-    }
 }

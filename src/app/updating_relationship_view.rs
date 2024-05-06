@@ -3,9 +3,8 @@ use lorecore::sql::{
     search_params::EntityColumnSearchParams,
 };
 
-use super::{message_handling::GuiMes, SqlGui};
 use crate::{
-    db_col_view::ColViewMes,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         change_role::{ChangeRoleData, ChangeRoleDialog},
         confirmation::ConfirmationDialog,
@@ -14,6 +13,8 @@ use crate::{
     errors::LoreGuiError,
     relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
+
+use super::{message_handling::GuiMes, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_relationship_view(
@@ -169,9 +170,9 @@ impl RelationshipViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.parent_view_state.set_selected(None);
-        self.child_view_state.set_selected(None);
-        self.role_view_state.set_selected(None);
+        self.parent_view_state.set_selected(DbColViewEntry::NONE);
+        self.child_view_state.set_selected(DbColViewEntry::NONE);
+        self.role_view_state.set_selected(DbColViewEntry::NONE);
         self.update_parents(db)?;
         self.update_children(db)?;
         self.update_role(db)?;
@@ -179,19 +180,31 @@ impl RelationshipViewState {
     }
 
     fn update_parents(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let parents = self.get_current_parents(db)?;
+        let parents = self
+            .get_current_parents(db)?
+            .into_iter()
+            .map(|p| DbColViewEntry(Some(p)))
+            .collect();
         self.parent_view_state.set_entries(parents);
         Ok(())
     }
 
     fn update_children(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let children = self.get_current_children(db)?;
+        let children = self
+            .get_current_children(db)?
+            .into_iter()
+            .map(|c| DbColViewEntry(Some(c)))
+            .collect();
         self.child_view_state.set_entries(children);
         Ok(())
     }
 
     fn update_role(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let roles = self.get_current_roles(db)?;
+        let roles = self
+            .get_current_roles(db)?
+            .into_iter()
+            .map(|r| DbColViewEntry(Some(r)))
+            .collect();
         self.role_view_state.set_entries(roles);
         Ok(())
     }
