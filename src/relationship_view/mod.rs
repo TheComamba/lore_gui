@@ -57,6 +57,7 @@ impl RelationshipViewState {
         let child = self
             .child_view_state
             .get_selected()
+            .0
             .as_ref()
             .map(|c| SqlSearchText::exact(c.as_str()));
         let parent_search_text = self
@@ -80,6 +81,7 @@ impl RelationshipViewState {
         let parent = self
             .parent_view_state
             .get_selected()
+            .0
             .as_ref()
             .map(|p| SqlSearchText::exact(p.as_str()));
         let child_search_text = self
@@ -100,11 +102,11 @@ impl RelationshipViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let parent = match self.parent_view_state.get_selected() {
+        let parent = match &self.parent_view_state.get_selected().0 {
             Some(parent) => parent,
             None => return Ok(vec![]),
         };
-        let child = match self.child_view_state.get_selected() {
+        let child = match &self.child_view_state.get_selected().0 {
             Some(child) => child,
             None => return Ok(vec![]),
         };

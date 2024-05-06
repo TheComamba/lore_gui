@@ -77,7 +77,7 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let label = match self.label_view_state.get_selected() {
+        let label = match &self.label_view_state.get_selected().0 {
             Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(vec![]),
         };
@@ -100,11 +100,11 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(None),
         };
-        let label = match self.label_view_state.get_selected() {
+        let label = match &self.label_view_state.get_selected().0 {
             Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(None),
         };
-        let descriptor = match self.descriptor_view_state.get_selected() {
+        let descriptor = match &self.descriptor_view_state.get_selected().0 {
             Some(descriptor) => Some(SqlSearchText::exact(descriptor.as_str())),
             None => return Ok(None),
         };

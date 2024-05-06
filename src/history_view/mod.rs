@@ -71,8 +71,8 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let year = match self.year_view_state.get_selected() {
-            Some(year) => Some(*year),
+        let year = match self.year_view_state.get_selected().0 {
+            Some(year) => Some(year),
             None => return Ok(vec![]),
         };
 
@@ -91,11 +91,11 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let year = match self.year_view_state.get_selected() {
-            Some(year) => Some(*year),
+        let year = match self.year_view_state.get_selected().0 {
+            Some(year) => Some(year),
             None => return Ok(vec![]),
         };
-        let day = self.day_view_state.get_selected().flatten();
+        let day = self.day_view_state.get_selected().0.flatten();
 
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
@@ -114,8 +114,8 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(String::new()),
         };
-        let timestamp = match self.timestamp_view_state.get_selected() {
-            Some(timestamp) => *timestamp,
+        let timestamp = match self.timestamp_view_state.get_selected().0 {
+            Some(timestamp) => timestamp,
             None => return Ok(String::new()),
         };
 

@@ -32,17 +32,17 @@ impl<'a> HistoryView<'a> {
         let mut redate_history = button("Redate History Item");
         let mut delete_item = button("Delete History Item");
         if let (Some(timestamp), Some(year), day) = (
-            self.state.timestamp_view_state.get_selected(),
-            self.state.year_view_state.get_selected(),
-            self.state.day_view_state.get_selected(),
+            self.state.timestamp_view_state.get_selected().0,
+            self.state.year_view_state.get_selected().0,
+            self.state.day_view_state.get_selected().0,
         ) {
             let day = day.flatten();
-            let redate_history_data = RedateHistoryData::new(*timestamp, *year, day);
+            let redate_history_data = RedateHistoryData::new(timestamp, year, day);
             redate_history = redate_history.on_press(GuiMes::HistoryViewUpd(
                 HistoryViewMessage::RedateHistoryItem(redate_history_data),
             ));
             delete_item = delete_item.on_press(GuiMes::HistoryViewUpd(
-                HistoryViewMessage::DeleteHistoryItem(*timestamp),
+                HistoryViewMessage::DeleteHistoryItem(timestamp),
             ));
         }
         Row::new()
