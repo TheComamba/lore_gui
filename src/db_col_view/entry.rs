@@ -3,7 +3,7 @@ use std::fmt::Display;
 use crate::history_view::day::Day;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub(super) struct DbColViewEntry<T>(pub(crate) Option<T>);
+pub(crate) struct DbColViewEntry<T>(pub(crate) Option<T>);
 
 impl<E> DbColViewEntry<E> {
     pub(crate) const NONE: Self = DbColViewEntry(None);
