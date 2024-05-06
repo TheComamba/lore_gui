@@ -1,6 +1,3 @@
-use super::entry::DbColViewEntry;
-use super::{state::DbColViewState, ColViewMes};
-use crate::{app::message_handling::GuiMes, style::header};
 use iced::widget::{component, Component};
 use iced::Font;
 use iced::{
@@ -8,6 +5,12 @@ use iced::{
     Element, Length,
 };
 use iced_aw::{style::SelectionListStyles, SelectionList};
+use std::fmt::Display;
+use std::hash::Hash;
+
+use crate::{app::message_handling::GuiMes, style::header};
+
+use super::{state::DbColViewState, ColViewMes};
 
 pub(crate) struct DbColView<'a, M, E> {
     title: &'a str,
@@ -18,6 +21,7 @@ pub(crate) struct DbColView<'a, M, E> {
 impl<'a, M, E> DbColView<'a, M, E>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
+    E: 'static + Clone + Display + Eq + Hash,
 {
     pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
         Self {
@@ -32,11 +36,7 @@ where
     }
 
     fn selected(&self) -> Text {
-        let content = "Selected: ".to_string()
-            + match self.state.get_selected() {
-                Some(sel) => &sel.column_representation(),
-                None => "[None]",
-            };
+        let content = format!("Selected: {}", self.state.get_selected());
         Text::new(content)
     }
 
@@ -64,6 +64,7 @@ where
 impl<'a, M, E> Component<GuiMes> for DbColView<'a, M, E>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
+    E: 'static + Clone + Display + Eq + Hash,
 {
     type State = DbColViewState<E>;
 
@@ -91,6 +92,7 @@ where
 impl<'a, M, E> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
+    E: 'static + Clone + Display + Eq + Hash,
 {
     fn from(col_view: DbColView<'a, M, E>) -> Self {
         component(col_view)

@@ -10,36 +10,33 @@ pub(crate) struct DbColViewState<E> {
 }
 
 impl<E> DbColViewState<E> {
-    pub(crate) fn new(entries: Vec<E>) -> Self {
+    pub(crate) fn new(entries: Vec<DbColViewEntry<E>>) -> Self {
         let mut state = DbColViewState {
             search_text: String::new(),
             entries: vec![],
-            selected_entry: None,
+            selected_entry: DbColViewEntry::NONE,
         };
         state.set_entries(entries);
         state
     }
 
-    pub(crate) fn set_entries(&mut self, mut entries: Vec<E>) {
+    pub(crate) fn set_entries(&mut self, entries: Vec<DbColViewEntry<E>>) {
         self.entries = entries;
     }
 
-    pub(super) fn get_entries(&self) -> Vec<String> {
+    pub(super) fn get_entries(&self) -> &Vec<DbColViewEntry<E>> {
         //TODO: Fix this.
         // if !entries.contains(&String::new()) {
         //     entries.insert(0, String::new());
         // }
-        self.entries
-            .iter()
-            .map(|e| e.column_representation())
-            .collect()
+        &self.entries
     }
 
-    pub(crate) fn set_selected(&mut self, entry: Option<E>) {
+    pub(crate) fn set_selected(&mut self, entry: DbColViewEntry<E>) {
         self.selected_entry = entry;
     }
 
-    pub(crate) fn get_selected(&self) -> &Option<E> {
+    pub(crate) fn get_selected(&self) -> &DbColViewEntry<E> {
         &self.selected_entry
     }
 
