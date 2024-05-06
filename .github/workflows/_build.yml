@@ -50,6 +50,10 @@ jobs:
             command: build
             args: --release
 
+      - uses: clechasseur/rs-cargo@v1
+        with:
+          command: clippy
+
       - name: Make artifacts folder
         run: mkdir artifacts
 

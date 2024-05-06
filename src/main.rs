@@ -1,3 +1,5 @@
+#![warn(clippy::unwrap_used)]
+
 use app::SqlGui;
 use iced::{Sandbox, Settings};
 
