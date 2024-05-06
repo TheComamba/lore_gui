@@ -2,14 +2,14 @@ use iced::widget::text_editor;
 use lorecore::sql::lore_database::LoreDatabase;
 
 use crate::{
-    db_col_view::ColViewMes,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
         new_history_item::{NewHistoryData, NewHistoryDialog},
         redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
     errors::LoreGuiError,
-    history_view::{HistoryViewMessage, HistoryViewState},
+    history_view::{day::Day, HistoryViewMessage, HistoryViewState},
 };
 
 use super::{message_handling::GuiMes, SqlGui};
@@ -49,7 +49,7 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
-                state.day_view_state.set_selected(None);
+                state.day_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_days(&self.lore_database)?;
             }
         };
@@ -65,7 +65,9 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
-                state.timestamp_view_state.set_selected(None);
+                state
+                    .timestamp_view_state
+                    .set_selected(DbColViewEntry::NONE);
                 state.update_timestamps(&self.lore_database)?;
             }
         };
@@ -95,11 +97,13 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
+        let year = DbColViewEntry(Some(data.year));
+        let day = DbColViewEntry(Some(data.day.clone()));
         data.write_to_database(db)?;
         self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_year_view(ColViewMes::Selected(0, Some(data.year)))?;
+        self.update_year_view(ColViewMes::Selected(0, year))?;
         self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_day_view(ColViewMes::Selected(0, Some(data.day)))?;
+        self.update_day_view(ColViewMes::Selected(0, day))?;
         self.dialog = None;
         Ok(())
     }
@@ -133,30 +137,42 @@ impl HistoryViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.year_view_state.set_selected(None);
-        self.day_view_state.set_selected(None);
-        self.timestamp_view_state.set_selected(None);
+        self.year_view_state.set_selected(DbColViewEntry::NONE);
+        self.day_view_state.set_selected(DbColViewEntry::NONE);
+        self.timestamp_view_state.set_selected(DbColViewEntry::NONE);
         self.current_content = text_editor::Content::with_text("");
         self.update_years(db)?;
         Ok(())
     }
 
     fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let years = self.get_current_years(db)?;
+        let years = self
+            .get_current_years(db)?
+            .into_iter()
+            .map(|y| DbColViewEntry(Some(y)))
+            .collect();
         self.year_view_state.set_entries(years);
         self.update_days(db)?;
         Ok(())
     }
 
     fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let days = self.get_current_days(db)?;
+        let days = self
+            .get_current_days(db)?
+            .into_iter()
+            .map(|d| DbColViewEntry(Some(d)))
+            .collect();
         self.day_view_state.set_entries(days);
         self.update_timestamps(db)?;
         Ok(())
     }
 
     fn update_timestamps(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let timestamps = self.get_current_timestamps(db)?;
+        let timestamps = self
+            .get_current_timestamps(db)?
+            .into_iter()
+            .map(|t| DbColViewEntry(Some(t)))
+            .collect();
         self.timestamp_view_state.set_entries(timestamps);
         self.update_content(db)?;
         Ok(())
