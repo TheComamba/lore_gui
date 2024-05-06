@@ -56,10 +56,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_day_view(
-        &mut self,
-        event: ColViewMes<Option<i32>>,
-    ) -> Result<(), LoreGuiError> {
+    pub(super) fn update_day_view(&mut self, event: ColViewMes<Day>) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {

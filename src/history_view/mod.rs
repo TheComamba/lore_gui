@@ -1,4 +1,3 @@
-use super::db_col_view::state::DbColViewState;
 use crate::{
     db_col_view::ColViewMes, dialog::redate_history::RedateHistoryData, errors::LoreGuiError,
 };
@@ -9,6 +8,11 @@ use lorecore::sql::{
     search_params::HistoryItemSearchParams,
 };
 
+use self::day::Day;
+
+use super::db_col_view::state::DbColViewState;
+
+pub(crate) mod day;
 mod widget;
 
 pub(super) struct HistoryView<'a> {
@@ -23,7 +27,7 @@ impl<'a> HistoryView<'a> {
 
 pub(super) struct HistoryViewState {
     pub(super) year_view_state: DbColViewState<i32>,
-    pub(super) day_view_state: DbColViewState<Option<i32>>,
+    pub(super) day_view_state: DbColViewState<Day>,
     pub(super) timestamp_view_state: DbColViewState<i64>,
     pub(super) current_content: text_editor::Content,
 }
@@ -34,7 +38,7 @@ pub(super) enum HistoryViewMessage {
     RedateHistoryItem(RedateHistoryData),
     DeleteHistoryItem(i64),
     YearViewUpd(ColViewMes<i32>),
-    DayViewUpd(ColViewMes<Option<i32>>),
+    DayViewUpd(ColViewMes<Day>),
     HistoryTimestampViewUpd(ColViewMes<i64>),
 }
 
@@ -66,7 +70,7 @@ impl HistoryViewState {
     pub(super) fn get_current_days(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Vec<Option<i32>>, LoreGuiError> {
+    ) -> Result<Vec<Day>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),
@@ -79,7 +83,10 @@ impl HistoryViewState {
         let day = self.day_view_state.get_search_int()?;
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
-        let days = extract_days(&history_items);
+        let days = extract_days(&history_items)
+            .into_iter()
+            .map(|d| Day(d))
+            .collect();
         Ok(days)
     }
 
@@ -95,9 +102,9 @@ impl HistoryViewState {
             Some(year) => Some(year),
             None => return Ok(vec![]),
         };
-        let day = self.day_view_state.get_selected().0.flatten();
+        let day = self.day_view_state.get_selected().clone().flatten();
 
-        let search_params = HistoryItemSearchParams::new(year, day, None, None);
+        let search_params = HistoryItemSearchParams::new(year, day.0, None, None);
         let history_items = db.read_history_items(search_params)?;
         let timestamps = history_items
             .iter()

@@ -1,10 +1,12 @@
-use super::Dialog;
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
 use lorecore::sql::{history::HistoryItem, lore_database::LoreDatabase};
+
+use crate::{app::message_handling::GuiMes, errors::LoreGuiError, history_view::day::Day};
+
+use super::Dialog;
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryDialog {
@@ -16,7 +18,7 @@ impl NewHistoryDialog {
         NewHistoryDialog {
             data: NewHistoryData {
                 year: 0,
-                day: None,
+                day: Day::NONE,
                 content: String::new(),
                 properties: None,
             },
@@ -27,7 +29,7 @@ impl NewHistoryDialog {
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryData {
     pub(crate) year: i32,
-    pub(crate) day: Option<i32>,
+    pub(crate) day: Day,
     pub(crate) content: String,
     pub(crate) properties: Option<String>,
 }
@@ -37,7 +39,7 @@ impl NewHistoryData {
         let item = HistoryItem {
             timestamp: lorecore::timestamp::current_timestamp(),
             year: self.year,
-            day: self.day,
+            day: self.day.0,
             content: self.content,
             properties: self.properties,
         };
@@ -76,11 +78,11 @@ impl Component<GuiMes> for NewHistoryDialog {
             }
             NewHistoryMes::DayUpd(day) => {
                 if day.is_empty() {
-                    self.data.day = None;
+                    self.data.day = Day::NONE;
                 } else {
                     let day = day.parse::<i32>();
                     if let Ok(day) = day {
-                        self.data.day = Some(day)
+                        self.data.day = Day(Some(day))
                     };
                 }
                 None
@@ -96,10 +98,7 @@ impl Component<GuiMes> for NewHistoryDialog {
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input =
             TextInput::new("", &self.data.year.to_string()).on_input(NewHistoryMes::YearUpd);
-        let day_string = match self.data.day {
-            Some(day) => day.to_string(),
-            None => String::new(),
-        };
+        let day_string = format!("{}", self.data.day);
         let day_input = TextInput::new("", &day_string).on_input(NewHistoryMes::DayUpd);
         let content_input =
             TextInput::new("", &self.data.content).on_input(NewHistoryMes::ContentUpd);

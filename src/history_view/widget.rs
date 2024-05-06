@@ -34,9 +34,9 @@ impl<'a> HistoryView<'a> {
         if let (Some(timestamp), Some(year), day) = (
             self.state.timestamp_view_state.get_selected().0,
             self.state.year_view_state.get_selected().0,
-            self.state.day_view_state.get_selected().0,
+            self.state.day_view_state.get_selected(),
         ) {
-            let day = day.flatten();
+            let day = day.clone().flatten();
             let redate_history_data = RedateHistoryData::new(timestamp, year, day);
             redate_history = redate_history.on_press(GuiMes::HistoryViewUpd(
                 HistoryViewMessage::RedateHistoryItem(redate_history_data),
