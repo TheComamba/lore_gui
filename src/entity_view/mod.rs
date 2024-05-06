@@ -62,7 +62,7 @@ impl EntityViewState {
         let label_search_text = self
             .label_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label_search_text, None);
         let entity_columns = db.read_entity_columns(search_params)?;
         let labels = extract_labels(&entity_columns);
@@ -85,7 +85,7 @@ impl EntityViewState {
         let descriptor_search_text = self
             .descriptor_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label, descriptor_search_text);
         let entity_columns = db.read_entity_columns(search_params)?;
         let descriptors = extract_descriptors(&entity_columns);

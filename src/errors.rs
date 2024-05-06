@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use lorecore::errors::LoreCoreError;
 
 #[derive(Debug, Clone)]
@@ -9,9 +11,9 @@ pub enum LoreGuiError {
     LoreCoreError(LoreCoreError),
 }
 
-impl ToString for LoreGuiError {
-    fn to_string(&self) -> String {
-        format!("{:?}", self)
+impl Display for LoreGuiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        format!("{:?}", self).fmt(f)
     }
 }
 

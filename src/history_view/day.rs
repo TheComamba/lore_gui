@@ -16,3 +16,5 @@ impl Display for Day {
     }
 }
 //TODO: Move file to lorcore?
+//TODO: Implenet setter/getter logic like mapping 0 -> None?
+//TODO: Change type to u32?

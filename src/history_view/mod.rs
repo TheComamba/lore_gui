@@ -83,10 +83,7 @@ impl HistoryViewState {
         let day = self.day_view_state.get_search_int()?;
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
-        let days = extract_days(&history_items)
-            .into_iter()
-            .map(|d| Day(d))
-            .collect();
+        let days = extract_days(&history_items).into_iter().map(Day).collect();
         Ok(days)
     }
 

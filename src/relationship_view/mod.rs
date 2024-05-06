@@ -63,7 +63,7 @@ impl RelationshipViewState {
         let parent_search_text = self
             .parent_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = RelationshipSearchParams::new(parent_search_text, child);
         let relationships = db.read_relationships(search_params)?;
         let parents = extract_parents(&relationships);
@@ -87,7 +87,7 @@ impl RelationshipViewState {
         let child_search_text = self
             .child_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = RelationshipSearchParams::new(parent, child_search_text);
         let relationships = db.read_relationships(search_params)?;
         let children = extract_children(&relationships);
