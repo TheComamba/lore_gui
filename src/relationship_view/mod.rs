@@ -40,8 +40,8 @@ pub(super) enum RelationshipViewMessage {
 impl RelationshipViewState {
     pub(super) fn new() -> Self {
         Self {
-            parent_view_state: DbColViewState::default(),
-            child_view_state: DbColViewState::default(),
+            parent_view_state: DbColViewState::new(vec![], true),
+            child_view_state: DbColViewState::new(vec![], true),
             role_view_state: DbColViewState::default(),
         }
     }

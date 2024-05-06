@@ -7,28 +7,29 @@ pub(crate) struct DbColViewState<E> {
     search_text: String,
     entries: Vec<DbColViewEntry<E>>,
     selected_entry: DbColViewEntry<E>,
+    add_none_option: bool,
 }
 
-impl<E> DbColViewState<E> {
-    pub(crate) fn new(entries: Vec<DbColViewEntry<E>>) -> Self {
+impl<E: Clone> DbColViewState<E> {
+    pub(crate) fn new(entries: Vec<DbColViewEntry<E>>, add_none_option: bool) -> Self {
         let mut state = DbColViewState {
             search_text: String::new(),
             entries: vec![],
             selected_entry: DbColViewEntry::NONE,
+            add_none_option,
         };
         state.set_entries(entries);
         state
     }
 
-    pub(crate) fn set_entries(&mut self, entries: Vec<DbColViewEntry<E>>) {
+    pub(crate) fn set_entries(&mut self, mut entries: Vec<DbColViewEntry<E>>) {
+        if self.add_none_option {
+            entries.insert(0, DbColViewEntry::NONE);
+        }
         self.entries = entries;
     }
 
     pub(super) fn get_entries(&self) -> &Vec<DbColViewEntry<E>> {
-        //TODO: Fix this.
-        // if !entries.contains(&String::new()) {
-        //     entries.insert(0, String::new());
-        // }
         &self.entries
     }
 
@@ -63,8 +64,8 @@ impl<E> DbColViewState<E> {
     }
 }
 
-impl<E> Default for DbColViewState<E> {
+impl<E: Clone> Default for DbColViewState<E> {
     fn default() -> Self {
-        Self::new(vec![])
+        Self::new(vec![], false)
     }
 }
