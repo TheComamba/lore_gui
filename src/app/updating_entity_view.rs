@@ -1,6 +1,8 @@
-use super::{message_handling::GuiMes, SqlGui};
+use iced::widget::text_editor;
+use lorecore::sql::lore_database::LoreDatabase;
+
 use crate::{
-    db_col_view::ColViewMes,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
         new_descriptor::{NewDescriptorData, NewDescriptorDialog},
@@ -11,8 +13,8 @@ use crate::{
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
-use iced::widget::text_editor;
-use lorecore::sql::lore_database::LoreDatabase;
+
+use super::{message_handling::GuiMes, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_entity_view(
@@ -49,7 +51,10 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_label_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_label_view(
+        &mut self,
+        event: ColViewMes<String>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -58,14 +63,19 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, label) => {
                 state.label_view_state.set_selected(label);
-                state.descriptor_view_state.set_selected_none();
+                state
+                    .descriptor_view_state
+                    .set_selected(DbColViewEntry::NONE);
                 state.update_descriptors(&self.lore_database)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_descriptor_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_descriptor_view(
+        &mut self,
+        event: ColViewMes<String>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -88,7 +98,7 @@ impl SqlGui {
         let label = data.get_label().to_string();
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, label))?;
+        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(label))))?;
         self.dialog = None;
         Ok(())
     }
@@ -101,7 +111,7 @@ impl SqlGui {
         let new_label = data.get_label();
         data.update_label_in_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, new_label))?;
+        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(new_label))))?;
         self.dialog = None;
         Ok(())
     }
@@ -113,7 +123,7 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_entity(label)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, "".to_string()))?;
+        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry::NONE))?;
         self.dialog = None;
         Ok(())
     }
@@ -129,7 +139,7 @@ impl SqlGui {
         let descriptor = data.get_descriptor().to_string();
         data.write_to_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
         self.dialog = None;
         Ok(())
     }
@@ -145,7 +155,7 @@ impl SqlGui {
         let descriptor = data.get_descriptor().to_string();
         data.update_descriptor_in_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, descriptor))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
         self.dialog = None;
         Ok(())
     }
@@ -161,7 +171,7 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_entity_column((label, descriptor))?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, "".to_string()))?;
+        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry::NONE))?;
         self.dialog = None;
         Ok(())
     }
@@ -172,22 +182,31 @@ impl EntityViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.label_view_state.set_selected_none();
-        self.descriptor_view_state.set_selected_none();
+        self.label_view_state.set_selected(DbColViewEntry::NONE);
+        self.descriptor_view_state
+            .set_selected(DbColViewEntry::NONE);
         self.current_description = text_editor::Content::with_text("");
         self.update_labels(db)?;
         Ok(())
     }
 
     fn update_labels(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let labels = self.get_current_labels(db)?;
+        let labels = self
+            .get_current_labels(db)?
+            .into_iter()
+            .map(|l| DbColViewEntry(Some(l)))
+            .collect();
         self.label_view_state.set_entries(labels);
         self.update_descriptors(db)?;
         Ok(())
     }
 
     fn update_descriptors(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let descriptors = self.get_current_descriptors(db)?;
+        let descriptors = self
+            .get_current_descriptors(db)?
+            .into_iter()
+            .map(|d| DbColViewEntry(Some(d)))
+            .collect();
         self.descriptor_view_state.set_entries(descriptors);
         self.update_description(db)?;
         Ok(())

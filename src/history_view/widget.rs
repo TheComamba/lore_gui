@@ -31,11 +31,12 @@ impl<'a> HistoryView<'a> {
             .on_press(GuiMes::HistoryViewUpd(HistoryViewMessage::NewHistoryItem));
         let mut redate_history = button("Redate History Item");
         let mut delete_item = button("Delete History Item");
-        if let (Ok(Some(timestamp)), Ok(Some(year)), Ok(day)) = (
-            self.state.timestamp_view_state.get_selected_as::<i64>(),
-            self.state.year_view_state.get_selected_as::<i32>(),
-            self.state.day_view_state.get_selected_as::<i32>(),
+        if let (Some(timestamp), Some(year), day) = (
+            self.state.timestamp_view_state.get_selected().0,
+            self.state.year_view_state.get_selected().0,
+            self.state.day_view_state.get_selected(),
         ) {
+            let day = day.clone().flatten();
             let redate_history_data = RedateHistoryData::new(timestamp, year, day);
             redate_history = redate_history.on_press(GuiMes::HistoryViewUpd(
                 HistoryViewMessage::RedateHistoryItem(redate_history_data),

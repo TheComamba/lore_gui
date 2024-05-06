@@ -32,7 +32,7 @@ impl<'a> EntityView<'a> {
             button("New Entity").on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
         let mut relabel_entity = button("Relabel Entity");
         let mut delete_entity = button("Delete Entity");
-        if let Some(label) = self.state.label_view_state.get_selected() {
+        if let Some(label) = &self.state.label_view_state.get_selected().0 {
             let relabel_entity_data = RelabelEntityData::new(label.clone());
             relabel_entity = relabel_entity.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::RelabelEntity(relabel_entity_data),
@@ -53,11 +53,11 @@ impl<'a> EntityView<'a> {
         let mut new_descriptor = button("New Descriptor");
         let mut rename_descriptor = button("Rename Descriptor");
         let mut delete_descriptor = button("Delete Descriptor");
-        if let Some(label) = self.state.label_view_state.get_selected() {
+        if let Some(label) = &self.state.label_view_state.get_selected().0 {
             new_descriptor = new_descriptor.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::NewDescriptor(label.clone()),
             ));
-            if let Some(descriptor) = self.state.descriptor_view_state.get_selected() {
+            if let Some(descriptor) = &self.state.descriptor_view_state.get_selected().0 {
                 let rename_descriptor_data =
                     RenameDescriptorData::new(label.clone(), descriptor.clone());
                 rename_descriptor = rename_descriptor.on_press(GuiMes::EntityViewUpd(

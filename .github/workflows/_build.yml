@@ -50,6 +50,13 @@ jobs:
             command: build
             args: --release
 
+      - name: Install Clippy
+        run: rustup component add clippy
+
+      - uses: clechasseur/rs-cargo@v1
+        with:
+          command: clippy
+
       - name: Make artifacts folder
         run: mkdir artifacts
 

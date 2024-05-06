@@ -18,8 +18,8 @@ pub(super) struct EntityView<'a> {
 }
 
 pub(super) struct EntityViewState {
-    pub(super) label_view_state: DbColViewState,
-    pub(super) descriptor_view_state: DbColViewState,
+    pub(super) label_view_state: DbColViewState<String>,
+    pub(super) descriptor_view_state: DbColViewState<String>,
     pub(super) current_description: text_editor::Content,
 }
 
@@ -31,8 +31,8 @@ pub(super) enum EntityViewMessage {
     NewDescriptor(String),
     RenameDescriptor(RenameDescriptorData),
     DeleteDescriptor(String, String),
-    LabelViewUpd(ColViewMes),
-    DescriptorViewUpd(ColViewMes),
+    LabelViewUpd(ColViewMes<String>),
+    DescriptorViewUpd(ColViewMes<String>),
 }
 
 impl<'a> EntityView<'a> {
@@ -62,7 +62,7 @@ impl EntityViewState {
         let label_search_text = self
             .label_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label_search_text, None);
         let entity_columns = db.read_entity_columns(search_params)?;
         let labels = extract_labels(&entity_columns);
@@ -77,7 +77,7 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let label = match self.label_view_state.get_selected() {
+        let label = match &self.label_view_state.get_selected().0 {
             Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(vec![]),
         };
@@ -85,7 +85,7 @@ impl EntityViewState {
         let descriptor_search_text = self
             .descriptor_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label, descriptor_search_text);
         let entity_columns = db.read_entity_columns(search_params)?;
         let descriptors = extract_descriptors(&entity_columns);
@@ -100,11 +100,11 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(None),
         };
-        let label = match self.label_view_state.get_selected() {
+        let label = match &self.label_view_state.get_selected().0 {
             Some(label) => Some(SqlSearchText::exact(label.as_str())),
             None => return Ok(None),
         };
-        let descriptor = match self.descriptor_view_state.get_selected() {
+        let descriptor = match &self.descriptor_view_state.get_selected().0 {
             Some(descriptor) => Some(SqlSearchText::exact(descriptor.as_str())),
             None => return Ok(None),
         };

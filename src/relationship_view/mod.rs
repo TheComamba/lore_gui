@@ -22,9 +22,9 @@ impl<'a> RelationshipView<'a> {
 }
 
 pub(super) struct RelationshipViewState {
-    pub(super) parent_view_state: DbColViewState,
-    pub(super) child_view_state: DbColViewState,
-    pub(super) role_view_state: DbColViewState,
+    pub(super) parent_view_state: DbColViewState<String>,
+    pub(super) child_view_state: DbColViewState<String>,
+    pub(super) role_view_state: DbColViewState<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -32,16 +32,16 @@ pub(super) enum RelationshipViewMessage {
     NewRelationship,
     ChangeRole(ChangeRoleData),
     DeleteRelationship(EntityRelationship),
-    ParentViewUpd(ColViewMes),
-    ChildViewUpd(ColViewMes),
-    RoleViewUpd(ColViewMes),
+    ParentViewUpd(ColViewMes<String>),
+    ChildViewUpd(ColViewMes<String>),
+    RoleViewUpd(ColViewMes<String>),
 }
 
 impl RelationshipViewState {
     pub(super) fn new() -> Self {
         Self {
-            parent_view_state: DbColViewState::default(),
-            child_view_state: DbColViewState::default(),
+            parent_view_state: DbColViewState::new(vec![], true),
+            child_view_state: DbColViewState::new(vec![], true),
             role_view_state: DbColViewState::default(),
         }
     }
@@ -57,12 +57,13 @@ impl RelationshipViewState {
         let child = self
             .child_view_state
             .get_selected()
+            .0
             .as_ref()
             .map(|c| SqlSearchText::exact(c.as_str()));
         let parent_search_text = self
             .parent_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = RelationshipSearchParams::new(parent_search_text, child);
         let relationships = db.read_relationships(search_params)?;
         let parents = extract_parents(&relationships);
@@ -80,12 +81,13 @@ impl RelationshipViewState {
         let parent = self
             .parent_view_state
             .get_selected()
+            .0
             .as_ref()
             .map(|p| SqlSearchText::exact(p.as_str()));
         let child_search_text = self
             .child_view_state
             .get_search_text()
-            .map(|t| SqlSearchText::partial(t));
+            .map(SqlSearchText::partial);
         let search_params = RelationshipSearchParams::new(parent, child_search_text);
         let relationships = db.read_relationships(search_params)?;
         let children = extract_children(&relationships);
@@ -100,11 +102,11 @@ impl RelationshipViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let parent = match self.parent_view_state.get_selected() {
+        let parent = match &self.parent_view_state.get_selected().0 {
             Some(parent) => parent,
             None => return Ok(vec![]),
         };
-        let child = match self.child_view_state.get_selected() {
+        let child = match &self.child_view_state.get_selected().0 {
             Some(child) => child,
             None => return Ok(vec![]),
         };

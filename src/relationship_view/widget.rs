@@ -34,13 +34,14 @@ impl<'a> RelationshipView<'a> {
         let mut change_role = button("Change Role");
         let mut delete_relationship = button("Delete Relationship");
         if let (Some(parent), Some(child)) = (
-            self.state.parent_view_state.get_selected(),
-            self.state.child_view_state.get_selected(),
+            &self.state.parent_view_state.get_selected().0,
+            &self.state.child_view_state.get_selected().0,
         ) {
             let role = self
                 .state
                 .role_view_state
                 .get_selected()
+                .0
                 .clone()
                 .unwrap_or_default();
             let relationship = EntityRelationship {

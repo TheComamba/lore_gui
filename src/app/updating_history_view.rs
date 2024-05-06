@@ -2,14 +2,14 @@ use iced::widget::text_editor;
 use lorecore::sql::lore_database::LoreDatabase;
 
 use crate::{
-    db_col_view::ColViewMes,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
         new_history_item::{NewHistoryData, NewHistoryDialog},
         redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
     errors::LoreGuiError,
-    history_view::{HistoryViewMessage, HistoryViewState},
+    history_view::{day::Day, HistoryViewMessage, HistoryViewState},
 };
 
 use super::{message_handling::GuiMes, SqlGui};
@@ -40,7 +40,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_year_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_year_view(&mut self, event: ColViewMes<i32>) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -49,14 +49,14 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, year) => {
                 state.year_view_state.set_selected(year);
-                state.day_view_state.set_selected_none();
+                state.day_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_days(&self.lore_database)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_day_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_day_view(&mut self, event: ColViewMes<Day>) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -65,14 +65,19 @@ impl SqlGui {
             }
             ColViewMes::Selected(_index, day) => {
                 state.day_view_state.set_selected(day);
-                state.timestamp_view_state.set_selected_none();
+                state
+                    .timestamp_view_state
+                    .set_selected(DbColViewEntry::NONE);
                 state.update_timestamps(&self.lore_database)?;
             }
         };
         Ok(())
     }
 
-    pub(super) fn update_timestamp_view(&mut self, event: ColViewMes) -> Result<(), LoreGuiError> {
+    pub(super) fn update_timestamp_view(
+        &mut self,
+        event: ColViewMes<i64>,
+    ) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -92,11 +97,8 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.year.to_string();
-        let day = match data.day {
-            Some(day) => day.to_string(),
-            None => String::new(),
-        };
+        let year = DbColViewEntry(Some(data.year));
+        let day = DbColViewEntry(Some(data.day.clone()));
         data.write_to_database(db)?;
         self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_year_view(ColViewMes::Selected(0, year))?;
@@ -115,10 +117,6 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         data.update_date_in_database(db)?;
-        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_year_view(ColViewMes::Selected(0, String::new()))?;
-        self.update_day_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_day_view(ColViewMes::Selected(0, String::new()))?;
         self.dialog = None;
         Ok(())
     }
@@ -129,7 +127,6 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_history_item(timestamp)?;
-        self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())
     }
@@ -140,9 +137,9 @@ impl HistoryViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.year_view_state.set_selected_none();
-        self.day_view_state.set_selected_none();
-        self.timestamp_view_state.set_selected_none();
+        self.year_view_state.set_selected(DbColViewEntry::NONE);
+        self.day_view_state.set_selected(DbColViewEntry::NONE);
+        self.timestamp_view_state.set_selected(DbColViewEntry::NONE);
         self.current_content = text_editor::Content::with_text("");
         self.update_years(db)?;
         Ok(())
@@ -151,8 +148,8 @@ impl HistoryViewState {
     fn update_years(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let years = self
             .get_current_years(db)?
-            .iter()
-            .map(|y| y.to_string())
+            .into_iter()
+            .map(|y| DbColViewEntry(Some(y)))
             .collect();
         self.year_view_state.set_entries(years);
         self.update_days(db)?;
@@ -162,9 +159,9 @@ impl HistoryViewState {
     fn update_days(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let days = self
             .get_current_days(db)?
-            .iter()
-            .map(Self::optional_int_to_string)
-            .collect::<Vec<String>>();
+            .into_iter()
+            .map(|d| DbColViewEntry(Some(d)))
+            .collect();
         self.day_view_state.set_entries(days);
         self.update_timestamps(db)?;
         Ok(())
@@ -173,9 +170,9 @@ impl HistoryViewState {
     fn update_timestamps(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let timestamps = self
             .get_current_timestamps(db)?
-            .iter()
-            .map(|t| t.to_string())
-            .collect::<Vec<String>>();
+            .into_iter()
+            .map(|t| DbColViewEntry(Some(t)))
+            .collect();
         self.timestamp_view_state.set_entries(timestamps);
         self.update_content(db)?;
         Ok(())
@@ -185,12 +182,5 @@ impl HistoryViewState {
         let content = self.get_current_content(db)?;
         self.current_content = text_editor::Content::with_text(&content);
         Ok(())
-    }
-
-    fn optional_int_to_string(opt: &Option<i32>) -> String {
-        match opt {
-            None => String::new(),
-            Some(i) => i.to_string(),
-        }
     }
 }
