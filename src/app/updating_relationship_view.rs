@@ -1,6 +1,9 @@
-use lorecore::sql::{
-    entity::extract_labels, lore_database::LoreDatabase, relationships::EntityRelationship,
-    search_params::EntityColumnSearchParams,
+use lorecore::{
+    extractions::extract_labels,
+    sql::{lore_database::LoreDatabase, search_params::EntityColumnSearchParams},
+    types::{
+        child::Child, label::Label, parent::Parent, relationship::EntityRelationship, role::Role,
+    },
 };
 
 use crate::{
@@ -25,8 +28,8 @@ impl SqlGui {
             RelationshipViewMessage::NewRelationship => {
                 let labels = self.get_all_labels(&self.lore_database)?;
                 self.dialog = Some(Box::new(NewRelationshipDialog::new(
-                    labels.clone(),
-                    labels.clone(),
+                    labels.iter().map(|l| (*l).into()).collect(),
+                    labels.iter().map(|l| (*l).into()).collect(),
                 )));
             }
             RelationshipViewMessage::ChangeRole(data) => {
@@ -35,9 +38,7 @@ impl SqlGui {
             RelationshipViewMessage::DeleteRelationship(rel) => {
                 let message = format!(
                     "Do you really want to delete the {} relationship between {} and {}?",
-                    rel.role.clone().unwrap_or_default(),
-                    rel.parent,
-                    rel.child
+                    rel.role, rel.parent, rel.child
                 );
                 let on_confirm = GuiMes::DeleteRelationship(rel);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
@@ -57,7 +58,7 @@ impl SqlGui {
 
     pub(super) fn update_parent_view(
         &mut self,
-        event: ColViewMes<String>,
+        event: ColViewMes<Parent>,
     ) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
@@ -76,7 +77,7 @@ impl SqlGui {
 
     pub(super) fn update_child_view(
         &mut self,
-        event: ColViewMes<String>,
+        event: ColViewMes<Child>,
     ) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
@@ -93,10 +94,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_role_view(
-        &mut self,
-        event: ColViewMes<String>,
-    ) -> Result<(), LoreGuiError> {
+    pub(super) fn update_role_view(&mut self, event: ColViewMes<Role>) -> Result<(), LoreGuiError> {
         let state = &mut self.relationship_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -153,7 +151,7 @@ impl SqlGui {
         Ok(())
     }
 
-    fn get_all_labels(&self, db: &Option<LoreDatabase>) -> Result<Vec<String>, LoreGuiError> {
+    fn get_all_labels(&self, db: &Option<LoreDatabase>) -> Result<Vec<Label>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),

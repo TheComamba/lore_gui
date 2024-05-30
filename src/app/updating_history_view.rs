@@ -1,5 +1,8 @@
 use iced::widget::text_editor;
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{day::Day, timestamp::Timestamp, year::Year},
+};
 
 use crate::{
     db_col_view::{entry::DbColViewEntry, ColViewMes},
@@ -9,7 +12,7 @@ use crate::{
         redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
     errors::LoreGuiError,
-    history_view::{day::Day, HistoryViewMessage, HistoryViewState},
+    history_view::{HistoryViewMessage, HistoryViewState},
 };
 
 use super::{message_handling::GuiMes, SqlGui};
@@ -40,7 +43,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn update_year_view(&mut self, event: ColViewMes<i32>) -> Result<(), LoreGuiError> {
+    pub(super) fn update_year_view(&mut self, event: ColViewMes<Year>) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
             ColViewMes::SearchFieldUpd(text) => {
@@ -76,7 +79,7 @@ impl SqlGui {
 
     pub(super) fn update_timestamp_view(
         &mut self,
-        event: ColViewMes<i64>,
+        event: ColViewMes<Timestamp>,
     ) -> Result<(), LoreGuiError> {
         let state = &mut self.history_view_state;
         match event {
@@ -121,7 +124,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn delete_history_item(&mut self, timestamp: i64) -> Result<(), LoreGuiError> {
+    pub(super) fn delete_history_item(&mut self, timestamp: Timestamp) -> Result<(), LoreGuiError> {
         let db = self
             .lore_database
             .as_ref()

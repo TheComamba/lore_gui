@@ -2,7 +2,10 @@ use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{description::Description, descriptor::Descriptor, entity::EntityColumn, label::Label},
+};
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
@@ -14,7 +17,7 @@ pub(crate) struct NewDescriptorDialog {
 }
 
 impl NewDescriptorDialog {
-    pub(crate) fn new(label: String) -> Self {
+    pub(crate) fn new(label: Label) -> Self {
         NewDescriptorDialog {
             data: NewDescriptorData::new(label),
         }
@@ -23,37 +26,37 @@ impl NewDescriptorDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewDescriptorData {
-    pub(self) label: String,
-    pub(self) descriptor: String,
-    pub(self) description: String,
+    pub(self) label: Label,
+    pub(self) descriptor: Descriptor,
+    pub(self) description: Description,
 }
 
 impl NewDescriptorData {
-    pub(crate) fn new(label: String) -> Self {
+    pub(crate) fn new(label: Label) -> Self {
         NewDescriptorData {
             label,
-            descriptor: String::new(),
-            description: String::new(),
+            descriptor: "".into(),
+            description: "".into(),
         }
     }
 
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.descriptor.is_empty() {
+        if self.descriptor.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot create empty descriptor.".to_string(),
             ));
         }
 
-        let col = lorecore::sql::entity::EntityColumn {
+        let col = EntityColumn {
             label: self.label,
             descriptor: self.descriptor,
-            description: Some(self.description),
+            description: self.description,
         };
         db.write_entity_columns(vec![col])
             .map_err(LoreGuiError::from)
     }
 
-    pub(crate) fn get_descriptor(&self) -> &str {
+    pub(crate) fn get_descriptor(&self) -> &Descriptor {
         &self.descriptor
     }
 }
@@ -88,9 +91,9 @@ impl Component<GuiMes> for NewDescriptorDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let descriptor_input =
-            TextInput::new("", &self.data.descriptor).on_input(NewDescriptorMessage::DescriptorUpd);
-        let description_input = TextInput::new("", &self.data.description)
+        let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
+            .on_input(NewDescriptorMessage::DescriptorUpd);
+        let description_input = TextInput::new("", self.data.description.to_str())
             .on_input(NewDescriptorMessage::DescriptionUpd);
         let submit_button = Button::new(Text::new("Create")).on_press(NewDescriptorMessage::Submit);
         Column::new()
@@ -107,7 +110,7 @@ impl Component<GuiMes> for NewDescriptorDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewDescriptorMessage {
-    DescriptorUpd(String),
-    DescriptionUpd(String),
+    DescriptorUpd(Descriptor),
+    DescriptionUpd(Description),
     Submit,
 }

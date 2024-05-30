@@ -1,12 +1,16 @@
+use lorecore::{
+    sql::{
+        lore_database::LoreDatabase,
+        relationship::{extract_children, extract_parents, extract_roles},
+        search_params::{RelationshipSearchParams, SqlSearchText},
+    },
+    types::{child::Child, parent::Parent, relationship::EntityRelationship, role::Role},
+};
+
 use crate::{
     db_col_view::{state::DbColViewState, ColViewMes},
     dialog::change_role::ChangeRoleData,
     errors::LoreGuiError,
-};
-use lorecore::sql::{
-    lore_database::LoreDatabase,
-    relationships::{extract_children, extract_parents, extract_roles, EntityRelationship},
-    search_params::{RelationshipSearchParams, SqlSearchText},
 };
 
 mod widget;
@@ -22,9 +26,9 @@ impl<'a> RelationshipView<'a> {
 }
 
 pub(super) struct RelationshipViewState {
-    pub(super) parent_view_state: DbColViewState<String>,
-    pub(super) child_view_state: DbColViewState<String>,
-    pub(super) role_view_state: DbColViewState<String>,
+    pub(super) parent_view_state: DbColViewState<Parent>,
+    pub(super) child_view_state: DbColViewState<Child>,
+    pub(super) role_view_state: DbColViewState<Role>,
 }
 
 #[derive(Debug, Clone)]
@@ -32,9 +36,9 @@ pub(super) enum RelationshipViewMessage {
     NewRelationship,
     ChangeRole(ChangeRoleData),
     DeleteRelationship(EntityRelationship),
-    ParentViewUpd(ColViewMes<String>),
-    ChildViewUpd(ColViewMes<String>),
-    RoleViewUpd(ColViewMes<String>),
+    ParentViewUpd(ColViewMes<Parent>),
+    ChildViewUpd(ColViewMes<Child>),
+    RoleViewUpd(ColViewMes<Role>),
 }
 
 impl RelationshipViewState {
@@ -49,7 +53,7 @@ impl RelationshipViewState {
     pub(super) fn get_current_parents(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Vec<String>, LoreGuiError> {
+    ) -> Result<Vec<Parent>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),
@@ -73,7 +77,7 @@ impl RelationshipViewState {
     pub(super) fn get_current_children(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Vec<String>, LoreGuiError> {
+    ) -> Result<Vec<Child>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),
@@ -97,7 +101,7 @@ impl RelationshipViewState {
     pub(super) fn get_current_roles(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Vec<String>, LoreGuiError> {
+    ) -> Result<Vec<Role>, LoreGuiError> {
         let db = match db {
             Some(db) => db,
             None => return Ok(vec![]),
