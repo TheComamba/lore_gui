@@ -63,7 +63,7 @@ impl RelationshipViewState {
             .get_selected()
             .0
             .as_ref()
-            .map(|c| SqlSearchText::exact(c.as_str()));
+            .map(|c| SqlSearchText::exact(c.to_str()));
         let parent_search_text = self
             .parent_view_state
             .get_search_text()
@@ -87,7 +87,7 @@ impl RelationshipViewState {
             .get_selected()
             .0
             .as_ref()
-            .map(|p| SqlSearchText::exact(p.as_str()));
+            .map(|p| SqlSearchText::exact(p.to_str()));
         let child_search_text = self
             .child_view_state
             .get_search_text()
@@ -115,8 +115,8 @@ impl RelationshipViewState {
             None => return Ok(vec![]),
         };
         let search_params = RelationshipSearchParams::new(
-            Some(SqlSearchText::exact(parent.as_str())),
-            Some(SqlSearchText::exact(child.as_str())),
+            Some(SqlSearchText::exact(parent.to_str())),
+            Some(SqlSearchText::exact(child.to_str())),
         );
         let relationships = db.read_relationships(search_params)?;
         let roles = extract_roles(&relationships);

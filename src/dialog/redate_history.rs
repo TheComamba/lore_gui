@@ -84,13 +84,13 @@ impl Component<GuiMes> for RedateHistoryDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input = TextInput::new("", &self.data.new_year.to_string())
-            .on_input(|input| RedateHistoryMes::YearUpd(input.parse().unwrap_or_default()));
+            .on_input(|i| RedateHistoryMes::YearUpd(i.parse().unwrap_or_default()));
         let day_string = match self.data.new_day.0 {
             Some(day) => day.to_string(),
             None => String::new(),
         };
         let day_input = TextInput::new("", &day_string)
-            .on_input(|input| RedateHistoryMes::DayUpd(input.parse().unwrap_or_default()));
+            .on_input(|i| RedateHistoryMes::DayUpd(i.parse().unwrap_or_default()));
         let submit_button = Button::new("Redate").on_press(RedateHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))

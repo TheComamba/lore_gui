@@ -34,12 +34,12 @@ impl RelabelEntityData {
     }
 
     pub(crate) fn update_label_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.old_label.is_empty() {
+        if self.old_label.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot relabel entity with empty label.".to_string(),
             ));
         }
-        if self.new_label.is_empty() {
+        if self.new_label.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot relabel entity with empty new label.".to_string(),
             ));
@@ -81,7 +81,7 @@ impl Component<GuiMes> for RelabelEntityDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let new_label_input = TextInput::new("", self.data.new_label.to_str())
-            .on_input(RelabelEntityMes::NewLabelUpd);
+            .on_input(|i| RelabelEntityMes::NewLabelUpd(i.into()));
         let submit_button = Button::new(Text::new("Update")).on_press(RelabelEntityMes::Submit);
         Column::new()
             .push(Text::new("New Label"))

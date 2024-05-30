@@ -73,9 +73,9 @@ impl Component<GuiMes> for ChangeRoleDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_role = self.data.new_role;
+        let new_role_str = self.data.new_role.to_str();
         let new_role_input =
-            TextInput::new("", new_role.to_str()).on_input(ChangeRoleMes::NewRoleUpd);
+            TextInput::new("", new_role_str).on_input(|i| ChangeRoleMes::NewRoleUpd(i.into()));
         let submit_button = Button::new(Text::new("Update")).on_press(ChangeRoleMes::Submit);
         Column::new()
             .push(Text::new("New Role"))

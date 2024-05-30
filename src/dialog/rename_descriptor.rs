@@ -42,12 +42,12 @@ impl RenameDescriptorData {
         self,
         db: &LoreDatabase,
     ) -> Result<(), LoreGuiError> {
-        if self.old_descriptor.is_empty() {
+        if self.old_descriptor.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot rename descriptor with empty descriptor.".to_string(),
             ));
         }
-        if self.new_descriptor.is_empty() {
+        if self.new_descriptor.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot rename descriptor with empty new descriptor.".to_string(),
             ));
@@ -91,8 +91,8 @@ impl Component<GuiMes> for RenameDescriptorDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_descriptor_input = TextInput::new("", &self.data.new_descriptor)
-            .on_input(RenameDescriptorMes::NewDescriptorUpd);
+        let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
+            .on_input(|i| RenameDescriptorMes::NewDescriptorUpd(i.into()));
         let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
         Column::new()
             .push(Text::new("New Descriptor"))

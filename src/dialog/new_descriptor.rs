@@ -92,9 +92,9 @@ impl Component<GuiMes> for NewDescriptorDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
-            .on_input(NewDescriptorMessage::DescriptorUpd);
+            .on_input(|i| NewDescriptorMessage::DescriptorUpd(i.into()));
         let description_input = TextInput::new("", self.data.description.to_str())
-            .on_input(NewDescriptorMessage::DescriptionUpd);
+            .on_input(|i| NewDescriptorMessage::DescriptionUpd(i.into()));
         let submit_button = Button::new(Text::new("Create")).on_press(NewDescriptorMessage::Submit);
         Column::new()
             .push(Text::new("Descriptor:"))

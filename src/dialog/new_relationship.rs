@@ -113,8 +113,8 @@ impl Component<GuiMes> for NewRelationshipDialog {
             selected_child,
             NewRelationshipMessage::ChildUpd,
         );
-        let role_input =
-            TextInput::new("", self.data.role.to_str()).on_input(NewRelationshipMessage::RoleUpd);
+        let role_input = TextInput::new("", self.data.role.to_str())
+            .on_input(|i| NewRelationshipMessage::RoleUpd(i.into()));
         let submit_button =
             Button::new(Text::new("Create")).on_press(NewRelationshipMessage::Submit);
         Column::new()

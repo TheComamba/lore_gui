@@ -102,12 +102,13 @@ impl Component<GuiMes> for NewHistoryDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let year_input =
-            TextInput::new("", &self.data.year.to_string()).on_input(NewHistoryMes::YearUpd);
+        let year_input = TextInput::new("", &self.data.year.to_string())
+            .on_input(|i| NewHistoryMes::YearUpd(i.into()));
         let day_string = format!("{}", self.data.day);
-        let day_input = TextInput::new("", &day_string).on_input(NewHistoryMes::DayUpd);
-        let content_input =
-            TextInput::new("", self.data.content.to_str()).on_input(NewHistoryMes::ContentUpd);
+        let day_input =
+            TextInput::new("", &day_string).on_input(|i| NewHistoryMes::DayUpd(i.into()));
+        let content_input = TextInput::new("", self.data.content.to_str())
+            .on_input(|i| NewHistoryMes::ContentUpd(i.into()));
         let submit_button = Button::new("Create").on_press(NewHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))

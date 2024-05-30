@@ -117,8 +117,8 @@ impl Component<GuiMes> for NewEntityDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let label_input =
-            TextInput::new("", self.data.label.to_str()).on_input(NewEntityMes::LabelUpd);
+        let label_input = TextInput::new("", self.data.label.to_str())
+            .on_input(|i| NewEntityMes::LabelUpd(i.into()));
         let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
         let category_input =
             TextInput::new("", &self.data.category).on_input(NewEntityMes::CategoryUpd);
