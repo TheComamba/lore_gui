@@ -28,8 +28,8 @@ impl SqlGui {
             RelationshipViewMessage::NewRelationship => {
                 let labels = self.get_all_labels(&self.lore_database)?;
                 self.dialog = Some(Box::new(NewRelationshipDialog::new(
-                    labels.iter().map(|l| (*l).into()).collect(),
-                    labels.iter().map(|l| (*l).into()).collect(),
+                    labels.clone().into_iter().map(|l| l.into()).collect(),
+                    labels.clone().into_iter().map(|l| l.into()).collect(),
                 )));
             }
             RelationshipViewMessage::ChangeRole(data) => {
