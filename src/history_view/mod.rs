@@ -1,8 +1,8 @@
 use iced::widget::text_editor;
 use lorecore::{
-    extractions::extract_years,
+    extractions::{extract_days, extract_years},
     sql::{lore_database::LoreDatabase, search_params::HistoryItemSearchParams},
-    types::{day::Day, timestamp::Timestamp, year::Year},
+    types::{day::Day, history_item_content::HistoryItemContent, timestamp::Timestamp, year::Year},
 };
 
 use crate::{
@@ -58,7 +58,7 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let year = self.year_view_state.get_search_int()?;
+        let year = self.year_view_state.get_search_int()?.map(|y| y.into());
         let search_params = HistoryItemSearchParams::new(year, None, None, None);
         let history_items = db.read_history_items(search_params)?;
         let years = extract_years(&history_items);
@@ -78,11 +78,10 @@ impl HistoryViewState {
             None => return Ok(vec![]),
         };
 
-        let day = self.day_view_state.get_search_int()?;
+        let day = self.day_view_state.get_search_int()?.map(|d| d.into());
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
-        let days = extract_days(&history_items).into_iter().map(Day).collect();
-        Ok(days)
+        Ok(extract_days(&history_items))
     }
 
     pub(super) fn get_current_timestamps(
@@ -97,9 +96,9 @@ impl HistoryViewState {
             Some(year) => Some(year),
             None => return Ok(vec![]),
         };
-        let day = self.day_view_state.get_selected().clone().flatten();
+        let day = self.day_view_state.get_selected().0;
 
-        let search_params = HistoryItemSearchParams::new(year, day.0, None, None);
+        let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
         let timestamps = history_items
             .iter()
@@ -111,14 +110,14 @@ impl HistoryViewState {
     pub(super) fn get_current_content(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<String, LoreGuiError> {
+    ) -> Result<HistoryItemContent, LoreGuiError> {
         let db = match db {
             Some(db) => db,
-            None => return Ok(String::new()),
+            None => return Ok("".into()),
         };
         let timestamp = match self.timestamp_view_state.get_selected().0 {
             Some(timestamp) => timestamp,
-            None => return Ok(String::new()),
+            None => return Ok("".into()),
         };
 
         let search_params = HistoryItemSearchParams::new(None, None, Some(timestamp), None);
@@ -128,7 +127,7 @@ impl HistoryViewState {
         }
         let content = match history_items.first() {
             Some(item) => item.content.clone(),
-            None => String::new(),
+            None => "".into(),
         };
         Ok(content)
     }
