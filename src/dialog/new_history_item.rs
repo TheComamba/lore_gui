@@ -3,6 +3,7 @@ use iced::{
     Element,
 };
 use lorecore::{
+    errors::LoreCoreError,
     sql::lore_database::LoreDatabase,
     types::{
         day::Day, history::HistoryItem, history_item_content::HistoryItemContent,
@@ -72,24 +73,14 @@ impl Component<GuiMes> for NewHistoryDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             NewHistoryMes::YearUpd(year) => {
-                if year.is_empty() {
-                    self.data.year = 0;
-                } else {
-                    let year = year.parse::<i32>();
-                    if let Ok(year) = year {
-                        self.data.year = year
-                    };
+                if let Ok(year) = year {
+                    self.data.year = year;
                 }
                 None
             }
             NewHistoryMes::DayUpd(day) => {
-                if day.is_empty() {
-                    self.data.day = Day::NONE;
-                } else {
-                    let day = day.parse::<i32>();
-                    if let Ok(day) = day {
-                        self.data.day = Day(Some(day))
-                    };
+                if let Ok(day) = day {
+                    self.data.day = day;
                 }
                 None
             }
@@ -103,10 +94,10 @@ impl Component<GuiMes> for NewHistoryDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input = TextInput::new("", &self.data.year.to_string())
-            .on_input(|i| NewHistoryMes::YearUpd(i.into()));
+            .on_input(|i| NewHistoryMes::YearUpd(i.try_into()));
         let day_string = format!("{}", self.data.day);
         let day_input =
-            TextInput::new("", &day_string).on_input(|i| NewHistoryMes::DayUpd(i.into()));
+            TextInput::new("", &day_string).on_input(|i| NewHistoryMes::DayUpd(i.try_into()));
         let content_input = TextInput::new("", self.data.content.to_str())
             .on_input(|i| NewHistoryMes::ContentUpd(i.into()));
         let submit_button = Button::new("Create").on_press(NewHistoryMes::Submit);
@@ -126,8 +117,8 @@ impl Component<GuiMes> for NewHistoryDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewHistoryMes {
-    YearUpd(Year),
-    DayUpd(Day),
+    YearUpd(Result<Year, LoreCoreError>),
+    DayUpd(Result<Day, LoreCoreError>),
     ContentUpd(HistoryItemContent),
     Submit,
 }

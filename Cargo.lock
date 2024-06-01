@@ -1884,7 +1884,7 @@ checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 [[package]]
 name = "lorecore"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/LoreCore.git?branch=dev/typing-overhaul#97ee5e41d27d3a9cbd20243b24068848aad18b3b"
+source = "git+https://github.com/TheComamba/LoreCore.git?branch=dev/typing-overhaul#fa75b5d6973220e58e8aefc81c81c8a60d1132a9"
 dependencies = [
  "diesel",
  "diesel_migrations",
