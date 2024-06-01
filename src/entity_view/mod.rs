@@ -5,7 +5,7 @@ use lorecore::{
         lore_database::LoreDatabase,
         search_params::{EntityColumnSearchParams, SqlSearchText},
     },
-    types::{descriptor::Descriptor, label::Label},
+    types::{description::Description, descriptor::Descriptor, label::Label},
 };
 
 use crate::{
@@ -100,18 +100,18 @@ impl EntityViewState {
     pub(super) fn get_current_description(
         &self,
         db: &Option<LoreDatabase>,
-    ) -> Result<Option<Descriptor>, LoreGuiError> {
+    ) -> Result<Description, LoreGuiError> {
         let db = match db {
             Some(db) => db,
-            None => return Ok(None),
+            None => return Ok(Description::NONE),
         };
         let label = match &self.label_view_state.get_selected().0 {
             Some(label) => Some(SqlSearchText::exact(label.to_str())),
-            None => return Ok(None),
+            None => return Ok(Description::NONE),
         };
         let descriptor = match &self.descriptor_view_state.get_selected().0 {
             Some(descriptor) => Some(SqlSearchText::exact(descriptor.to_str())),
-            None => return Ok(None),
+            None => return Ok(Description::NONE),
         };
 
         let search_params = EntityColumnSearchParams::new(label, descriptor);
@@ -123,7 +123,8 @@ impl EntityViewState {
 
         let description = entity_columns
             .first()
-            .and_then(|col| col.description.clone());
+            .map(|col| col.description.clone())
+            .unwrap_or(Description::NONE);
 
         Ok(description)
     }
