@@ -3,6 +3,7 @@ use iced::{
     Element,
 };
 use lorecore::{
+    errors::LoreCoreError,
     sql::lore_database::LoreDatabase,
     types::{day::Day, timestamp::Timestamp, year::Year},
 };
@@ -71,11 +72,15 @@ impl Component<GuiMes> for RedateHistoryDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             RedateHistoryMes::YearUpd(year) => {
-                self.data.new_year = year;
+                if let Ok(year) = year {
+                    self.data.new_year = year;
+                }
                 None
             }
             RedateHistoryMes::DayUpd(day) => {
-                self.data.new_day = Day(Some(day));
+                if let Ok(day) = day {
+                    self.data.new_day = day;
+                }
                 None
             }
             RedateHistoryMes::Submit => Some(GuiMes::RedateHistoryItem(self.data.to_owned())),
@@ -84,13 +89,9 @@ impl Component<GuiMes> for RedateHistoryDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input = TextInput::new("", &self.data.new_year.to_string())
-            .on_input(|i| RedateHistoryMes::YearUpd(i.parse().unwrap_or_default()));
-        let day_string = match self.data.new_day.0 {
-            Some(day) => day.to_string(),
-            None => String::new(),
-        };
-        let day_input = TextInput::new("", &day_string)
-            .on_input(|i| RedateHistoryMes::DayUpd(i.parse().unwrap_or_default()));
+            .on_input(|i| RedateHistoryMes::YearUpd(i.try_into()));
+        let day_input = TextInput::new("", &self.data.new_day.to_string())
+            .on_input(|i| RedateHistoryMes::DayUpd(i.try_into()));
         let submit_button = Button::new("Redate").on_press(RedateHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))
@@ -106,7 +107,7 @@ impl Component<GuiMes> for RedateHistoryDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum RedateHistoryMes {
-    YearUpd(Year),
-    DayUpd(Day),
+    YearUpd(Result<Year, LoreCoreError>),
+    DayUpd(Result<Day, LoreCoreError>),
     Submit,
 }
