@@ -45,7 +45,7 @@ impl<'a> RelationshipView<'a> {
                 .get_selected()
                 .0
                 .clone()
-                .unwrap_or_default();
+                .unwrap_or("".into());
             let relationship = EntityRelationship {
                 parent: parent.clone(),
                 child: child.clone(),

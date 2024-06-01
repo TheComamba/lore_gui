@@ -183,7 +183,7 @@ impl HistoryViewState {
 
     fn update_content(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let content = self.get_current_content(db)?;
-        self.current_content = text_editor::Content::with_text(&content);
+        self.current_content = text_editor::Content::with_text(content.to_str());
         Ok(())
     }
 }
