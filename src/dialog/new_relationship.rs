@@ -43,7 +43,7 @@ impl NewRelationshipData {
     }
 
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.parent.is_empty() || self.child.is_empty() {
+        if self.parent.to_str().is_empty() || self.child.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Parent and child cannot be empty.".to_string(),
             ));
@@ -93,7 +93,7 @@ impl Component<GuiMes> for NewRelationshipDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let selected_parent = if self.data.parent.is_empty() {
+        let selected_parent = if self.data.parent.to_str().is_empty() {
             None
         } else {
             Some(self.data.parent.clone())
@@ -103,7 +103,7 @@ impl Component<GuiMes> for NewRelationshipDialog {
             selected_parent,
             NewRelationshipMessage::ParentUpd,
         );
-        let selected_child = if self.data.child.is_empty() {
+        let selected_child = if self.data.child.to_str().is_empty() {
             None
         } else {
             Some(self.data.child.clone())

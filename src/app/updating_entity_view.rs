@@ -216,7 +216,7 @@ impl EntityViewState {
     }
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let description = self.get_current_description(db)?.unwrap_or("".into());
+        let description = self.get_current_description(db)?;
         self.current_description = text_editor::Content::with_text(description.to_str());
         Ok(())
     }
