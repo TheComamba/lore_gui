@@ -1,13 +1,16 @@
-use super::Dialog;
-use crate::app::message_handling::GuiMes;
-use crate::errors::LoreGuiError;
 use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::sql::entity::EntityColumn;
 use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::types::entity::EntityColumn;
+use lorecore::types::label::Label;
+
+use crate::app::message_handling::GuiMes;
+use crate::errors::LoreGuiError;
+
+use super::Dialog;
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityDialog {
@@ -24,7 +27,7 @@ impl NewEntityDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityData {
-    pub(self) label: String,
+    pub(self) label: Label,
     pub(self) name: String,
     pub(self) category: String,
 }
@@ -32,14 +35,14 @@ pub(crate) struct NewEntityData {
 impl NewEntityData {
     pub(crate) fn new() -> Self {
         NewEntityData {
-            label: String::new(),
+            label: "".into(),
             name: String::new(),
             category: String::new(),
         }
     }
 
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.label.is_empty() {
+        if self.label.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot create entity with empty label.".to_string(),
             ));
@@ -55,18 +58,18 @@ impl NewEntityData {
             ));
         }
 
-        let category_descriptor = "_category".to_string();
-        let name_descriptor = "_name".to_string();
+        let category_descriptor = "_category".into();
+        let name_descriptor = "_name".into();
 
         let name_col = EntityColumn {
             label: self.label.clone(),
             descriptor: name_descriptor,
-            description: Some(self.name),
+            description: self.name.into(),
         };
         let category_col = EntityColumn {
             label: self.label,
             descriptor: category_descriptor,
-            description: Some(self.category),
+            description: self.category.into(),
         };
 
         db.write_entity_columns(vec![name_col])?;
@@ -75,7 +78,7 @@ impl NewEntityData {
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &str {
+    pub(crate) fn get_label(&self) -> &Label {
         &self.label
     }
 }
@@ -114,7 +117,8 @@ impl Component<GuiMes> for NewEntityDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let label_input = TextInput::new("", &self.data.label).on_input(NewEntityMes::LabelUpd);
+        let label_input = TextInput::new("", self.data.label.to_str())
+            .on_input(|i| NewEntityMes::LabelUpd(i.into()));
         let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
         let category_input =
             TextInput::new("", &self.data.category).on_input(NewEntityMes::CategoryUpd);
@@ -135,7 +139,7 @@ impl Component<GuiMes> for NewEntityDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewEntityMes {
-    LabelUpd(String),
+    LabelUpd(Label),
     CategoryUpd(String),
     NameUpd(String),
     Submit,

@@ -2,9 +2,13 @@ use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::{
+    errors::LoreCoreError,
+    sql::lore_database::LoreDatabase,
+    types::{day::Day, timestamp::Timestamp, year::Year},
+};
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError, history_view::day::Day};
+use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
 use super::Dialog;
 
@@ -21,15 +25,15 @@ impl RedateHistoryDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct RedateHistoryData {
-    pub(self) timestamp: i64,
-    pub(self) old_year: i32,
+    pub(self) timestamp: Timestamp,
+    pub(self) old_year: Year,
     pub(self) old_day: Day,
-    pub(self) new_year: i32,
+    pub(self) new_year: Year,
     pub(self) new_day: Day,
 }
 
 impl RedateHistoryData {
-    pub(crate) fn new(timestamp: i64, old_year: i32, old_day: Day) -> Self {
+    pub(crate) fn new(timestamp: Timestamp, old_year: Year, old_day: Day) -> Self {
         RedateHistoryData {
             timestamp,
             new_year: old_year,
@@ -40,7 +44,7 @@ impl RedateHistoryData {
     }
 
     pub(crate) fn update_date_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        db.redate_history_item(self.timestamp, self.new_year, self.new_day.0)?;
+        db.redate_history_item(self.timestamp, self.new_year, self.new_day)?;
         Ok(())
     }
 }
@@ -50,7 +54,7 @@ impl Dialog for RedateHistoryDialog {
         format!(
             "Redate history for entity: year {}, day {} ({})",
             self.data.old_year,
-            self.data.old_day.0.unwrap_or(0),
+            self.data.old_day.to_string(),
             self.data.timestamp
         )
     }
@@ -68,11 +72,15 @@ impl Component<GuiMes> for RedateHistoryDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             RedateHistoryMes::YearUpd(year) => {
-                self.data.new_year = year;
+                if let Ok(year) = year {
+                    self.data.new_year = year;
+                }
                 None
             }
             RedateHistoryMes::DayUpd(day) => {
-                self.data.new_day = Day(Some(day));
+                if let Ok(day) = day {
+                    self.data.new_day = day;
+                }
                 None
             }
             RedateHistoryMes::Submit => Some(GuiMes::RedateHistoryItem(self.data.to_owned())),
@@ -81,13 +89,9 @@ impl Component<GuiMes> for RedateHistoryDialog {
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let year_input = TextInput::new("", &self.data.new_year.to_string())
-            .on_input(|input| RedateHistoryMes::YearUpd(input.parse().unwrap_or_default()));
-        let day_string = match self.data.new_day.0 {
-            Some(day) => day.to_string(),
-            None => String::new(),
-        };
-        let day_input = TextInput::new("", &day_string)
-            .on_input(|input| RedateHistoryMes::DayUpd(input.parse().unwrap_or_default()));
+            .on_input(|i| RedateHistoryMes::YearUpd(i.try_into()));
+        let day_input = TextInput::new("", &self.data.new_day.to_string())
+            .on_input(|i| RedateHistoryMes::DayUpd(i.try_into()));
         let submit_button = Button::new("Redate").on_press(RedateHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))
@@ -103,7 +107,7 @@ impl Component<GuiMes> for RedateHistoryDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum RedateHistoryMes {
-    YearUpd(i32),
-    DayUpd(i32),
+    YearUpd(Result<Year, LoreCoreError>),
+    DayUpd(Result<Day, LoreCoreError>),
     Submit,
 }

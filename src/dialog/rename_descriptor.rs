@@ -2,7 +2,10 @@ use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{descriptor::Descriptor, label::Label},
+};
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
@@ -21,13 +24,13 @@ impl RenameDescriptorDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct RenameDescriptorData {
-    pub(self) label: String,
-    pub(self) old_descriptor: String,
-    pub(self) new_descriptor: String,
+    pub(self) label: Label,
+    pub(self) old_descriptor: Descriptor,
+    pub(self) new_descriptor: Descriptor,
 }
 
 impl RenameDescriptorData {
-    pub(crate) fn new(label: String, old_descriptor: String) -> Self {
+    pub(crate) fn new(label: Label, old_descriptor: Descriptor) -> Self {
         RenameDescriptorData {
             label,
             new_descriptor: old_descriptor.clone(),
@@ -39,12 +42,12 @@ impl RenameDescriptorData {
         self,
         db: &LoreDatabase,
     ) -> Result<(), LoreGuiError> {
-        if self.old_descriptor.is_empty() {
+        if self.old_descriptor.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot rename descriptor with empty descriptor.".to_string(),
             ));
         }
-        if self.new_descriptor.is_empty() {
+        if self.new_descriptor.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Cannot rename descriptor with empty new descriptor.".to_string(),
             ));
@@ -54,7 +57,7 @@ impl RenameDescriptorData {
         Ok(())
     }
 
-    pub(crate) fn get_descriptor(&self) -> &str {
+    pub(crate) fn get_descriptor(&self) -> &Descriptor {
         &self.old_descriptor
     }
 }
@@ -88,8 +91,8 @@ impl Component<GuiMes> for RenameDescriptorDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_descriptor_input = TextInput::new("", &self.data.new_descriptor)
-            .on_input(RenameDescriptorMes::NewDescriptorUpd);
+        let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
+            .on_input(|i| RenameDescriptorMes::NewDescriptorUpd(i.into()));
         let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
         Column::new()
             .push(Text::new("New Descriptor"))
@@ -103,6 +106,6 @@ impl Component<GuiMes> for RenameDescriptorDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum RenameDescriptorMes {
-    NewDescriptorUpd(String),
+    NewDescriptorUpd(Descriptor),
     Submit,
 }

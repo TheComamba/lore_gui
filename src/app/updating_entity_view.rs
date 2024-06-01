@@ -1,5 +1,8 @@
 use iced::widget::text_editor;
-use lorecore::sql::lore_database::LoreDatabase;
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{descriptor::Descriptor, label::Label},
+};
 
 use crate::{
     db_col_view::{entry::DbColViewEntry, ColViewMes},
@@ -53,7 +56,7 @@ impl SqlGui {
 
     pub(super) fn update_label_view(
         &mut self,
-        event: ColViewMes<String>,
+        event: ColViewMes<Label>,
     ) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
@@ -74,7 +77,7 @@ impl SqlGui {
 
     pub(super) fn update_descriptor_view(
         &mut self,
-        event: ColViewMes<String>,
+        event: ColViewMes<Descriptor>,
     ) -> Result<(), LoreGuiError> {
         let state = &mut self.entity_view_state;
         match event {
@@ -95,7 +98,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let label = data.get_label().to_string();
+        let label = data.get_label().clone();
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(label))))?;
@@ -108,7 +111,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let new_label = data.get_label();
+        let new_label = data.get_label().clone();
         data.update_label_in_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(new_label))))?;
@@ -116,7 +119,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn delete_entity(&mut self, label: String) -> Result<(), LoreGuiError> {
+    pub(super) fn delete_entity(&mut self, label: Label) -> Result<(), LoreGuiError> {
         let db = self
             .lore_database
             .as_ref()
@@ -136,7 +139,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().to_string();
+        let descriptor = data.get_descriptor().clone();
         data.write_to_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
@@ -152,7 +155,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().to_string();
+        let descriptor = data.get_descriptor().clone();
         data.update_descriptor_in_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
@@ -162,8 +165,8 @@ impl SqlGui {
 
     pub(super) fn delete_descriptor(
         &mut self,
-        label: String,
-        descriptor: String,
+        label: Label,
+        descriptor: Descriptor,
     ) -> Result<(), LoreGuiError> {
         let db = self
             .lore_database
@@ -213,8 +216,8 @@ impl EntityViewState {
     }
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
-        let description = self.get_current_description(db)?.unwrap_or_default();
-        self.current_description = text_editor::Content::with_text(&description);
+        let description = self.get_current_description(db)?;
+        self.current_description = text_editor::Content::with_text(description.to_str());
         Ok(())
     }
 }

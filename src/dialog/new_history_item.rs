@@ -2,9 +2,16 @@ use iced::{
     widget::{component, Button, Column, Component, Text, TextInput},
     Element,
 };
-use lorecore::sql::{history::HistoryItem, lore_database::LoreDatabase};
+use lorecore::{
+    errors::LoreCoreError,
+    sql::lore_database::LoreDatabase,
+    types::{
+        day::Day, history::HistoryItem, history_item_content::HistoryItemContent,
+        history_item_properties::HistoryItemProperties, year::Year,
+    },
+};
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError, history_view::day::Day};
+use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
 use super::Dialog;
 
@@ -17,10 +24,10 @@ impl NewHistoryDialog {
     pub(crate) fn new() -> Self {
         NewHistoryDialog {
             data: NewHistoryData {
-                year: 0,
+                year: 0.into(),
                 day: Day::NONE,
-                content: String::new(),
-                properties: None,
+                content: "".into(),
+                properties: HistoryItemProperties::none(),
             },
         }
     }
@@ -28,10 +35,10 @@ impl NewHistoryDialog {
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryData {
-    pub(crate) year: i32,
+    pub(crate) year: Year,
     pub(crate) day: Day,
-    pub(crate) content: String,
-    pub(crate) properties: Option<String>,
+    pub(crate) content: HistoryItemContent,
+    pub(crate) properties: HistoryItemProperties,
 }
 
 impl NewHistoryData {
@@ -39,7 +46,7 @@ impl NewHistoryData {
         let item = HistoryItem {
             timestamp: lorecore::timestamp::current_timestamp(),
             year: self.year,
-            day: self.day.0,
+            day: self.day,
             content: self.content,
             properties: self.properties,
         };
@@ -66,24 +73,14 @@ impl Component<GuiMes> for NewHistoryDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
         match event {
             NewHistoryMes::YearUpd(year) => {
-                if year.is_empty() {
-                    self.data.year = 0;
-                } else {
-                    let year = year.parse::<i32>();
-                    if let Ok(year) = year {
-                        self.data.year = year
-                    };
+                if let Ok(year) = year {
+                    self.data.year = year;
                 }
                 None
             }
             NewHistoryMes::DayUpd(day) => {
-                if day.is_empty() {
-                    self.data.day = Day::NONE;
-                } else {
-                    let day = day.parse::<i32>();
-                    if let Ok(day) = day {
-                        self.data.day = Day(Some(day))
-                    };
+                if let Ok(day) = day {
+                    self.data.day = day;
                 }
                 None
             }
@@ -96,12 +93,13 @@ impl Component<GuiMes> for NewHistoryDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let year_input =
-            TextInput::new("", &self.data.year.to_string()).on_input(NewHistoryMes::YearUpd);
+        let year_input = TextInput::new("", &self.data.year.to_string())
+            .on_input(|i| NewHistoryMes::YearUpd(i.try_into()));
         let day_string = format!("{}", self.data.day);
-        let day_input = TextInput::new("", &day_string).on_input(NewHistoryMes::DayUpd);
-        let content_input =
-            TextInput::new("", &self.data.content).on_input(NewHistoryMes::ContentUpd);
+        let day_input =
+            TextInput::new("", &day_string).on_input(|i| NewHistoryMes::DayUpd(i.try_into()));
+        let content_input = TextInput::new("", self.data.content.to_str())
+            .on_input(|i| NewHistoryMes::ContentUpd(i.into()));
         let submit_button = Button::new("Create").on_press(NewHistoryMes::Submit);
         Column::new()
             .push(Text::new("Year:"))
@@ -119,8 +117,8 @@ impl Component<GuiMes> for NewHistoryDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewHistoryMes {
-    YearUpd(String),
-    DayUpd(String),
-    ContentUpd(String),
+    YearUpd(Result<Year, LoreCoreError>),
+    DayUpd(Result<Day, LoreCoreError>),
+    ContentUpd(HistoryItemContent),
     Submit,
 }

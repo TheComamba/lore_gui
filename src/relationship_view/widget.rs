@@ -1,13 +1,15 @@
-use super::{RelationshipView, RelationshipViewMessage};
-use crate::dialog::change_role::ChangeRoleData;
-use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView};
 use iced::widget::{button, component, Component};
 use iced::Alignment;
 use iced::{
     widget::{Column, Row},
     Element, Length,
 };
-use lorecore::sql::relationships::EntityRelationship;
+use lorecore::types::relationship::EntityRelationship;
+
+use crate::dialog::change_role::ChangeRoleData;
+use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView};
+
+use super::{RelationshipView, RelationshipViewMessage};
 
 impl<'a> Component<GuiMes> for RelationshipView<'a> {
     type State = ();
@@ -43,11 +45,11 @@ impl<'a> RelationshipView<'a> {
                 .get_selected()
                 .0
                 .clone()
-                .unwrap_or_default();
+                .unwrap_or("".into());
             let relationship = EntityRelationship {
                 parent: parent.clone(),
                 child: child.clone(),
-                role: Some(role.clone()),
+                role,
             };
             let change_role_data = ChangeRoleData::new(relationship.clone());
             change_role = change_role.on_press(GuiMes::RelationshipViewUpd(

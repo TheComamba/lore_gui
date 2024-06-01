@@ -1,4 +1,6 @@
-use lorecore::sql::relationships::EntityRelationship;
+use lorecore::types::{
+    descriptor::Descriptor, label::Label, relationship::EntityRelationship, timestamp::Timestamp,
+};
 
 use super::{SqlGui, ViewType};
 use crate::{
@@ -25,13 +27,13 @@ pub(crate) enum GuiMes {
     DialogClosed,
     NewEntity(NewEntityData),
     RelabelEntity(RelabelEntityData),
-    DeleteEntity(String),
+    DeleteEntity(Label),
     NewDescriptor(NewDescriptorData),
     RenameDescriptor(RenameDescriptorData),
-    DeleteDescriptor(String, String),
+    DeleteDescriptor(Label, Descriptor),
     NewHistoryItem(NewHistoryData),
     RedateHistoryItem(RedateHistoryData),
-    DeleteHistoryItem(i64),
+    DeleteHistoryItem(Timestamp),
     NewRelationship(NewRelationshipData),
     ChangeRole(ChangeRoleData),
     DeleteRelationship(EntityRelationship),

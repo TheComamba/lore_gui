@@ -4,17 +4,20 @@ use iced::{
     widget::{component, Button, Column, Component, PickList, Text, TextInput},
     Element,
 };
-use lorecore::sql::{lore_database::LoreDatabase, relationships::EntityRelationship};
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{child::Child, parent::Parent, relationship::EntityRelationship, role::Role},
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewRelationshipDialog {
-    parent_labels: Vec<String>,
-    child_labels: Vec<String>,
+    parent_labels: Vec<Parent>,
+    child_labels: Vec<Child>,
     data: NewRelationshipData,
 }
 
 impl NewRelationshipDialog {
-    pub(crate) fn new(parent_labels: Vec<String>, child_labels: Vec<String>) -> Self {
+    pub(crate) fn new(parent_labels: Vec<Parent>, child_labels: Vec<Child>) -> Self {
         NewRelationshipDialog {
             parent_labels,
             child_labels,
@@ -25,22 +28,22 @@ impl NewRelationshipDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewRelationshipData {
-    pub(self) parent: String,
-    pub(self) child: String,
-    pub(self) role: String,
+    pub(self) parent: Parent,
+    pub(self) child: Child,
+    pub(self) role: Role,
 }
 
 impl NewRelationshipData {
     pub(crate) fn new() -> Self {
         NewRelationshipData {
-            parent: String::new(),
-            child: String::new(),
-            role: String::new(),
+            parent: String::new().into(),
+            child: String::new().into(),
+            role: String::new().into(),
         }
     }
 
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
-        if self.parent.is_empty() || self.child.is_empty() {
+        if self.parent.to_str().is_empty() || self.child.to_str().is_empty() {
             return Err(LoreGuiError::InputError(
                 "Parent and child cannot be empty.".to_string(),
             ));
@@ -49,7 +52,7 @@ impl NewRelationshipData {
         let rel = EntityRelationship {
             parent: self.parent,
             child: self.child,
-            role: Some(self.role),
+            role: self.role,
         };
         db.write_relationships(vec![rel])
             .map_err(LoreGuiError::from)
@@ -90,7 +93,7 @@ impl Component<GuiMes> for NewRelationshipDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let selected_parent = if self.data.parent.is_empty() {
+        let selected_parent = if self.data.parent.to_str().is_empty() {
             None
         } else {
             Some(self.data.parent.clone())
@@ -100,7 +103,7 @@ impl Component<GuiMes> for NewRelationshipDialog {
             selected_parent,
             NewRelationshipMessage::ParentUpd,
         );
-        let selected_child = if self.data.child.is_empty() {
+        let selected_child = if self.data.child.to_str().is_empty() {
             None
         } else {
             Some(self.data.child.clone())
@@ -110,8 +113,8 @@ impl Component<GuiMes> for NewRelationshipDialog {
             selected_child,
             NewRelationshipMessage::ChildUpd,
         );
-        let role_input =
-            TextInput::new("", &self.data.role).on_input(NewRelationshipMessage::RoleUpd);
+        let role_input = TextInput::new("", self.data.role.to_str())
+            .on_input(|i| NewRelationshipMessage::RoleUpd(i.into()));
         let submit_button =
             Button::new(Text::new("Create")).on_press(NewRelationshipMessage::Submit);
         Column::new()
@@ -130,8 +133,8 @@ impl Component<GuiMes> for NewRelationshipDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewRelationshipMessage {
-    ParentUpd(String),
-    ChildUpd(String),
-    RoleUpd(String),
+    ParentUpd(Parent),
+    ChildUpd(Child),
+    RoleUpd(Role),
     Submit,
 }
