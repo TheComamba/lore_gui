@@ -11,7 +11,6 @@ mod updating_history_view;
 mod updating_relationship_view;
 mod widget;
 
-#[derive(Default)]
 pub(crate) struct SqlGui {
     selected_view: ViewType,
     entity_view_state: EntityViewState,

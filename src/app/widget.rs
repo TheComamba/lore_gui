@@ -19,7 +19,7 @@ use iced::{
 impl SqlGui {
     fn new() -> Self {
         let mut gui = SqlGui {
-            selected_view: super::ViewType::Entity,
+            selected_view: super::ViewType::default(),
             entity_view_state: EntityViewState::default(),
             history_view_state: HistoryViewState::default(),
             relationship_view_state: RelationshipViewState::default(),
@@ -48,9 +48,7 @@ impl SqlGui {
             self.main_view()
         }
     }
-}
 
-impl SqlGui {
     fn main_view(&self) -> Element<'_, GuiMes> {
         let mut col = Column::new()
             .push(self.menu_bar())
@@ -108,5 +106,11 @@ impl SqlGui {
         self.open_database(path)?;
         self.update_database_derived_data()?;
         Ok(())
+    }
+}
+
+impl Default for SqlGui {
+    fn default() -> Self {
+        SqlGui::new()
     }
 }
