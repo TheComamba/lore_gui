@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use iced::{
-    widget::{button, Button, Column, Container, Row, Text},
+    widget::{button, opaque, stack, Button, Column, Container, Row, Text},
     Alignment, Element, Length,
 };
 
@@ -42,12 +42,11 @@ impl SqlGui {
     }
 
     pub(crate) fn view(&self) -> iced::Element<'_, GuiMes> {
-        Modal::new(
-            self.main_view(),
-            self.dialog.as_ref().map(|d| d.to_element()),
-        )
-        .on_esc(GuiMes::DialogClosed)
-        .into()
+        if let Some(dialog) = self.dialog.as_ref() {
+            stack![self.main_view(), opaque(dialog.to_element())].into()
+        } else {
+            self.main_view()
+        }
     }
 }
 
@@ -73,7 +72,7 @@ impl SqlGui {
         Row::new()
             .push(Button::new("New Lore Database").on_press(GuiMes::NewDatabase))
             .push(Button::new("Open Lore Database").on_press(GuiMes::OpenDatabase))
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .width(Length::Fill)
             .padding(5)
             .spacing(5)
