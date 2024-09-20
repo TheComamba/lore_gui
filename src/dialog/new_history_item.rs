@@ -83,19 +83,9 @@ impl Dialog for NewHistoryDialog {
 
     fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogUpdate::Year(year) => {
-                if let Ok(year) = year {
-                    self.data.year = year;
-                }
-            }
-            DialogUpdate::Day(day) => {
-                if let Ok(day) = day {
-                    self.data.day = day;
-                }
-            }
-            DialogUpdate::Content(content) => {
-                self.data.content = content;
-            }
+            DialogUpdate::Year(Ok(year)) => self.data.year = year,
+            DialogUpdate::Day(Ok(day)) => self.data.day = day,
+            DialogUpdate::Content(content) => self.data.content = content,
             _ => (),
         }
     }

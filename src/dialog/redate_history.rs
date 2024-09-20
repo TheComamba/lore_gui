@@ -75,16 +75,8 @@ impl Dialog for RedateHistoryDialog {
 
     fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogUpdate::Year(year) => {
-                if let Ok(year) = year {
-                    self.data.new_year = year;
-                }
-            }
-            DialogUpdate::Day(day) => {
-                if let Ok(day) = day {
-                    self.data.new_day = day;
-                }
-            }
+            DialogUpdate::Year(Ok(year)) => self.data.new_year = year,
+            DialogUpdate::Day(Ok(day)) => self.data.new_day = day,
             _ => (),
         }
     }
