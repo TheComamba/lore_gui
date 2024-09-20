@@ -6,8 +6,9 @@ use iced::{
 };
 use lorecore::types::relationship::EntityRelationship;
 
+use crate::app::message_handling::GuiMes;
+use crate::db_col_view;
 use crate::dialog::change_role::ChangeRoleData;
-use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView};
 
 use super::{RelationshipView, RelationshipViewMessage};
 
@@ -71,17 +72,17 @@ impl<'a> RelationshipView<'a> {
         &self,
     ) -> iced::advanced::graphics::core::Element<'_, GuiMes, iced::Theme, iced::Renderer> {
         Row::new()
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Parent",
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
                 &self.state.parent_view_state,
             ))
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Child",
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
                 &self.state.child_view_state,
             ))
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Role",
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
                 &self.state.role_view_state,

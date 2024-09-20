@@ -1,7 +1,8 @@
 use super::{EntityView, EntityViewMessage};
+use crate::db_col_view;
 use crate::dialog::relabel_entity::RelabelEntityData;
 use crate::dialog::rename_descriptor::RenameDescriptorData;
-use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
+use crate::{app::message_handling::GuiMes, style::header};
 use iced::widget::{button, component, Component};
 use iced::{
     widget::{text_editor, Column, Row},
@@ -87,12 +88,12 @@ impl<'a> EntityView<'a> {
 
     fn col_views(&self) -> Element<'_, GuiMes> {
         Row::new()
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Label",
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
                 &self.state.label_view_state,
             ))
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Descriptor",
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
                 &self.state.descriptor_view_state,

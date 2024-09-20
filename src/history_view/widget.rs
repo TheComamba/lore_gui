@@ -1,6 +1,7 @@
 use super::{HistoryView, HistoryViewMessage};
+use crate::db_col_view;
 use crate::dialog::redate_history::RedateHistoryData;
-use crate::{app::message_handling::GuiMes, db_col_view::widget::DbColView, style::header};
+use crate::{app::message_handling::GuiMes, style::header};
 use iced::widget::{button, component, text_editor, Component};
 use iced::Alignment;
 use iced::{
@@ -66,17 +67,17 @@ impl<'a> HistoryView<'a> {
         &self,
     ) -> iced::advanced::graphics::core::Element<'_, GuiMes, iced::Theme, iced::Renderer> {
         Row::new()
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Year",
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
                 &self.state.year_view_state,
             ))
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Day",
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
                 &self.state.day_view_state,
             ))
-            .push(DbColView::new(
+            .push(db_col_view::widget::new(
                 "Timestamp",
                 |m| GuiMes::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
                 &self.state.timestamp_view_state,
