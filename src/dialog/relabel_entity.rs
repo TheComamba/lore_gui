@@ -59,7 +59,7 @@ impl Dialog for RelabelEntityDialog {
         format!("Relabel entity: {}", self.data.old_label)
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
 

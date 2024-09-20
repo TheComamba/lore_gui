@@ -61,7 +61,7 @@ impl Dialog for ChangeRoleDialog {
         }
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
         let new_role_str = self.data.new_role.to_str();
         let new_role_input = TextInput::new("", new_role_str)
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewRoleUpd(i.into())));

@@ -88,7 +88,7 @@ impl Dialog for NewEntityDialog {
         "Create new entity".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
 

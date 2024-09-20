@@ -70,7 +70,7 @@ impl Dialog for RenameDescriptorDialog {
         )
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
 

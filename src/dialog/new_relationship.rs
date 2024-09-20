@@ -64,7 +64,7 @@ impl Dialog for NewRelationshipDialog {
         "New Relationship".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
 
