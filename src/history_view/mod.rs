@@ -16,13 +16,6 @@ mod widget;
 pub(super) struct HistoryView<'a> {
     state: &'a HistoryViewState,
 }
-
-impl<'a> HistoryView<'a> {
-    pub(super) fn new(state: &'a HistoryViewState) -> Self {
-        Self { state }
-    }
-}
-
 pub(super) struct HistoryViewState {
     pub(super) year_view_state: DbColViewState<Year>,
     pub(super) day_view_state: DbColViewState<Day>,
