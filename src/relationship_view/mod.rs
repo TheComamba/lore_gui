@@ -19,12 +19,6 @@ pub(super) struct RelationshipView<'a> {
     state: &'a RelationshipViewState,
 }
 
-impl<'a> RelationshipView<'a> {
-    pub(super) fn new(state: &'a RelationshipViewState) -> Self {
-        Self { state }
-    }
-}
-
 pub(super) struct RelationshipViewState {
     pub(super) parent_view_state: DbColViewState<Parent>,
     pub(super) child_view_state: DbColViewState<Child>,
