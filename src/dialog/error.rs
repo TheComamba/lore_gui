@@ -1,4 +1,4 @@
-use super::Dialog;
+use super::{CardStyle, Dialog};
 use crate::app::message_handling::GuiMes;
 use crate::errors::LoreGuiError;
 use iced::widget::{component, Component};
@@ -6,7 +6,6 @@ use iced::{
     widget::{Button, Column, Text},
     Element,
 };
-use iced_aw::style::CardStyles;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ErrorDialog {
@@ -20,8 +19,8 @@ impl ErrorDialog {
 }
 
 impl Dialog for ErrorDialog {
-    fn card_style(&self) -> CardStyles {
-        CardStyles::Danger
+    fn card_style(&self) -> CardStyle {
+        CardStyle::Error
     }
 
     fn header(&self) -> String {

@@ -1,8 +1,9 @@
-use super::Dialog;
+use super::{CardStyle, Dialog};
 use crate::app::message_handling::GuiMes;
 use iced::widget::{component, Button, Column, Component, Row, Text};
 use iced::{Alignment, Element, Length};
-use iced_aw::CardStyles;
+use iced_aw::card::Style;
+use iced_aw::style;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ConfirmationDialog {
@@ -20,8 +21,8 @@ impl ConfirmationDialog {
 }
 
 impl Dialog for ConfirmationDialog {
-    fn card_style(&self) -> CardStyles {
-        CardStyles::Warning
+    fn card_style(&self) -> CardStyle {
+        CardStyle::Warning
     }
 
     fn header(&self) -> String {
@@ -52,7 +53,7 @@ impl Component<GuiMes> for ConfirmationDialog {
             .push(message)
             .push(buttons)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 }

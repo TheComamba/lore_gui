@@ -4,7 +4,7 @@ use iced::{
     widget::{Column, Container, Text, TextInput},
     Element, Length,
 };
-use iced_aw::{style::SelectionListStyles, SelectionList};
+use iced_aw::{style, SelectionList};
 use std::fmt::Display;
 use std::hash::Hash;
 
@@ -53,7 +53,7 @@ where
             ColViewMes::Selected,
             20.0,
             0.0,
-            SelectionListStyles::Default,
+            style::selection_list::primary,
             None,
             Font::default(),
         );

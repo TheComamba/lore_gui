@@ -82,7 +82,7 @@ impl<'a> HistoryView<'a> {
                 &self.state.timestamp_view_state,
             ))
             .push(self.content_view())
-            .align_items(Alignment::Start)
+            .align_y(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()

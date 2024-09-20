@@ -86,7 +86,7 @@ impl<'a> RelationshipView<'a> {
                 |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
                 &self.state.role_view_state,
             ))
-            .align_items(Alignment::Start)
+            .align_y(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
