@@ -16,11 +16,7 @@ use crate::{
 
 use super::db_col_view::state::DbColViewState;
 
-mod widget;
-
-pub(super) struct EntityView<'a> {
-    state: &'a EntityViewState,
-}
+pub(crate) mod widget;
 
 pub(super) struct EntityViewState {
     pub(super) label_view_state: DbColViewState<Label>,

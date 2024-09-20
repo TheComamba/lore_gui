@@ -13,11 +13,7 @@ use crate::{
     errors::LoreGuiError,
 };
 
-mod widget;
-
-pub(super) struct RelationshipView<'a> {
-    state: &'a RelationshipViewState,
-}
+pub(crate) mod widget;
 
 pub(super) struct RelationshipViewState {
     pub(super) parent_view_state: DbColViewState<Parent>,

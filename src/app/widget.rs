@@ -2,14 +2,12 @@ use std::path::PathBuf;
 
 use super::{message_handling::GuiMes, SqlGui, ViewType};
 use crate::{
+    dialog::error::ErrorDialog,
+    entity_view::{self, EntityViewState},
     errors::LoreGuiError,
-    {
-        dialog::error::ErrorDialog,
-        entity_view::{EntityView, EntityViewState},
-        history_view::{HistoryView, HistoryViewState},
-        relationship_view::{RelationshipView, RelationshipViewState},
-        user_preferences::load_database_path,
-    },
+    history_view::{self, HistoryViewState},
+    relationship_view::{self, RelationshipViewState},
+    user_preferences::load_database_path,
 };
 use iced::{
     widget::{button, opaque, stack, Button, Column, Container, Row, Text},
@@ -56,10 +54,16 @@ impl SqlGui {
         if self.lore_database.is_some() {
             col = col.push(self.view_selection_bar());
             match self.selected_view {
-                ViewType::Entity => col = col.push(EntityView::new(&self.entity_view_state)),
-                ViewType::History => col = col.push(HistoryView::new(&self.history_view_state)),
+                ViewType::Entity => {
+                    col = col.push(entity_view::widget::new(&self.entity_view_state))
+                }
+                ViewType::History => {
+                    col = col.push(history_view::widget::new(&self.history_view_state))
+                }
                 ViewType::Relationship => {
-                    col = col.push(RelationshipView::new(&self.relationship_view_state))
+                    col = col.push(relationship_view::widget::new(
+                        &self.relationship_view_state,
+                    ))
                 }
             }
         }
