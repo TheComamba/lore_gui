@@ -73,5 +73,4 @@ pub(crate) enum DialogMessage {
     NewRoleUpd(Role),
     NewLabelUpd(Label),
     NewDescriptorUpd(Descriptor),
-    Submit,
 }

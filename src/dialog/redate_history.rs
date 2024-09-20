@@ -1,9 +1,8 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
-    errors::LoreCoreError,
     sql::lore_database::LoreDatabase,
     types::{day::Day, timestamp::Timestamp, year::Year},
 };
@@ -60,7 +59,20 @@ impl Dialog for RedateHistoryDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let year_input = TextInput::new("", &self.data.new_year.to_string())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
+        let day_input = TextInput::new("", &self.data.new_day.to_string())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DayUpd(i.try_into())));
+        let submit_button = Button::new("Redate").on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("Year:"))
+            .push(year_input)
+            .push(Text::new("Day (optional):"))
+            .push(day_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: DialogMessage) {
@@ -82,52 +94,4 @@ impl Dialog for RedateHistoryDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::RedateHistoryItem(self.data.to_owned())
     }
-}
-
-impl Component<GuiMes> for RedateHistoryDialog {
-    type State = ();
-
-    type Event = RedateHistoryMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            RedateHistoryMes::YearUpd(year) => {
-                if let Ok(year) = year {
-                    self.data.new_year = year;
-                }
-                None
-            }
-            RedateHistoryMes::DayUpd(day) => {
-                if let Ok(day) = day {
-                    self.data.new_day = day;
-                }
-                None
-            }
-            RedateHistoryMes::Submit => Some(GuiMes::RedateHistoryItem(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let year_input = TextInput::new("", &self.data.new_year.to_string())
-            .on_input(|i| RedateHistoryMes::YearUpd(i.try_into()));
-        let day_input = TextInput::new("", &self.data.new_day.to_string())
-            .on_input(|i| RedateHistoryMes::DayUpd(i.try_into()));
-        let submit_button = Button::new("Redate").on_press(RedateHistoryMes::Submit);
-        Column::new()
-            .push(Text::new("Year:"))
-            .push(year_input)
-            .push(Text::new("Day (optional):"))
-            .push(day_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum RedateHistoryMes {
-    YearUpd(Result<Year, LoreCoreError>),
-    DayUpd(Result<Day, LoreCoreError>),
-    Submit,
 }

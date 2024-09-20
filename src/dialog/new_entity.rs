@@ -1,4 +1,3 @@
-use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
@@ -89,7 +88,24 @@ impl Dialog for NewEntityDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let label_input = TextInput::new("", self.data.label.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::LabelUpd(i.into())));
+        let name_input = TextInput::new("", &self.data.name)
+            .on_input(|s| GuiMes::DialogUpdate(DialogMessage::NameUpd(s)));
+        let category_input = TextInput::new("", &self.data.category)
+            .on_input(|s| GuiMes::DialogUpdate(DialogMessage::CategoryUpd(s)));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("Label:"))
+            .push(label_input)
+            .push(Text::new("Name"))
+            .push(name_input)
+            .push(Text::new("Category:"))
+            .push(category_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: DialogMessage) {
@@ -110,56 +126,4 @@ impl Dialog for NewEntityDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::NewEntity(self.data.to_owned())
     }
-}
-
-impl Component<GuiMes> for NewEntityDialog {
-    type State = ();
-
-    type Event = NewEntityMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewEntityMes::LabelUpd(label) => {
-                self.data.label = label;
-                None
-            }
-            NewEntityMes::CategoryUpd(ent_type) => {
-                self.data.category = ent_type;
-                None
-            }
-            NewEntityMes::NameUpd(name) => {
-                self.data.name = name;
-                None
-            }
-            NewEntityMes::Submit => Some(GuiMes::NewEntity(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let label_input = TextInput::new("", self.data.label.to_str())
-            .on_input(|i| NewEntityMes::LabelUpd(i.into()));
-        let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
-        let category_input =
-            TextInput::new("", &self.data.category).on_input(NewEntityMes::CategoryUpd);
-        let submit_button = Button::new(Text::new("Create")).on_press(NewEntityMes::Submit);
-        Column::new()
-            .push(Text::new("Label:"))
-            .push(label_input)
-            .push(Text::new("Name"))
-            .push(name_input)
-            .push(Text::new("Category:"))
-            .push(category_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum NewEntityMes {
-    LabelUpd(Label),
-    CategoryUpd(String),
-    NameUpd(String),
-    Submit,
 }

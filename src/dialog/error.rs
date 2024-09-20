@@ -1,7 +1,6 @@
 use super::{CardStyle, Dialog};
 use crate::app::message_handling::GuiMes;
 use crate::errors::LoreGuiError;
-use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text},
     Element,
@@ -28,7 +27,9 @@ impl Dialog for ErrorDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let text = Text::new(self.error.to_string());
+        let button = Button::new(Text::new("Ok")).on_press(GuiMes::DialogClosed);
+        Column::new().push(text).push(button).into()
     }
 
     fn update(&mut self, _message: super::DialogMessage) {}
@@ -36,25 +37,4 @@ impl Dialog for ErrorDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::DialogClosed
     }
-}
-
-impl Component<GuiMes> for ErrorDialog {
-    type State = ();
-
-    type Event = ErrorDialogMes;
-
-    fn update(&mut self, _state: &mut Self::State, _event: Self::Event) -> Option<GuiMes> {
-        Some(GuiMes::DialogClosed)
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let text = Text::new(self.error.to_string());
-        let button = Button::new(Text::new("Ok")).on_press(ErrorDialogMes::Close);
-        Column::new().push(text).push(button).into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum ErrorDialogMes {
-    Close,
 }

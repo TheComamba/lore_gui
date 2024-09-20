@@ -1,9 +1,8 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
-    errors::LoreCoreError,
     sql::lore_database::LoreDatabase,
     types::{
         day::Day, history::HistoryItem, history_item_content::HistoryItemContent,
@@ -61,7 +60,25 @@ impl Dialog for NewHistoryDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let year_input = TextInput::new("", &self.data.year.to_string())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
+        let day_string = format!("{}", self.data.day);
+        let day_input = TextInput::new("", &day_string)
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DayUpd(i.try_into())));
+        let content_input = TextInput::new("", self.data.content.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::ContentUpd(i.into())));
+        let submit_button = Button::new("Create").on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("Year:"))
+            .push(year_input)
+            .push(Text::new("Day:"))
+            .push(day_input)
+            .push(Text::new("Content:"))
+            .push(content_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: DialogMessage) {
@@ -86,62 +103,4 @@ impl Dialog for NewHistoryDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::NewHistoryItem(self.data.clone())
     }
-}
-
-impl Component<GuiMes> for NewHistoryDialog {
-    type State = ();
-
-    type Event = NewHistoryMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewHistoryMes::YearUpd(year) => {
-                if let Ok(year) = year {
-                    self.data.year = year;
-                }
-                None
-            }
-            NewHistoryMes::DayUpd(day) => {
-                if let Ok(day) = day {
-                    self.data.day = day;
-                }
-                None
-            }
-            NewHistoryMes::ContentUpd(content) => {
-                self.data.content = content;
-                None
-            }
-            NewHistoryMes::Submit => Some(GuiMes::NewHistoryItem(self.data.clone())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let year_input = TextInput::new("", &self.data.year.to_string())
-            .on_input(|i| NewHistoryMes::YearUpd(i.try_into()));
-        let day_string = format!("{}", self.data.day);
-        let day_input =
-            TextInput::new("", &day_string).on_input(|i| NewHistoryMes::DayUpd(i.try_into()));
-        let content_input = TextInput::new("", self.data.content.to_str())
-            .on_input(|i| NewHistoryMes::ContentUpd(i.into()));
-        let submit_button = Button::new("Create").on_press(NewHistoryMes::Submit);
-        Column::new()
-            .push(Text::new("Year:"))
-            .push(year_input)
-            .push(Text::new("Day:"))
-            .push(day_input)
-            .push(Text::new("Content:"))
-            .push(content_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum NewHistoryMes {
-    YearUpd(Result<Year, LoreCoreError>),
-    DayUpd(Result<Day, LoreCoreError>),
-    ContentUpd(HistoryItemContent),
-    Submit,
 }

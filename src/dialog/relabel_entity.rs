@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
@@ -60,7 +60,16 @@ impl Dialog for RelabelEntityDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let new_label_input = TextInput::new("", self.data.new_label.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewLabelUpd(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("New Label"))
+            .push(new_label_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: DialogMessage) {
@@ -75,39 +84,4 @@ impl Dialog for RelabelEntityDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::RelabelEntity(self.data.to_owned())
     }
-}
-
-impl Component<GuiMes> for RelabelEntityDialog {
-    type State = ();
-
-    type Event = RelabelEntityMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            RelabelEntityMes::NewLabelUpd(new_label) => {
-                self.data.new_label = new_label;
-                None
-            }
-            RelabelEntityMes::Submit => Some(GuiMes::RelabelEntity(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_label_input = TextInput::new("", self.data.new_label.to_str())
-            .on_input(|i| RelabelEntityMes::NewLabelUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(RelabelEntityMes::Submit);
-        Column::new()
-            .push(Text::new("New Label"))
-            .push(new_label_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum RelabelEntityMes {
-    NewLabelUpd(Label),
-    Submit,
 }

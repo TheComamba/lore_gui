@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -67,7 +67,20 @@ impl Dialog for NewDescriptorDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DescriptorUpd(i.into())));
+        let description_input = TextInput::new("", self.data.description.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DescriptionUpd(i.into())));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("Descriptor:"))
+            .push(descriptor_input)
+            .push(Text::new("Description:"))
+            .push(description_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: DialogMessage) {
@@ -85,48 +98,4 @@ impl Dialog for NewDescriptorDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::NewDescriptor(self.data.to_owned())
     }
-}
-
-impl Component<GuiMes> for NewDescriptorDialog {
-    type State = ();
-
-    type Event = NewDescriptorMessage;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewDescriptorMessage::DescriptorUpd(descriptor) => {
-                self.data.descriptor = descriptor;
-                None
-            }
-            NewDescriptorMessage::DescriptionUpd(description) => {
-                self.data.description = description;
-                None
-            }
-            NewDescriptorMessage::Submit => Some(GuiMes::NewDescriptor(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
-            .on_input(|i| NewDescriptorMessage::DescriptorUpd(i.into()));
-        let description_input = TextInput::new("", self.data.description.to_str())
-            .on_input(|i| NewDescriptorMessage::DescriptionUpd(i.into()));
-        let submit_button = Button::new(Text::new("Create")).on_press(NewDescriptorMessage::Submit);
-        Column::new()
-            .push(Text::new("Descriptor:"))
-            .push(descriptor_input)
-            .push(Text::new("Description:"))
-            .push(description_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum NewDescriptorMessage {
-    DescriptorUpd(Descriptor),
-    DescriptionUpd(Description),
-    Submit,
 }

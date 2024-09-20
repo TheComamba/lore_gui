@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -71,7 +71,16 @@ impl Dialog for RenameDescriptorDialog {
     }
 
     fn body<'a>(&'a self) -> Element<'a, GuiMes> {
-        component(self.clone())
+        let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewDescriptorUpd(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
+        Column::new()
+            .push(Text::new("New Descriptor"))
+            .push(new_descriptor_input)
+            .push(submit_button)
+            .padding(5)
+            .spacing(5)
+            .into()
     }
 
     fn update(&mut self, message: super::DialogMessage) {
@@ -86,39 +95,4 @@ impl Dialog for RenameDescriptorDialog {
     fn submit(&self) -> GuiMes {
         GuiMes::RenameDescriptor(self.data.to_owned())
     }
-}
-
-impl Component<GuiMes> for RenameDescriptorDialog {
-    type State = ();
-
-    type Event = RenameDescriptorMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            RenameDescriptorMes::NewDescriptorUpd(new_descriptor) => {
-                self.data.new_descriptor = new_descriptor;
-                None
-            }
-            RenameDescriptorMes::Submit => Some(GuiMes::RenameDescriptor(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
-            .on_input(|i| RenameDescriptorMes::NewDescriptorUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
-        Column::new()
-            .push(Text::new("New Descriptor"))
-            .push(new_descriptor_input)
-            .push(submit_button)
-            .padding(5)
-            .spacing(5)
-            .into()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum RenameDescriptorMes {
-    NewDescriptorUpd(Descriptor),
-    Submit,
 }
