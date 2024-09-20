@@ -11,6 +11,7 @@ mod updating_history_view;
 mod updating_relationship_view;
 mod widget;
 
+#[derive(Default)]
 pub(crate) struct SqlGui {
     selected_view: ViewType,
     entity_view_state: EntityViewState,
@@ -20,8 +21,9 @@ pub(crate) struct SqlGui {
     pub(crate) dialog: Option<Box<dyn Dialog>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub(crate) enum ViewType {
+    #[default]
     Entity,
     History,
     Relationship,

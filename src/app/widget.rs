@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use super::{message_handling::GuiMes, SqlGui, ViewType};
 use crate::{
     errors::LoreGuiError,
-    APP_TITLE,
     {
         dialog::error::ErrorDialog,
         entity_view::{EntityView, EntityViewState},
@@ -14,13 +13,10 @@ use crate::{
 };
 use iced::{
     widget::{button, Button, Column, Container, Row, Text},
-    Alignment, Element, Length, Sandbox,
+    Alignment, Element, Length,
 };
-use iced_aw::Modal;
 
-impl Sandbox for SqlGui {
-    type Message = GuiMes;
-
+impl SqlGui {
     fn new() -> Self {
         let mut gui = SqlGui {
             selected_view: super::ViewType::Entity,
@@ -39,17 +35,13 @@ impl Sandbox for SqlGui {
         gui
     }
 
-    fn title(&self) -> String {
-        APP_TITLE.to_string()
-    }
-
-    fn update(&mut self, message: Self::Message) {
+    pub(crate) fn update(&mut self, message: GuiMes) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
         }
     }
 
-    fn view(&self) -> iced::Element<'_, Self::Message> {
+    pub(crate) fn view(&self) -> iced::Element<'_, GuiMes> {
         Modal::new(
             self.main_view(),
             self.dialog.as_ref().map(|d| d.to_element()),

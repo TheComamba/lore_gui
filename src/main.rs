@@ -1,7 +1,6 @@
 #![warn(clippy::unwrap_used)]
 
 use app::SqlGui;
-use iced::{Sandbox, Settings};
 
 mod app;
 mod db_col_view;
@@ -17,5 +16,5 @@ mod user_preferences;
 const APP_TITLE: &str = "Lore SQL GUI";
 
 fn main() -> iced::Result {
-    SqlGui::run(Settings::default())
+    iced::application(APP_TITLE, SqlGui::update, SqlGui::view).run()
 }
