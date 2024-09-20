@@ -64,6 +64,10 @@ impl Dialog for ChangeRoleDialog {
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::ChangeRole(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for ChangeRoleDialog {

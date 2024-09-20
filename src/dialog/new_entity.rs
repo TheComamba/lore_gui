@@ -106,6 +106,10 @@ impl Dialog for NewEntityDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::NewEntity(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for NewEntityDialog {

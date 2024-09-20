@@ -81,6 +81,10 @@ impl Dialog for NewDescriptorDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::NewDescriptor(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for NewDescriptorDialog {

@@ -82,6 +82,10 @@ impl Dialog for RenameDescriptorDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::RenameDescriptor(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for RenameDescriptorDialog {

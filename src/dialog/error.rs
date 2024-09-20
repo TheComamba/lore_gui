@@ -32,6 +32,10 @@ impl Dialog for ErrorDialog {
     }
 
     fn update(&mut self, _message: super::DialogMessage) {}
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::DialogClosed
+    }
 }
 
 impl Component<GuiMes> for ErrorDialog {

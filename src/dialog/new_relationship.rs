@@ -82,6 +82,10 @@ impl Dialog for NewRelationshipDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::NewRelationship(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for NewRelationshipDialog {

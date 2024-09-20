@@ -78,6 +78,10 @@ impl Dialog for RedateHistoryDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::RedateHistoryItem(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for RedateHistoryDialog {

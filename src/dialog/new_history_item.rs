@@ -82,6 +82,10 @@ impl Dialog for NewHistoryDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::NewHistoryItem(self.data.clone())
+    }
 }
 
 impl Component<GuiMes> for NewHistoryDialog {

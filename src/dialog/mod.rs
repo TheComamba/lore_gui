@@ -41,6 +41,8 @@ pub(crate) trait Dialog {
 
     fn update(&mut self, message: DialogMessage);
 
+    fn submit(&self) -> GuiMes;
+
     fn to_element<'a>(&self) -> Element<'a, GuiMes> {
         let header: Text<'a> = Text::new(self.header());
         let body = self.body();

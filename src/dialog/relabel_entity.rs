@@ -71,6 +71,10 @@ impl Dialog for RelabelEntityDialog {
             _ => (),
         }
     }
+
+    fn submit(&self) -> GuiMes {
+        GuiMes::RelabelEntity(self.data.to_owned())
+    }
 }
 
 impl Component<GuiMes> for RelabelEntityDialog {

@@ -34,6 +34,10 @@ impl Dialog for ConfirmationDialog {
     }
 
     fn update(&mut self, _message: super::DialogMessage) {}
+
+    fn submit(&self) -> GuiMes {
+        self.on_confirm.clone()
+    }
 }
 
 impl Component<GuiMes> for ConfirmationDialog {
