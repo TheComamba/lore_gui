@@ -13,7 +13,7 @@ use super::entry::DbColViewEntry;
 use super::{state::DbColViewState, ColViewMes};
 
 pub(crate) struct DbColView<'a, M, E> {
-    title: &'a str,
+    title: &'static str,
     gui_message: M,
     state: &'a DbColViewState<E>,
 }
@@ -23,7 +23,7 @@ where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
     E: 'static + Clone + Display + Eq + Hash,
 {
-    pub(crate) fn new(title: &'a str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
+    pub(crate) fn new(title: &'static str, gui_message: M, state: &'a DbColViewState<E>) -> Self {
         Self {
             title,
             gui_message,
@@ -84,12 +84,12 @@ where
     }
 }
 
-impl<'a, M, E> From<&'a DbColView<'a, M, E>> for Element<'a, GuiMes>
+impl<'a, M, E> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
     E: 'static + Clone + Display + Eq + Hash,
 {
-    fn from(col_view: &'a DbColView<'a, M, E>) -> Element<'a, GuiMes> {
+    fn from(col_view: DbColView<'a, M, E>) -> Element<'a, GuiMes> {
         col_view.view()
     }
 }
