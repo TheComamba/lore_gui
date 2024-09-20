@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -62,34 +62,10 @@ impl Dialog for ChangeRoleDialog {
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-
-    fn submit(&self) -> GuiMes {
-        GuiMes::ChangeRole(self.data.to_owned())
-    }
-}
-
-impl Component<GuiMes> for ChangeRoleDialog {
-    type State = ();
-
-    type Event = ChangeRoleMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            ChangeRoleMes::NewRoleUpd(new_role) => {
-                self.data.new_role = new_role;
-                None
-            }
-            ChangeRoleMes::Submit => Some(GuiMes::ChangeRole(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let new_role_str = self.data.new_role.to_str();
-        let new_role_input =
-            TextInput::new("", new_role_str).on_input(|i| ChangeRoleMes::NewRoleUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(ChangeRoleMes::Submit);
+        let new_role_input = TextInput::new("", new_role_str)
+            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewRoleUpd(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
         Column::new()
             .push(Text::new("New Role"))
             .push(new_role_input)
@@ -98,10 +74,8 @@ impl Component<GuiMes> for ChangeRoleDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum ChangeRoleMes {
-    NewRoleUpd(Role),
-    Submit,
+    fn submit(&self) -> GuiMes {
+        GuiMes::ChangeRole(self.data.to_owned())
+    }
 }
