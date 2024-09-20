@@ -7,9 +7,9 @@ use lorecore::{
     types::{relationship::EntityRelationship, role::Role},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ChangeRoleDialog {
@@ -52,17 +52,17 @@ impl Dialog for ChangeRoleDialog {
         )
     }
 
-    fn update(&mut self, event: DialogMessage) {
-        if let DialogMessage::NewRoleUpd(new_role) = event {
+    fn update(&mut self, event: DialogUpdate) {
+        if let DialogUpdate::Role(new_role) = event {
             self.data.new_role = new_role;
         }
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_role_str = self.data.new_role.to_str();
         let new_role_input = TextInput::new("", new_role_str)
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewRoleUpd(i.into())));
-        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Role(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Role"))
             .push(new_role_input)
@@ -72,7 +72,7 @@ impl Dialog for ChangeRoleDialog {
             .into()
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::ChangeRole(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::ChangeRole(self.data.to_owned())
     }
 }

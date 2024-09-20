@@ -7,9 +7,9 @@ use lorecore::{
     types::{description::Description, descriptor::Descriptor, entity::EntityColumn, label::Label},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewDescriptorDialog {
@@ -66,12 +66,12 @@ impl Dialog for NewDescriptorDialog {
         "New Descriptor".to_string()
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DescriptorUpd(i.into())));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Descriptor(i.into())));
         let description_input = TextInput::new("", self.data.description.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DescriptionUpd(i.into())));
-        let submit_button = Button::new(Text::new("Create")).on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Description(i.into())));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Descriptor:"))
             .push(descriptor_input)
@@ -83,19 +83,19 @@ impl Dialog for NewDescriptorDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
+    fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogMessage::DescriptorUpd(descriptor) => {
+            DialogUpdate::Descriptor(descriptor) => {
                 self.data.descriptor = descriptor;
             }
-            DialogMessage::DescriptionUpd(description) => {
+            DialogUpdate::Description(description) => {
                 self.data.description = description;
             }
             _ => (),
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::NewDescriptor(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewDescriptor(self.data.to_owned())
     }
 }

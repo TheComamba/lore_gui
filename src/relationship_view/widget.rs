@@ -6,21 +6,21 @@ use iced::{
 };
 use lorecore::types::relationship::EntityRelationship;
 
-use crate::app::message_handling::GuiMes;
+use crate::app::message_handling::GuiMessage;
 use crate::db_col_view;
 use crate::dialog::change_role::ChangeRoleData;
 
 use super::{RelationshipViewMessage, RelationshipViewState};
 
-pub(crate) fn new(state: &RelationshipViewState) -> Element<'_, GuiMes> {
+pub(crate) fn new(state: &RelationshipViewState) -> Element<'_, GuiMessage> {
     Column::new()
         .push(buttons(state))
         .push(col_views(state))
         .into()
 }
 
-fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMes> {
-    let new_relationship = button("New Relationship").on_press(GuiMes::RelationshipViewUpd(
+fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMessage> {
+    let new_relationship = button("New Relationship").on_press(GuiMessage::RelationshipViewUpd(
         RelationshipViewMessage::NewRelationship,
     ));
     let mut change_role = button("Change Role");
@@ -41,10 +41,10 @@ fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMes> {
             role,
         };
         let change_role_data = ChangeRoleData::new(relationship.clone());
-        change_role = change_role.on_press(GuiMes::RelationshipViewUpd(
+        change_role = change_role.on_press(GuiMessage::RelationshipViewUpd(
             RelationshipViewMessage::ChangeRole(change_role_data),
         ));
-        delete_relationship = delete_relationship.on_press(GuiMes::RelationshipViewUpd(
+        delete_relationship = delete_relationship.on_press(GuiMessage::RelationshipViewUpd(
             RelationshipViewMessage::DeleteRelationship(relationship),
         ));
     }
@@ -56,21 +56,21 @@ fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMes> {
         .padding(5)
 }
 
-fn col_views(state: &RelationshipViewState) -> Row<'_, GuiMes> {
+fn col_views(state: &RelationshipViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Parent",
-            |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
             &state.parent_view_state,
         ))
         .push(db_col_view::widget::new(
             "Child",
-            |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
             &state.child_view_state,
         ))
         .push(db_col_view::widget::new(
             "Role",
-            |m| GuiMes::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
             &state.role_view_state,
         ))
         .align_y(Alignment::Start)

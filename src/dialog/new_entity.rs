@@ -6,10 +6,10 @@ use lorecore::sql::lore_database::LoreDatabase;
 use lorecore::types::entity::EntityColumn;
 use lorecore::types::label::Label;
 
-use crate::app::message_handling::GuiMes;
+use crate::app::message_handling::GuiMessage;
 use crate::errors::LoreGuiError;
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityDialog {
@@ -87,14 +87,14 @@ impl Dialog for NewEntityDialog {
         "Create new entity".to_string()
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let label_input = TextInput::new("", self.data.label.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::LabelUpd(i.into())));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Label(i.into())));
         let name_input = TextInput::new("", &self.data.name)
-            .on_input(|s| GuiMes::DialogUpdate(DialogMessage::NameUpd(s)));
+            .on_input(|s| GuiMessage::DialogUpdate(DialogUpdate::Name(s)));
         let category_input = TextInput::new("", &self.data.category)
-            .on_input(|s| GuiMes::DialogUpdate(DialogMessage::CategoryUpd(s)));
-        let submit_button = Button::new(Text::new("Create")).on_press(GuiMes::DialogSubmit);
+            .on_input(|s| GuiMessage::DialogUpdate(DialogUpdate::Category(s)));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Label:"))
             .push(label_input)
@@ -108,22 +108,22 @@ impl Dialog for NewEntityDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
+    fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogMessage::LabelUpd(label) => {
+            DialogUpdate::Label(label) => {
                 self.data.label = label;
             }
-            DialogMessage::CategoryUpd(ent_type) => {
+            DialogUpdate::Category(ent_type) => {
                 self.data.category = ent_type;
             }
-            DialogMessage::NameUpd(name) => {
+            DialogUpdate::Name(name) => {
                 self.data.name = name;
             }
             _ => (),
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::NewEntity(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewEntity(self.data.to_owned())
     }
 }

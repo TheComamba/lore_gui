@@ -7,9 +7,9 @@ use lorecore::{
     types::{descriptor::Descriptor, label::Label},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RenameDescriptorDialog {
@@ -70,10 +70,10 @@ impl Dialog for RenameDescriptorDialog {
         )
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewDescriptorUpd(i.into())));
-        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Descriptor(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Descriptor"))
             .push(new_descriptor_input)
@@ -83,13 +83,13 @@ impl Dialog for RenameDescriptorDialog {
             .into()
     }
 
-    fn update(&mut self, message: super::DialogMessage) {
-        if let DialogMessage::NewDescriptorUpd(new_descriptor) = message {
+    fn update(&mut self, message: super::DialogUpdate) {
+        if let DialogUpdate::Descriptor(new_descriptor) = message {
             self.data.new_descriptor = new_descriptor;
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::RenameDescriptor(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RenameDescriptor(self.data.to_owned())
     }
 }

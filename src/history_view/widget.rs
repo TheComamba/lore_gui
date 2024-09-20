@@ -1,7 +1,7 @@
 use super::{HistoryViewMessage, HistoryViewState};
 use crate::db_col_view;
 use crate::dialog::redate_history::RedateHistoryData;
-use crate::{app::message_handling::GuiMes, style::header};
+use crate::{app::message_handling::GuiMessage, style::header};
 use iced::widget::{button, text_editor};
 use iced::Alignment;
 use iced::{
@@ -9,16 +9,17 @@ use iced::{
     Element, Length,
 };
 
-pub(crate) fn new(state: &HistoryViewState) -> Element<'_, GuiMes> {
+pub(crate) fn new(state: &HistoryViewState) -> Element<'_, GuiMessage> {
     Column::new()
         .push(buttons(state))
         .push(col_views(state))
         .into()
 }
 
-fn buttons(state: &HistoryViewState) -> Row<'_, GuiMes> {
-    let new_item = button("New History Item")
-        .on_press(GuiMes::HistoryViewUpd(HistoryViewMessage::NewHistoryItem));
+fn buttons(state: &HistoryViewState) -> Row<'_, GuiMessage> {
+    let new_item = button("New History Item").on_press(GuiMessage::HistoryViewUpd(
+        HistoryViewMessage::NewHistoryItem,
+    ));
     let mut redate_history = button("Redate History Item");
     let mut delete_item = button("Delete History Item");
     if let (Some(timestamp), Some(year), day) = (
@@ -28,10 +29,10 @@ fn buttons(state: &HistoryViewState) -> Row<'_, GuiMes> {
     ) {
         let day = day.clone().flatten();
         let redate_history_data = RedateHistoryData::new(timestamp, year, day);
-        redate_history = redate_history.on_press(GuiMes::HistoryViewUpd(
+        redate_history = redate_history.on_press(GuiMessage::HistoryViewUpd(
             HistoryViewMessage::RedateHistoryItem(redate_history_data),
         ));
-        delete_item = delete_item.on_press(GuiMes::HistoryViewUpd(
+        delete_item = delete_item.on_press(GuiMessage::HistoryViewUpd(
             HistoryViewMessage::DeleteHistoryItem(timestamp),
         ));
     }
@@ -43,21 +44,21 @@ fn buttons(state: &HistoryViewState) -> Row<'_, GuiMes> {
         .padding(5)
 }
 
-fn col_views(state: &HistoryViewState) -> Row<'_, GuiMes> {
+fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Year",
-            |m| GuiMes::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
             &state.year_view_state,
         ))
         .push(db_col_view::widget::new(
             "Day",
-            |m| GuiMes::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
             &state.day_view_state,
         ))
         .push(db_col_view::widget::new(
             "Timestamp",
-            |m| GuiMes::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
             &state.timestamp_view_state,
         ))
         .push(content_view(state))
@@ -66,7 +67,7 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMes> {
         .height(Length::Fill)
 }
 
-fn content_view(state: &HistoryViewState) -> Column<'_, GuiMes> {
+fn content_view(state: &HistoryViewState) -> Column<'_, GuiMessage> {
     Column::new()
         .push(header("Content"))
         .push(text_editor(&state.current_content))

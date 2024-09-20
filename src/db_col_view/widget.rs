@@ -8,15 +8,15 @@ use std::fmt::Display;
 use std::hash::Hash;
 
 use super::{state::DbColViewState, ColViewMes};
-use crate::{app::message_handling::GuiMes, style::header};
+use crate::{app::message_handling::GuiMessage, style::header};
 
 pub(crate) fn new<'a, M, E>(
     title: &'static str,
     gui_message: M,
     state: &'a DbColViewState<E>,
-) -> Element<'a, GuiMes>
+) -> Element<'a, GuiMessage>
 where
-    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
+    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMessage,
     E: 'static + Clone + Display + Eq + Hash,
 {
     let title = header(title);

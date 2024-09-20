@@ -10,9 +10,9 @@ use lorecore::{
     },
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryDialog {
@@ -59,15 +59,15 @@ impl Dialog for NewHistoryDialog {
         "Create new history item".to_string()
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let year_input = TextInput::new("", &self.data.year.to_string())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Year(i.try_into())));
         let day_string = format!("{}", self.data.day);
         let day_input = TextInput::new("", &day_string)
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DayUpd(i.try_into())));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Day(i.try_into())));
         let content_input = TextInput::new("", self.data.content.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::ContentUpd(i.into())));
-        let submit_button = Button::new("Create").on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Content(i.into())));
+        let submit_button = Button::new("Create").on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Year:"))
             .push(year_input)
@@ -81,26 +81,26 @@ impl Dialog for NewHistoryDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
+    fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogMessage::YearUpd(year) => {
+            DialogUpdate::Year(year) => {
                 if let Ok(year) = year {
                     self.data.year = year;
                 }
             }
-            DialogMessage::DayUpd(day) => {
+            DialogUpdate::Day(day) => {
                 if let Ok(day) = day {
                     self.data.day = day;
                 }
             }
-            DialogMessage::ContentUpd(content) => {
+            DialogUpdate::Content(content) => {
                 self.data.content = content;
             }
             _ => (),
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::NewHistoryItem(self.data.clone())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewHistoryItem(self.data.clone())
     }
 }

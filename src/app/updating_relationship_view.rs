@@ -17,7 +17,7 @@ use crate::{
     relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
 
-use super::{message_handling::GuiMes, SqlGui};
+use super::{message_handling::GuiMessage, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_relationship_view(
@@ -40,7 +40,7 @@ impl SqlGui {
                     "Do you really want to delete the {} relationship between {} and {}?",
                     rel.role, rel.parent, rel.child
                 );
-                let on_confirm = GuiMes::DeleteRelationship(rel);
+                let on_confirm = GuiMessage::DeleteRelationship(rel);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             RelationshipViewMessage::ParentViewUpd(event) => {

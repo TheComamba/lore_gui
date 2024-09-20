@@ -7,9 +7,9 @@ use lorecore::{
     types::{day::Day, timestamp::Timestamp, year::Year},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RedateHistoryDialog {
@@ -52,18 +52,16 @@ impl Dialog for RedateHistoryDialog {
     fn header(&self) -> String {
         format!(
             "Redate history for entity: year {}, day {} ({})",
-            self.data.old_year,
-            self.data.old_day,
-            self.data.timestamp
+            self.data.old_year, self.data.old_day, self.data.timestamp
         )
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let year_input = TextInput::new("", &self.data.new_year.to_string())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Year(i.try_into())));
         let day_input = TextInput::new("", &self.data.new_day.to_string())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DayUpd(i.try_into())));
-        let submit_button = Button::new("Redate").on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Day(i.try_into())));
+        let submit_button = Button::new("Redate").on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Year:"))
             .push(year_input)
@@ -75,14 +73,14 @@ impl Dialog for RedateHistoryDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
+    fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogMessage::YearUpd(year) => {
+            DialogUpdate::Year(year) => {
                 if let Ok(year) = year {
                     self.data.new_year = year;
                 }
             }
-            DialogMessage::DayUpd(day) => {
+            DialogUpdate::Day(day) => {
                 if let Ok(day) = day {
                     self.data.new_day = day;
                 }
@@ -91,7 +89,7 @@ impl Dialog for RedateHistoryDialog {
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::RedateHistoryItem(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RedateHistoryItem(self.data.to_owned())
     }
 }

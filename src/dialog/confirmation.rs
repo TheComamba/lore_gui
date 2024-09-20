@@ -1,16 +1,16 @@
 use super::{CardStyle, Dialog};
-use crate::app::message_handling::GuiMes;
+use crate::app::message_handling::GuiMessage;
 use iced::widget::{Button, Column, Row, Text};
 use iced::{Alignment, Element, Length};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ConfirmationDialog {
     message: String,
-    on_confirm: GuiMes,
+    on_confirm: GuiMessage,
 }
 
 impl ConfirmationDialog {
-    pub(crate) fn new(message: String, on_confirm: GuiMes) -> Self {
+    pub(crate) fn new(message: String, on_confirm: GuiMessage) -> Self {
         Self {
             message,
             on_confirm,
@@ -27,10 +27,10 @@ impl Dialog for ConfirmationDialog {
         "Confirmation".to_string()
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let message = Text::new(&self.message);
         let yes_button = Button::new(Text::new("Yes")).on_press(self.on_confirm.clone());
-        let no_button = Button::new(Text::new("No")).on_press(GuiMes::DialogClosed);
+        let no_button = Button::new(Text::new("No")).on_press(GuiMessage::DialogClosed);
 
         let buttons = Row::new().push(yes_button).push(no_button).spacing(50);
 
@@ -42,9 +42,9 @@ impl Dialog for ConfirmationDialog {
             .into()
     }
 
-    fn update(&mut self, _message: super::DialogMessage) {}
+    fn update(&mut self, _message: super::DialogUpdate) {}
 
-    fn submit(&self) -> GuiMes {
+    fn submit(&self) -> GuiMessage {
         self.on_confirm.clone()
     }
 }

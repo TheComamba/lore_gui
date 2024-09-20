@@ -1,5 +1,5 @@
-use super::{Dialog, DialogMessage};
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use super::{Dialog, DialogUpdate};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 use iced::{
     widget::{Button, Column, PickList, Text, TextInput},
     Element,
@@ -64,14 +64,14 @@ impl Dialog for NewRelationshipDialog {
         "New Relationship".to_string()
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let selected_parent = if self.data.parent.to_str().is_empty() {
             None
         } else {
             Some(self.data.parent.clone())
         };
         let parent_input = PickList::new(self.parent_labels.clone(), selected_parent, |s| {
-            GuiMes::DialogUpdate(DialogMessage::ParentUpd(s))
+            GuiMessage::DialogUpdate(DialogUpdate::Parent(s))
         });
         let selected_child = if self.data.child.to_str().is_empty() {
             None
@@ -79,11 +79,11 @@ impl Dialog for NewRelationshipDialog {
             Some(self.data.child.clone())
         };
         let child_input = PickList::new(self.child_labels.clone(), selected_child, |s| {
-            GuiMes::DialogUpdate(DialogMessage::ChildUpd(s))
+            GuiMessage::DialogUpdate(DialogUpdate::Child(s))
         });
         let role_input = TextInput::new("", self.data.role.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::RoleUpd(i.into())));
-        let submit_button = Button::new(Text::new("Create")).on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Role(i.into())));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Parent:"))
             .push(parent_input)
@@ -97,22 +97,22 @@ impl Dialog for NewRelationshipDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
+    fn update(&mut self, message: DialogUpdate) {
         match message {
-            DialogMessage::ParentUpd(parent) => {
+            DialogUpdate::Parent(parent) => {
                 self.data.parent = parent;
             }
-            DialogMessage::ChildUpd(child) => {
+            DialogUpdate::Child(child) => {
                 self.data.child = child;
             }
-            DialogMessage::RoleUpd(role) => {
+            DialogUpdate::Role(role) => {
                 self.data.role = role;
             }
             _ => (),
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::NewRelationship(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewRelationship(self.data.to_owned())
     }
 }

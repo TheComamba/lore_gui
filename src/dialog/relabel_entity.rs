@@ -4,9 +4,9 @@ use iced::{
 };
 use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::{Dialog, DialogMessage};
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RelabelEntityDialog {
@@ -59,10 +59,10 @@ impl Dialog for RelabelEntityDialog {
         format!("Relabel entity: {}", self.data.old_label)
     }
 
-    fn body(&self) -> Element<'_, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_label_input = TextInput::new("", self.data.new_label.to_str())
-            .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewLabelUpd(i.into())));
-        let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Label(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Label"))
             .push(new_label_input)
@@ -72,13 +72,13 @@ impl Dialog for RelabelEntityDialog {
             .into()
     }
 
-    fn update(&mut self, message: DialogMessage) {
-        if let DialogMessage::NewLabelUpd(new_label) = message {
+    fn update(&mut self, message: DialogUpdate) {
+        if let DialogUpdate::Label(new_label) = message {
             self.data.new_label = new_label;
         }
     }
 
-    fn submit(&self) -> GuiMes {
-        GuiMes::RelabelEntity(self.data.to_owned())
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RelabelEntity(self.data.to_owned())
     }
 }

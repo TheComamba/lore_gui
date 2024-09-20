@@ -17,7 +17,7 @@ use crate::{
     errors::LoreGuiError,
 };
 
-use super::{message_handling::GuiMes, SqlGui};
+use super::{message_handling::GuiMessage, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_entity_view(
@@ -31,7 +31,7 @@ impl SqlGui {
             }
             EntityViewMessage::DeleteEntity(label) => {
                 let message = format!("Do you really want to delete {}?", label);
-                let on_confirm = GuiMes::DeleteEntity(label);
+                let on_confirm = GuiMessage::DeleteEntity(label);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             EntityViewMessage::NewDescriptor(label) => {
@@ -45,7 +45,7 @@ impl SqlGui {
                     "Do you really want to delete {}'s descriptor {}?",
                     label, descriptor
                 );
-                let on_confirm = GuiMes::DeleteDescriptor(label, descriptor);
+                let on_confirm = GuiMessage::DeleteDescriptor(label, descriptor);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
