@@ -36,7 +36,7 @@ impl RedateHistoryData {
         RedateHistoryData {
             timestamp,
             new_year: old_year,
-            new_day: old_day.clone(),
+            new_day: old_day,
             old_year,
             old_day,
         }
@@ -53,12 +53,12 @@ impl Dialog for RedateHistoryDialog {
         format!(
             "Redate history for entity: year {}, day {} ({})",
             self.data.old_year,
-            self.data.old_day.to_string(),
+            self.data.old_day,
             self.data.timestamp
         )
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let year_input = TextInput::new("", &self.data.new_year.to_string())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
         let day_input = TextInput::new("", &self.data.new_day.to_string())

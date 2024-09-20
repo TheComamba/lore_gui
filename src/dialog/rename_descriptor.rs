@@ -70,7 +70,7 @@ impl Dialog for RenameDescriptorDialog {
         )
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewDescriptorUpd(i.into())));
         let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
@@ -84,11 +84,8 @@ impl Dialog for RenameDescriptorDialog {
     }
 
     fn update(&mut self, message: super::DialogMessage) {
-        match message {
-            DialogMessage::NewDescriptorUpd(new_descriptor) => {
-                self.data.new_descriptor = new_descriptor;
-            }
-            _ => (),
+        if let DialogMessage::NewDescriptorUpd(new_descriptor) = message {
+            self.data.new_descriptor = new_descriptor;
         }
     }
 

@@ -59,7 +59,7 @@ impl Dialog for NewHistoryDialog {
         "Create new history item".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let year_input = TextInput::new("", &self.data.year.to_string())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::YearUpd(i.try_into())));
         let day_string = format!("{}", self.data.day);

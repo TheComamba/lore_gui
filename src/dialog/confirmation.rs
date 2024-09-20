@@ -27,7 +27,7 @@ impl Dialog for ConfirmationDialog {
         "Confirmation".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let message = Text::new(&self.message);
         let yes_button = Button::new(Text::new("Yes")).on_press(self.on_confirm.clone());
         let no_button = Button::new(Text::new("No")).on_press(GuiMes::DialogClosed);

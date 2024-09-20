@@ -53,15 +53,12 @@ impl Dialog for ChangeRoleDialog {
     }
 
     fn update(&mut self, event: DialogMessage) {
-        match event {
-            DialogMessage::NewRoleUpd(new_role) => {
-                self.data.new_role = new_role;
-            }
-            _ => (),
+        if let DialogMessage::NewRoleUpd(new_role) = event {
+            self.data.new_role = new_role;
         }
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let new_role_str = self.data.new_role.to_str();
         let new_role_input = TextInput::new("", new_role_str)
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewRoleUpd(i.into())));

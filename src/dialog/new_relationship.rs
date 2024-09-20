@@ -64,7 +64,7 @@ impl Dialog for NewRelationshipDialog {
         "New Relationship".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let selected_parent = if self.data.parent.to_str().is_empty() {
             None
         } else {

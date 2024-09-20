@@ -64,7 +64,6 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMes> {
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-        .into()
 }
 
 fn content_view(state: &HistoryViewState) -> Column<'_, GuiMes> {

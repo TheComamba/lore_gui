@@ -87,7 +87,7 @@ impl Dialog for NewEntityDialog {
         "Create new entity".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let label_input = TextInput::new("", self.data.label.to_str())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::LabelUpd(i.into())));
         let name_input = TextInput::new("", &self.data.name)

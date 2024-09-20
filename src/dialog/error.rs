@@ -26,7 +26,7 @@ impl Dialog for ErrorDialog {
         "Error".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let text = Text::new(self.error.to_string());
         let button = Button::new(Text::new("Ok")).on_press(GuiMes::DialogClosed);
         Column::new().push(text).push(button).into()

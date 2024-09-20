@@ -59,7 +59,7 @@ impl Dialog for RelabelEntityDialog {
         format!("Relabel entity: {}", self.data.old_label)
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let new_label_input = TextInput::new("", self.data.new_label.to_str())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::NewLabelUpd(i.into())));
         let submit_button = Button::new(Text::new("Update")).on_press(GuiMes::DialogSubmit);
@@ -73,11 +73,8 @@ impl Dialog for RelabelEntityDialog {
     }
 
     fn update(&mut self, message: DialogMessage) {
-        match message {
-            DialogMessage::NewLabelUpd(new_label) => {
-                self.data.new_label = new_label;
-            }
-            _ => (),
+        if let DialogMessage::NewLabelUpd(new_label) = message {
+            self.data.new_label = new_label;
         }
     }
 

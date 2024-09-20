@@ -82,7 +82,6 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMes> {
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-        .into()
 }
 
 fn desription_view(state: &EntityViewState) -> Column<'_, GuiMes> {

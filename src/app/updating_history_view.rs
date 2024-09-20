@@ -101,7 +101,7 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         let year = DbColViewEntry(Some(data.year));
-        let day = DbColViewEntry(Some(data.day.clone()));
+        let day = DbColViewEntry(Some(data.day));
         data.write_to_database(db)?;
         self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_year_view(ColViewMes::Selected(0, year))?;

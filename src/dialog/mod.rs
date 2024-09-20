@@ -37,7 +37,7 @@ pub(crate) trait Dialog {
 
     fn header(&self) -> String;
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes>;
+    fn body(&self) -> Element<'_, GuiMes>;
 
     fn update(&mut self, message: DialogMessage);
 

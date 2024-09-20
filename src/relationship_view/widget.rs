@@ -76,5 +76,4 @@ fn col_views(state: &RelationshipViewState) -> Row<'_, GuiMes> {
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-        .into()
 }

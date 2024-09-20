@@ -66,7 +66,7 @@ impl Dialog for NewDescriptorDialog {
         "New Descriptor".to_string()
     }
 
-    fn body<'a>(&'a self) -> Element<'a, GuiMes> {
+    fn body(&self) -> Element<'_, GuiMes> {
         let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
             .on_input(|i| GuiMes::DialogUpdate(DialogMessage::DescriptorUpd(i.into())));
         let description_input = TextInput::new("", self.data.description.to_str())
