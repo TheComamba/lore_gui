@@ -50,10 +50,8 @@ impl SqlGui {
             GuiMessage::EntityViewUpd(event) => self.update_entity_view(event)?,
             GuiMessage::HistoryViewUpd(event) => self.update_history_view(event)?,
             GuiMessage::RelationshipViewUpd(event) => self.update_relationship_view(event)?,
-            GuiMessage::DialogUpdate(event) => self.dialog.as_mut().unwrap().update(event),
-            GuiMessage::DialogSubmit => {
-                self.handle_message(self.dialog.as_ref().unwrap().submit())?
-            }
+            GuiMessage::DialogUpdate(update) => self.update_dialog(update),
+            GuiMessage::DialogSubmit => self.dialog_submit()?,
             GuiMessage::DialogClosed => self.dialog = None,
             GuiMessage::NewEntity(data) => self.write_new_entity(data)?,
             GuiMessage::RelabelEntity(data) => self.relable_entity(data)?,
@@ -73,5 +71,19 @@ impl SqlGui {
             }
         }
         Ok(())
+    }
+
+    fn update_dialog(&mut self, update: DialogUpdate) {
+        if let Some(dialog) = self.dialog.as_mut() {
+            dialog.update(update);
+        }
+    }
+
+    fn dialog_submit(&mut self) -> Result<(), LoreGuiError> {
+        if let Some(dialog) = self.dialog.as_ref() {
+            self.handle_message(dialog.submit())
+        } else {
+            Ok(())
+        }
     }
 }
