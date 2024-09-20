@@ -40,12 +40,6 @@ pub(super) enum EntityViewMessage {
     DescriptorViewUpd(ColViewMes<Descriptor>),
 }
 
-impl<'a> EntityView<'a> {
-    pub(super) fn new(state: &'a EntityViewState) -> Self {
-        Self { state }
-    }
-}
-
 impl EntityViewState {
     pub(super) fn new() -> Self {
         Self {

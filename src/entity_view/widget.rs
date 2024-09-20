@@ -1,39 +1,29 @@
-use super::{EntityView, EntityViewMessage};
+use super::{EntityView, EntityViewMessage, EntityViewState};
 use crate::db_col_view;
 use crate::dialog::relabel_entity::RelabelEntityData;
 use crate::dialog::rename_descriptor::RenameDescriptorData;
 use crate::{app::message_handling::GuiMes, style::header};
-use iced::widget::{button, component, Component};
+use iced::widget::button;
 use iced::{
     widget::{text_editor, Column, Row},
     Alignment, Element, Length,
 };
 
-impl<'a> Component<GuiMes> for EntityView<'a> {
-    type State = ();
-
-    type Event = GuiMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        Some(event)
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+impl<'a> EntityView<'a> {
+    pub(crate) fn new(state: &'a EntityViewState) -> Element<'_, GuiMes> {
         Column::new()
-            .push(self.label_buttons())
-            .push(self.descriptor_buttons())
-            .push(self.col_views())
+            .push(Self::label_buttons(state))
+            .push(Self::descriptor_buttons(state))
+            .push(Self::col_views(state))
             .into()
     }
-}
 
-impl<'a> EntityView<'a> {
-    fn label_buttons(&self) -> Row<'_, GuiMes> {
+    fn label_buttons(state: &'a EntityViewState) -> Row<'_, GuiMes> {
         let new_entity =
             button("New Entity").on_press(GuiMes::EntityViewUpd(EntityViewMessage::NewEntity));
         let mut relabel_entity = button("Relabel Entity");
         let mut delete_entity = button("Delete Entity");
-        if let Some(label) = &self.state.label_view_state.get_selected().0 {
+        if let Some(label) = &state.label_view_state.get_selected().0 {
             let relabel_entity_data = RelabelEntityData::new(label.clone());
             relabel_entity = relabel_entity.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::RelabelEntity(relabel_entity_data),
@@ -50,15 +40,15 @@ impl<'a> EntityView<'a> {
             .padding(5)
     }
 
-    fn descriptor_buttons(&self) -> Row<'_, GuiMes> {
+    fn descriptor_buttons(state: &'a EntityViewState) -> Row<'_, GuiMes> {
         let mut new_descriptor = button("New Descriptor");
         let mut rename_descriptor = button("Rename Descriptor");
         let mut delete_descriptor = button("Delete Descriptor");
-        if let Some(label) = &self.state.label_view_state.get_selected().0 {
+        if let Some(label) = &state.label_view_state.get_selected().0 {
             new_descriptor = new_descriptor.on_press(GuiMes::EntityViewUpd(
                 EntityViewMessage::NewDescriptor(label.clone()),
             ));
-            if let Some(descriptor) = &self.state.descriptor_view_state.get_selected().0 {
+            if let Some(descriptor) = &state.descriptor_view_state.get_selected().0 {
                 let rename_descriptor_data =
                     RenameDescriptorData::new(label.clone(), descriptor.clone());
                 rename_descriptor = rename_descriptor.on_press(GuiMes::EntityViewUpd(
@@ -77,37 +67,31 @@ impl<'a> EntityView<'a> {
             .padding(5)
     }
 
-    fn desription_view(&self) -> Column<'_, GuiMes> {
-        Column::new()
-            .push(header("Description"))
-            .push(text_editor(&self.state.current_description))
-            .padding(5)
-            .spacing(5)
-            .width(Length::Fill)
-    }
-
-    fn col_views(&self) -> Element<'_, GuiMes> {
+    fn col_views(state: &'a EntityViewState) -> Row<'_, GuiMes> {
         Row::new()
             .push(db_col_view::widget::new(
                 "Label",
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
-                &self.state.label_view_state,
+                &state.label_view_state,
             ))
             .push(db_col_view::widget::new(
                 "Descriptor",
                 |m| GuiMes::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
-                &self.state.descriptor_view_state,
+                &state.descriptor_view_state,
             ))
-            .push(self.desription_view())
+            .push(Self::desription_view(state))
             .align_y(Alignment::Start)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
     }
-}
 
-impl<'a> From<EntityView<'a>> for Element<'a, GuiMes> {
-    fn from(entity_view: EntityView<'a>) -> Self {
-        component(entity_view)
+    fn desription_view(state: &'a EntityViewState) -> Column<'_, GuiMes> {
+        Column::new()
+            .push(header("Description"))
+            .push(text_editor(&state.current_description))
+            .padding(5)
+            .spacing(5)
+            .width(Length::Fill)
     }
 }
