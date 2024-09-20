@@ -1,4 +1,4 @@
-use super::Dialog;
+use super::{Dialog, DialogMessage};
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 use iced::{
     widget::{component, Button, Column, Component, PickList, Text, TextInput},
@@ -66,6 +66,21 @@ impl Dialog for NewRelationshipDialog {
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
+    }
+
+    fn update(&mut self, message: DialogMessage) {
+        match message {
+            DialogMessage::ParentUpd(parent) => {
+                self.data.parent = parent;
+            }
+            DialogMessage::ChildUpd(child) => {
+                self.data.child = child;
+            }
+            DialogMessage::RoleUpd(role) => {
+                self.data.role = role;
+            }
+            _ => (),
+        }
     }
 }
 

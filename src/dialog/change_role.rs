@@ -9,7 +9,7 @@ use lorecore::{
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogMessage};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ChangeRoleDialog {
@@ -50,6 +50,15 @@ impl Dialog for ChangeRoleDialog {
             self.data.old_relationship.parent,
             self.data.old_relationship.child
         )
+    }
+
+    fn update(&mut self, event: DialogMessage) {
+        match event {
+            DialogMessage::NewRoleUpd(new_role) => {
+                self.data.new_role = new_role;
+            }
+            _ => (),
+        }
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {

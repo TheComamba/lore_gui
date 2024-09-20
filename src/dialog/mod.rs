@@ -4,6 +4,14 @@ use iced::{
     Element,
 };
 use iced_aw::{style, Card};
+use lorecore::{
+    errors::LoreCoreError,
+    types::{
+        child::Child, day::Day, description::Description, descriptor::Descriptor,
+        history_item_content::HistoryItemContent, label::Label, parent::Parent, role::Role,
+        year::Year,
+    },
+};
 
 pub(crate) mod change_role;
 pub(crate) mod confirmation;
@@ -31,6 +39,8 @@ pub(crate) trait Dialog {
 
     fn body<'a>(&self) -> Element<'a, GuiMes>;
 
+    fn update(&mut self, message: DialogMessage);
+
     fn to_element<'a>(&self) -> Element<'a, GuiMes> {
         let header: Text<'a> = Text::new(self.header());
         let body = self.body();
@@ -43,4 +53,23 @@ pub(crate) trait Dialog {
         };
         Container::new(Scrollable::new(card)).padding(100).into()
     }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum DialogMessage {
+    DescriptorUpd(Descriptor),
+    DescriptionUpd(Description),
+    LabelUpd(Label),
+    CategoryUpd(String),
+    NameUpd(String),
+    YearUpd(Result<Year, LoreCoreError>),
+    DayUpd(Result<Day, LoreCoreError>),
+    ContentUpd(HistoryItemContent),
+    ParentUpd(Parent),
+    ChildUpd(Child),
+    RoleUpd(Role),
+    NewRoleUpd(Role),
+    NewLabelUpd(Label),
+    NewDescriptorUpd(Descriptor),
+    Submit,
 }

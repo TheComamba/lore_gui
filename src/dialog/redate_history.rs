@@ -10,7 +10,7 @@ use lorecore::{
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogMessage};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RedateHistoryDialog {
@@ -61,6 +61,22 @@ impl Dialog for RedateHistoryDialog {
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
+    }
+
+    fn update(&mut self, message: DialogMessage) {
+        match message {
+            DialogMessage::YearUpd(year) => {
+                if let Ok(year) = year {
+                    self.data.new_year = year;
+                }
+            }
+            DialogMessage::DayUpd(day) => {
+                if let Ok(day) = day {
+                    self.data.new_day = day;
+                }
+            }
+            _ => (),
+        }
     }
 }
 

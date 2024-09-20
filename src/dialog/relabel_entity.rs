@@ -6,7 +6,7 @@ use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
 
 use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogMessage};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RelabelEntityDialog {
@@ -61,6 +61,15 @@ impl Dialog for RelabelEntityDialog {
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
+    }
+
+    fn update(&mut self, message: DialogMessage) {
+        match message {
+            DialogMessage::NewLabelUpd(new_label) => {
+                self.data.new_label = new_label;
+            }
+            _ => (),
+        }
     }
 }
 

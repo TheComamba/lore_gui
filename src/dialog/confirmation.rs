@@ -32,6 +32,8 @@ impl Dialog for ConfirmationDialog {
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
     }
+
+    fn update(&mut self, _message: super::DialogMessage) {}
 }
 
 impl Component<GuiMes> for ConfirmationDialog {

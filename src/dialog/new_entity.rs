@@ -10,7 +10,7 @@ use lorecore::types::label::Label;
 use crate::app::message_handling::GuiMes;
 use crate::errors::LoreGuiError;
 
-use super::Dialog;
+use super::{Dialog, DialogMessage};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityDialog {
@@ -90,6 +90,21 @@ impl Dialog for NewEntityDialog {
 
     fn body<'a>(&self) -> Element<'a, GuiMes> {
         component(self.clone())
+    }
+
+    fn update(&mut self, message: DialogMessage) {
+        match message {
+            DialogMessage::LabelUpd(label) => {
+                self.data.label = label;
+            }
+            DialogMessage::CategoryUpd(ent_type) => {
+                self.data.category = ent_type;
+            }
+            DialogMessage::NameUpd(name) => {
+                self.data.name = name;
+            }
+            _ => (),
+        }
     }
 }
 
