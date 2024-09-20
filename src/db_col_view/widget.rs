@@ -1,4 +1,3 @@
-use iced::widget::{component, Component};
 use iced::Font;
 use iced::{
     widget::{Column, Container, Text, TextInput},
@@ -10,6 +9,7 @@ use std::hash::Hash;
 
 use crate::{app::message_handling::GuiMes, style::header};
 
+use super::entry::DbColViewEntry;
 use super::{state::DbColViewState, ColViewMes};
 
 pub(crate) struct DbColView<'a, M, E> {
@@ -40,17 +40,22 @@ where
         Text::new(content)
     }
 
-    fn search_field(&self) -> TextInput<ColViewMes<E>> {
+    fn search_field(&self) -> TextInput<GuiMes> {
         let search_text = self.state.get_search_text().unwrap_or("");
         TextInput::new("Type to search...", search_text)
-            .on_input(ColViewMes::SearchFieldUpd)
+            .on_input(self.search_field_updated())
             .width(Length::Fill)
     }
 
-    fn selection_list(&self) -> Element<ColViewMes<E>> {
+    fn search_field_updated(&self) -> impl Fn(String) -> GuiMes {
+        let m = self.gui_message.clone();
+        move |s| m(ColViewMes::SearchFieldUpd(s))
+    }
+
+    fn selection_list(&self) -> Element<GuiMes> {
         let selection_list = SelectionList::new_with(
             self.state.get_entries(),
-            ColViewMes::Selected,
+            self.selection_list_updated(),
             20.0,
             0.0,
             style::selection_list::primary,
@@ -59,23 +64,13 @@ where
         );
         Container::new(selection_list).height(Length::Fill).into()
     }
-}
 
-impl<'a, M, E> Component<GuiMes> for DbColView<'a, M, E>
-where
-    M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
-    E: 'static + Clone + Display + Eq + Hash,
-{
-    type State = DbColViewState<E>;
-
-    type Event = ColViewMes<E>;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
+    fn selection_list_updated(&self) -> impl Fn(usize, DbColViewEntry<E>) -> GuiMes {
         let m = self.gui_message.clone();
-        Some(m(event))
+        move |i, e| m(ColViewMes::Selected(i, e))
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn view(&self) -> Element<'_, GuiMes> {
         Column::new()
             .push(self.title())
             .push(self.selected())
@@ -94,7 +89,7 @@ where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
     E: 'static + Clone + Display + Eq + Hash,
 {
-    fn from(col_view: DbColView<'a, M, E>) -> Self {
-        component(col_view)
+    fn from(col_view: DbColView<'a, M, E>) -> Element<'a, GuiMes> {
+        col_view.view()
     }
 }
