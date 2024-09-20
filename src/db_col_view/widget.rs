@@ -84,12 +84,12 @@ where
     }
 }
 
-impl<'a, M, E> From<DbColView<'a, M, E>> for Element<'a, GuiMes>
+impl<'a, M, E> From<&'a DbColView<'a, M, E>> for Element<'a, GuiMes>
 where
     M: 'static + Clone + Fn(ColViewMes<E>) -> GuiMes,
     E: 'static + Clone + Display + Eq + Hash,
 {
-    fn from(col_view: DbColView<'a, M, E>) -> Element<'a, GuiMes> {
+    fn from(col_view: &'a DbColView<'a, M, E>) -> Element<'a, GuiMes> {
         col_view.view()
     }
 }
