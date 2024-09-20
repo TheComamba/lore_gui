@@ -1,4 +1,3 @@
-use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
@@ -7,10 +6,10 @@ use lorecore::sql::lore_database::LoreDatabase;
 use lorecore::types::entity::EntityColumn;
 use lorecore::types::label::Label;
 
-use crate::app::message_handling::GuiMes;
+use crate::app::message_handling::GuiMessage;
 use crate::errors::LoreGuiError;
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewEntityDialog {
@@ -88,41 +87,14 @@ impl Dialog for NewEntityDialog {
         "Create new entity".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for NewEntityDialog {
-    type State = ();
-
-    type Event = NewEntityMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewEntityMes::LabelUpd(label) => {
-                self.data.label = label;
-                None
-            }
-            NewEntityMes::CategoryUpd(ent_type) => {
-                self.data.category = ent_type;
-                None
-            }
-            NewEntityMes::NameUpd(name) => {
-                self.data.name = name;
-                None
-            }
-            NewEntityMes::Submit => Some(GuiMes::NewEntity(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let label_input = TextInput::new("", self.data.label.to_str())
-            .on_input(|i| NewEntityMes::LabelUpd(i.into()));
-        let name_input = TextInput::new("", &self.data.name).on_input(NewEntityMes::NameUpd);
-        let category_input =
-            TextInput::new("", &self.data.category).on_input(NewEntityMes::CategoryUpd);
-        let submit_button = Button::new(Text::new("Create")).on_press(NewEntityMes::Submit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Label(i.into())));
+        let name_input = TextInput::new("", &self.data.name)
+            .on_input(|s| GuiMessage::DialogUpdate(DialogUpdate::Name(s)));
+        let category_input = TextInput::new("", &self.data.category)
+            .on_input(|s| GuiMessage::DialogUpdate(DialogUpdate::Category(s)));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Label:"))
             .push(label_input)
@@ -135,12 +107,23 @@ impl Component<GuiMes> for NewEntityDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum NewEntityMes {
-    LabelUpd(Label),
-    CategoryUpd(String),
-    NameUpd(String),
-    Submit,
+    fn update(&mut self, message: DialogUpdate) {
+        match message {
+            DialogUpdate::Label(label) => {
+                self.data.label = label;
+            }
+            DialogUpdate::Category(ent_type) => {
+                self.data.category = ent_type;
+            }
+            DialogUpdate::Name(name) => {
+                self.data.name = name;
+            }
+            _ => (),
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewEntity(self.data.to_owned())
+    }
 }

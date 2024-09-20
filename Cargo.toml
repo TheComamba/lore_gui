@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-iced = { version = "0.12.0", features = ["lazy"] }
-iced_aw = { version = "0.9.0", default-features = false, features = ["card", "modal", "selection_list"] }
+iced = { version = "0.13.0", features = ["lazy"] }
+iced_aw = { version = "0.11.0", default-features = false, features = ["card", "selection_list"] }
 lorecore = { git = "https://github.com/TheComamba/LoreCore.git", branch="main" }
 preferences = {version = "2.0"}
-rfd = "0.14.0" # file dialogs
+rfd = "0.15.0" # file dialogs

@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -7,9 +7,9 @@ use lorecore::{
     types::{description::Description, descriptor::Descriptor, entity::EntityColumn, label::Label},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewDescriptorDialog {
@@ -66,36 +66,12 @@ impl Dialog for NewDescriptorDialog {
         "New Descriptor".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for NewDescriptorDialog {
-    type State = ();
-
-    type Event = NewDescriptorMessage;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewDescriptorMessage::DescriptorUpd(descriptor) => {
-                self.data.descriptor = descriptor;
-                None
-            }
-            NewDescriptorMessage::DescriptionUpd(description) => {
-                self.data.description = description;
-                None
-            }
-            NewDescriptorMessage::Submit => Some(GuiMes::NewDescriptor(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let descriptor_input = TextInput::new("", self.data.descriptor.to_str())
-            .on_input(|i| NewDescriptorMessage::DescriptorUpd(i.into()));
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Descriptor(i.into())));
         let description_input = TextInput::new("", self.data.description.to_str())
-            .on_input(|i| NewDescriptorMessage::DescriptionUpd(i.into()));
-        let submit_button = Button::new(Text::new("Create")).on_press(NewDescriptorMessage::Submit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Description(i.into())));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Descriptor:"))
             .push(descriptor_input)
@@ -106,11 +82,20 @@ impl Component<GuiMes> for NewDescriptorDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum NewDescriptorMessage {
-    DescriptorUpd(Descriptor),
-    DescriptionUpd(Description),
-    Submit,
+    fn update(&mut self, message: DialogUpdate) {
+        match message {
+            DialogUpdate::Descriptor(descriptor) => {
+                self.data.descriptor = descriptor;
+            }
+            DialogUpdate::Description(description) => {
+                self.data.description = description;
+            }
+            _ => (),
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewDescriptor(self.data.to_owned())
+    }
 }

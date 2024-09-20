@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -7,9 +7,9 @@ use lorecore::{
     types::{relationship::EntityRelationship, role::Role},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct ChangeRoleDialog {
@@ -52,31 +52,17 @@ impl Dialog for ChangeRoleDialog {
         )
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for ChangeRoleDialog {
-    type State = ();
-
-    type Event = ChangeRoleMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            ChangeRoleMes::NewRoleUpd(new_role) => {
-                self.data.new_role = new_role;
-                None
-            }
-            ChangeRoleMes::Submit => Some(GuiMes::ChangeRole(self.data.to_owned())),
+    fn update(&mut self, event: DialogUpdate) {
+        if let DialogUpdate::Role(new_role) = event {
+            self.data.new_role = new_role;
         }
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_role_str = self.data.new_role.to_str();
-        let new_role_input =
-            TextInput::new("", new_role_str).on_input(|i| ChangeRoleMes::NewRoleUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(ChangeRoleMes::Submit);
+        let new_role_input = TextInput::new("", new_role_str)
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Role(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Role"))
             .push(new_role_input)
@@ -85,10 +71,8 @@ impl Component<GuiMes> for ChangeRoleDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum ChangeRoleMes {
-    NewRoleUpd(Role),
-    Submit,
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::ChangeRole(self.data.to_owned())
+    }
 }

@@ -1,7 +1,7 @@
-use super::Dialog;
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use super::{Dialog, DialogUpdate};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 use iced::{
-    widget::{component, Button, Column, Component, PickList, Text, TextInput},
+    widget::{Button, Column, PickList, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -64,59 +64,26 @@ impl Dialog for NewRelationshipDialog {
         "New Relationship".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for NewRelationshipDialog {
-    type State = ();
-
-    type Event = NewRelationshipMessage;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            NewRelationshipMessage::ParentUpd(parent) => {
-                self.data.parent = parent;
-                None
-            }
-            NewRelationshipMessage::ChildUpd(child) => {
-                self.data.child = child;
-                None
-            }
-            NewRelationshipMessage::RoleUpd(role) => {
-                self.data.role = role;
-                None
-            }
-            NewRelationshipMessage::Submit => Some(GuiMes::NewRelationship(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let selected_parent = if self.data.parent.to_str().is_empty() {
             None
         } else {
             Some(self.data.parent.clone())
         };
-        let parent_input = PickList::new(
-            self.parent_labels.clone(),
-            selected_parent,
-            NewRelationshipMessage::ParentUpd,
-        );
+        let parent_input = PickList::new(self.parent_labels.clone(), selected_parent, |s| {
+            GuiMessage::DialogUpdate(DialogUpdate::Parent(s))
+        });
         let selected_child = if self.data.child.to_str().is_empty() {
             None
         } else {
             Some(self.data.child.clone())
         };
-        let child_input = PickList::new(
-            self.child_labels.clone(),
-            selected_child,
-            NewRelationshipMessage::ChildUpd,
-        );
+        let child_input = PickList::new(self.child_labels.clone(), selected_child, |s| {
+            GuiMessage::DialogUpdate(DialogUpdate::Child(s))
+        });
         let role_input = TextInput::new("", self.data.role.to_str())
-            .on_input(|i| NewRelationshipMessage::RoleUpd(i.into()));
-        let submit_button =
-            Button::new(Text::new("Create")).on_press(NewRelationshipMessage::Submit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Role(i.into())));
+        let submit_button = Button::new(Text::new("Create")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("Parent:"))
             .push(parent_input)
@@ -129,12 +96,23 @@ impl Component<GuiMes> for NewRelationshipDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum NewRelationshipMessage {
-    ParentUpd(Parent),
-    ChildUpd(Child),
-    RoleUpd(Role),
-    Submit,
+    fn update(&mut self, message: DialogUpdate) {
+        match message {
+            DialogUpdate::Parent(parent) => {
+                self.data.parent = parent;
+            }
+            DialogUpdate::Child(child) => {
+                self.data.child = child;
+            }
+            DialogUpdate::Role(role) => {
+                self.data.role = role;
+            }
+            _ => (),
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::NewRelationship(self.data.to_owned())
+    }
 }

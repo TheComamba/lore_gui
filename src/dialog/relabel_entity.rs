@@ -1,12 +1,12 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RelabelEntityDialog {
@@ -59,30 +59,10 @@ impl Dialog for RelabelEntityDialog {
         format!("Relabel entity: {}", self.data.old_label)
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for RelabelEntityDialog {
-    type State = ();
-
-    type Event = RelabelEntityMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            RelabelEntityMes::NewLabelUpd(new_label) => {
-                self.data.new_label = new_label;
-                None
-            }
-            RelabelEntityMes::Submit => Some(GuiMes::RelabelEntity(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_label_input = TextInput::new("", self.data.new_label.to_str())
-            .on_input(|i| RelabelEntityMes::NewLabelUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(RelabelEntityMes::Submit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Label(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Label"))
             .push(new_label_input)
@@ -91,10 +71,14 @@ impl Component<GuiMes> for RelabelEntityDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum RelabelEntityMes {
-    NewLabelUpd(Label),
-    Submit,
+    fn update(&mut self, message: DialogUpdate) {
+        if let DialogUpdate::Label(new_label) = message {
+            self.data.new_label = new_label;
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RelabelEntity(self.data.to_owned())
+    }
 }

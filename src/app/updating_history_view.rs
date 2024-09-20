@@ -15,7 +15,7 @@ use crate::{
     history_view::{HistoryViewMessage, HistoryViewState},
 };
 
-use super::{message_handling::GuiMes, SqlGui};
+use super::{message_handling::GuiMessage, SqlGui};
 
 impl SqlGui {
     pub(super) fn update_history_view(
@@ -31,7 +31,7 @@ impl SqlGui {
             }
             HistoryViewMessage::DeleteHistoryItem(timestamp) => {
                 let message = format!("Do you really want to delete {}?", timestamp);
-                let on_confirm = GuiMes::DeleteHistoryItem(timestamp);
+                let on_confirm = GuiMessage::DeleteHistoryItem(timestamp);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
             HistoryViewMessage::YearViewUpd(event) => self.update_year_view(event)?,
@@ -101,7 +101,7 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         let year = DbColViewEntry(Some(data.year));
-        let day = DbColViewEntry(Some(data.day.clone()));
+        let day = DbColViewEntry(Some(data.day));
         data.write_to_database(db)?;
         self.update_year_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_year_view(ColViewMes::Selected(0, year))?;

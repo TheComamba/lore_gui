@@ -13,7 +13,13 @@ pub enum LoreGuiError {
 
 impl Display for LoreGuiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        format!("{:?}", self).fmt(f)
+        match self {
+            LoreGuiError::FileError(msg) => write!(f, "File error: {}", msg),
+            LoreGuiError::InputError(msg) => write!(f, "Input error: {}", msg),
+            LoreGuiError::NoDatabase => write!(f, "No database"),
+            LoreGuiError::MultipleResults => write!(f, "Multiple results"),
+            LoreGuiError::LoreCoreError(error) => write!(f, "Lore core error: {}", error),
+        }
     }
 }
 

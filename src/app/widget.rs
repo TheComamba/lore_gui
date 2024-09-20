@@ -1,29 +1,23 @@
 use std::path::PathBuf;
 
-use super::{message_handling::GuiMes, SqlGui, ViewType};
+use super::{message_handling::GuiMessage, SqlGui, ViewType};
 use crate::{
+    dialog::error::ErrorDialog,
+    entity_view::{self, EntityViewState},
     errors::LoreGuiError,
-    APP_TITLE,
-    {
-        dialog::error::ErrorDialog,
-        entity_view::{EntityView, EntityViewState},
-        history_view::{HistoryView, HistoryViewState},
-        relationship_view::{RelationshipView, RelationshipViewState},
-        user_preferences::load_database_path,
-    },
+    history_view::{self, HistoryViewState},
+    relationship_view::{self, RelationshipViewState},
+    user_preferences::load_database_path,
 };
 use iced::{
-    widget::{button, Button, Column, Container, Row, Text},
-    Alignment, Element, Length, Sandbox,
+    widget::{button, opaque, stack, Button, Column, Container, Row, Text},
+    Alignment, Element, Length,
 };
-use iced_aw::Modal;
 
-impl Sandbox for SqlGui {
-    type Message = GuiMes;
-
+impl SqlGui {
     fn new() -> Self {
         let mut gui = SqlGui {
-            selected_view: super::ViewType::Entity,
+            selected_view: super::ViewType::default(),
             entity_view_state: EntityViewState::default(),
             history_view_state: HistoryViewState::default(),
             relationship_view_state: RelationshipViewState::default(),
@@ -39,56 +33,55 @@ impl Sandbox for SqlGui {
         gui
     }
 
-    fn title(&self) -> String {
-        APP_TITLE.to_string()
-    }
-
-    fn update(&mut self, message: Self::Message) {
+    pub(crate) fn update(&mut self, message: GuiMessage) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
         }
     }
 
-    fn view(&self) -> iced::Element<'_, Self::Message> {
-        Modal::new(
-            self.main_view(),
-            self.dialog.as_ref().map(|d| d.to_element()),
-        )
-        .on_esc(GuiMes::DialogClosed)
-        .into()
+    pub(crate) fn view(&self) -> iced::Element<'_, GuiMessage> {
+        if let Some(dialog) = self.dialog.as_ref() {
+            stack![self.main_view(), opaque(dialog.to_element())].into()
+        } else {
+            self.main_view()
+        }
     }
-}
 
-impl SqlGui {
-    fn main_view(&self) -> Element<'_, GuiMes> {
+    fn main_view(&self) -> Element<'_, GuiMessage> {
         let mut col = Column::new()
             .push(self.menu_bar())
             .push(self.current_database_display());
         if self.lore_database.is_some() {
             col = col.push(self.view_selection_bar());
             match self.selected_view {
-                ViewType::Entity => col = col.push(EntityView::new(&self.entity_view_state)),
-                ViewType::History => col = col.push(HistoryView::new(&self.history_view_state)),
+                ViewType::Entity => {
+                    col = col.push(entity_view::widget::new(&self.entity_view_state))
+                }
+                ViewType::History => {
+                    col = col.push(history_view::widget::new(&self.history_view_state))
+                }
                 ViewType::Relationship => {
-                    col = col.push(RelationshipView::new(&self.relationship_view_state))
+                    col = col.push(relationship_view::widget::new(
+                        &self.relationship_view_state,
+                    ))
                 }
             }
         }
         col.height(Length::Fill).into()
     }
 
-    fn menu_bar(&self) -> Element<'_, GuiMes> {
+    fn menu_bar(&self) -> Element<'_, GuiMessage> {
         Row::new()
-            .push(Button::new("New Lore Database").on_press(GuiMes::NewDatabase))
-            .push(Button::new("Open Lore Database").on_press(GuiMes::OpenDatabase))
-            .align_items(Alignment::Center)
+            .push(Button::new("New Lore Database").on_press(GuiMessage::NewDatabase))
+            .push(Button::new("Open Lore Database").on_press(GuiMessage::OpenDatabase))
+            .align_y(Alignment::Center)
             .width(Length::Fill)
             .padding(5)
             .spacing(5)
             .into()
     }
 
-    fn current_database_display(&self) -> Element<'_, GuiMes> {
+    fn current_database_display(&self) -> Element<'_, GuiMessage> {
         let content = match self.lore_database.as_ref() {
             Some(db) => db.path_as_string(),
             None => "[No database loaded]".to_string(),
@@ -96,13 +89,13 @@ impl SqlGui {
         Container::new(Text::new(content)).padding(5).into()
     }
 
-    fn view_selection_bar(&self) -> Element<'_, GuiMes> {
+    fn view_selection_bar(&self) -> Element<'_, GuiMessage> {
         let entity_button =
-            button(Text::new("Entities")).on_press(GuiMes::ViewSelected(ViewType::Entity));
-        let history_items_button =
-            button(Text::new("History Items")).on_press(GuiMes::ViewSelected(ViewType::History));
+            button(Text::new("Entities")).on_press(GuiMessage::ViewSelected(ViewType::Entity));
+        let history_items_button = button(Text::new("History Items"))
+            .on_press(GuiMessage::ViewSelected(ViewType::History));
         let relationships_button = button(Text::new("Relationships"))
-            .on_press(GuiMes::ViewSelected(ViewType::Relationship));
+            .on_press(GuiMessage::ViewSelected(ViewType::Relationship));
         Row::new()
             .push(entity_button)
             .push(history_items_button)
@@ -117,5 +110,11 @@ impl SqlGui {
         self.open_database(path)?;
         self.update_database_derived_data()?;
         Ok(())
+    }
+}
+
+impl Default for SqlGui {
+    fn default() -> Self {
+        SqlGui::new()
     }
 }

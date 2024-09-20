@@ -1,5 +1,5 @@
 use iced::{
-    widget::{component, Button, Column, Component, Text, TextInput},
+    widget::{Button, Column, Text, TextInput},
     Element,
 };
 use lorecore::{
@@ -7,9 +7,9 @@ use lorecore::{
     types::{descriptor::Descriptor, label::Label},
 };
 
-use crate::{app::message_handling::GuiMes, errors::LoreGuiError};
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RenameDescriptorDialog {
@@ -70,30 +70,10 @@ impl Dialog for RenameDescriptorDialog {
         )
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMes> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMes> for RenameDescriptorDialog {
-    type State = ();
-
-    type Event = RenameDescriptorMes;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMes> {
-        match event {
-            RenameDescriptorMes::NewDescriptorUpd(new_descriptor) => {
-                self.data.new_descriptor = new_descriptor;
-                None
-            }
-            RenameDescriptorMes::Submit => Some(GuiMes::RenameDescriptor(self.data.to_owned())),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body(&self) -> Element<'_, GuiMessage> {
         let new_descriptor_input = TextInput::new("", self.data.new_descriptor.to_str())
-            .on_input(|i| RenameDescriptorMes::NewDescriptorUpd(i.into()));
-        let submit_button = Button::new(Text::new("Update")).on_press(RenameDescriptorMes::Submit);
+            .on_input(|i| GuiMessage::DialogUpdate(DialogUpdate::Descriptor(i.into())));
+        let submit_button = Button::new(Text::new("Update")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(Text::new("New Descriptor"))
             .push(new_descriptor_input)
@@ -102,10 +82,14 @@ impl Component<GuiMes> for RenameDescriptorDialog {
             .spacing(5)
             .into()
     }
-}
 
-#[derive(Debug, Clone)]
-pub(crate) enum RenameDescriptorMes {
-    NewDescriptorUpd(Descriptor),
-    Submit,
+    fn update(&mut self, message: super::DialogUpdate) {
+        if let DialogUpdate::Descriptor(new_descriptor) = message {
+            self.data.new_descriptor = new_descriptor;
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RenameDescriptor(self.data.to_owned())
+    }
 }

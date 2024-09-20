@@ -1,10 +1,7 @@
 use std::path::PathBuf;
 
 fn current_path() -> PathBuf {
-    match std::env::current_dir() {
-        Ok(path) => path,
-        Err(_) => PathBuf::default(),
-    }
+    std::env::current_dir().unwrap_or_default()
 }
 
 pub(super) fn new() -> Option<PathBuf> {
