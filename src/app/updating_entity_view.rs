@@ -48,8 +48,11 @@ impl SqlGui {
                 let on_confirm = GuiMessage::DeleteDescriptor(label, descriptor);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
-            EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
-            EntityViewMessage::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
+            EntityViewMessage::LabelViewUpdate(event) => self.update_label_view(event)?,
+            EntityViewMessage::DescriptorViewUpdate(event) => self.update_descriptor_view(event)?,
+            EntityViewMessage::DescriptionUpdate(action) => {
+                self.entity_view_state.current_description.perform(action)
+            }
         };
         Ok(())
     }

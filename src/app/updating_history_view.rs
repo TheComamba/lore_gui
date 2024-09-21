@@ -34,10 +34,13 @@ impl SqlGui {
                 let on_confirm = GuiMessage::DeleteHistoryItem(timestamp);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
-            HistoryViewMessage::YearViewUpd(event) => self.update_year_view(event)?,
-            HistoryViewMessage::DayViewUpd(event) => self.update_day_view(event)?,
-            HistoryViewMessage::HistoryTimestampViewUpd(event) => {
+            HistoryViewMessage::YearViewUpdate(event) => self.update_year_view(event)?,
+            HistoryViewMessage::DayViewUpdate(event) => self.update_day_view(event)?,
+            HistoryViewMessage::HistoryTimestampViewUpdate(event) => {
                 self.update_timestamp_view(event)?
+            }
+            HistoryViewMessage::ContentUpdate(action) => {
+                self.history_view_state.current_content.perform(action)
             }
         };
         Ok(())

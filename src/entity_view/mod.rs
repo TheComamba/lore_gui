@@ -32,8 +32,9 @@ pub(super) enum EntityViewMessage {
     NewDescriptor(Label),
     RenameDescriptor(RenameDescriptorData),
     DeleteDescriptor(Label, Descriptor),
-    LabelViewUpd(ColViewMes<Label>),
-    DescriptorViewUpd(ColViewMes<Descriptor>),
+    LabelViewUpdate(ColViewMes<Label>),
+    DescriptorViewUpdate(ColViewMes<Descriptor>),
+    DescriptionUpdate(text_editor::Action),
 }
 
 impl EntityViewState {

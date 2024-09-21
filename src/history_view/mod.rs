@@ -25,9 +25,10 @@ pub(super) enum HistoryViewMessage {
     NewHistoryItem,
     RedateHistoryItem(RedateHistoryData),
     DeleteHistoryItem(Timestamp),
-    YearViewUpd(ColViewMes<Year>),
-    DayViewUpd(ColViewMes<Day>),
-    HistoryTimestampViewUpd(ColViewMes<Timestamp>),
+    YearViewUpdate(ColViewMes<Year>),
+    DayViewUpdate(ColViewMes<Day>),
+    HistoryTimestampViewUpdate(ColViewMes<Timestamp>),
+    ContentUpdate(text_editor::Action),
 }
 
 impl HistoryViewState {

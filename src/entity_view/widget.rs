@@ -70,12 +70,12 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Label",
-            |m| GuiMessage::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
+            |m| GuiMessage::EntityViewUpd(EntityViewMessage::LabelViewUpdate(m)),
             &state.label_view_state,
         ))
         .push(db_col_view::widget::new(
             "Descriptor",
-            |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
+            |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpdate(m)),
             &state.descriptor_view_state,
         ))
         .push(desription_view(state))
@@ -85,9 +85,11 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
 }
 
 fn desription_view(state: &EntityViewState) -> Column<'_, GuiMessage> {
+    let description_editor = text_editor(&state.current_description)
+        .on_action(|a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)));
     Column::new()
         .push(header("Description"))
-        .push(text_editor(&state.current_description))
+        .push(description_editor)
         .padding(5)
         .spacing(5)
         .width(Length::Fill)

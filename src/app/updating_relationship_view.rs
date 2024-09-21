@@ -43,13 +43,13 @@ impl SqlGui {
                 let on_confirm = GuiMessage::DeleteRelationship(rel);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
-            RelationshipViewMessage::ParentViewUpd(event) => {
+            RelationshipViewMessage::ParentViewUpdate(event) => {
                 self.update_parent_view(event)?;
             }
-            RelationshipViewMessage::ChildViewUpd(event) => {
+            RelationshipViewMessage::ChildViewUpdate(event) => {
                 self.update_child_view(event)?;
             }
-            RelationshipViewMessage::RoleViewUpd(event) => {
+            RelationshipViewMessage::RoleViewUpdate(event) => {
                 self.update_role_view(event)?;
             }
         };

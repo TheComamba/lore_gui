@@ -48,17 +48,17 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Year",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpdate(m)),
             &state.year_view_state,
         ))
         .push(db_col_view::widget::new(
             "Day",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::DayViewUpdate(m)),
             &state.day_view_state,
         ))
         .push(db_col_view::widget::new(
             "Timestamp",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpdate(m)),
             &state.timestamp_view_state,
         ))
         .push(content_view(state))
@@ -68,9 +68,11 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
 }
 
 fn content_view(state: &HistoryViewState) -> Column<'_, GuiMessage> {
+    let content_editor = text_editor(&state.current_content)
+        .on_action(|a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)));
     Column::new()
         .push(header("Content"))
-        .push(text_editor(&state.current_content))
+        .push(content_editor)
         .padding(5)
         .spacing(5)
         .width(Length::Fill)
