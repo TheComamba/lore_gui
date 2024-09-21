@@ -20,7 +20,7 @@ pub(crate) struct SqlGui {
     pub(crate) dialog: Option<Box<dyn Dialog>>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub(crate) enum ViewType {
     #[default]
     Entity,

@@ -87,3 +87,41 @@ impl SqlGui {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn view_selected_message_selects_a_view() {
+        let mut gui = SqlGui {
+            selected_view: ViewType::Entity,
+            ..Default::default()
+        };
+        let message = GuiMessage::ViewSelected(ViewType::History);
+        gui.handle_message(message).unwrap();
+        assert_eq!(gui.selected_view, ViewType::History);
+    }
+
+    #[test]
+    fn dialog_submit_closes_dialog() {
+        let mut gui = SqlGui {
+            dialog: Some(Box::new(crate::dialog::new_entity::NewEntityDialog::new())),
+            ..Default::default()
+        };
+        let message = GuiMessage::DialogSubmit;
+        gui.handle_message(message).unwrap();
+        assert!(gui.dialog.is_none());
+    }
+
+    #[test]
+    fn dialog_closed_closes_dialog() {
+        let mut gui = SqlGui {
+            dialog: Some(Box::new(crate::dialog::new_entity::NewEntityDialog::new())),
+            ..Default::default()
+        };
+        let message = GuiMessage::DialogClosed;
+        gui.handle_message(message).unwrap();
+        assert!(gui.dialog.is_none());
+    }
+}
