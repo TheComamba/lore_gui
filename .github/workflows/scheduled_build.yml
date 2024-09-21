@@ -1,4 +1,4 @@
-name: Regular Build
+name: Scheduled Build
 
 on:
   schedule:
@@ -13,4 +13,3 @@ jobs:
   testExecutability:
     needs: [releaseBuild]
     uses: ./.github/workflows/_test_executability.yml
-    

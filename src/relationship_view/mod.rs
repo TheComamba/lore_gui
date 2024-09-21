@@ -26,9 +26,9 @@ pub(super) enum RelationshipViewMessage {
     NewRelationship,
     ChangeRole(ChangeRoleData),
     DeleteRelationship(EntityRelationship),
-    ParentViewUpd(ColViewMes<Parent>),
-    ChildViewUpd(ColViewMes<Child>),
-    RoleViewUpd(ColViewMes<Role>),
+    ParentViewUpdate(ColViewMes<Parent>),
+    ChildViewUpdate(ColViewMes<Child>),
+    RoleViewUpdate(ColViewMes<Role>),
 }
 
 impl RelationshipViewState {

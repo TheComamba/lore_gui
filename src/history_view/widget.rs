@@ -1,13 +1,15 @@
-use super::{HistoryViewMessage, HistoryViewState};
-use crate::db_col_view;
-use crate::dialog::redate_history::RedateHistoryData;
-use crate::{app::message_handling::GuiMessage, style::header};
-use iced::widget::{button, text_editor};
+use iced::widget::button;
 use iced::Alignment;
 use iced::{
     widget::{Column, Row},
     Element, Length,
 };
+
+use crate::app::message_handling::GuiMessage;
+use crate::dialog::redate_history::RedateHistoryData;
+use crate::{db_col_view, editor};
+
+use super::{HistoryViewMessage, HistoryViewState};
 
 pub(crate) fn new(state: &HistoryViewState) -> Element<'_, GuiMessage> {
     Column::new()
@@ -48,30 +50,27 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Year",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpdate(m)),
             &state.year_view_state,
         ))
         .push(db_col_view::widget::new(
             "Day",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::DayViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::DayViewUpdate(m)),
             &state.day_view_state,
         ))
         .push(db_col_view::widget::new(
             "Timestamp",
-            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpd(m)),
+            |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpdate(m)),
             &state.timestamp_view_state,
         ))
-        .push(content_view(state))
+        .push(editor::widget::view(
+            "Content",
+            &state.current_content,
+            |a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)),
+            GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentDiscard),
+            GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentSave),
+        ))
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-}
-
-fn content_view(state: &HistoryViewState) -> Column<'_, GuiMessage> {
-    Column::new()
-        .push(header("Content"))
-        .push(text_editor(&state.current_content))
-        .padding(5)
-        .spacing(5)
-        .width(Length::Fill)
 }

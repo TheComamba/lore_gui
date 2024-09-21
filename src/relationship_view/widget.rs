@@ -60,17 +60,17 @@ fn col_views(state: &RelationshipViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Parent",
-            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ParentViewUpdate(m)),
             &state.parent_view_state,
         ))
         .push(db_col_view::widget::new(
             "Child",
-            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::ChildViewUpdate(m)),
             &state.child_view_state,
         ))
         .push(db_col_view::widget::new(
             "Role",
-            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpd(m)),
+            |m| GuiMessage::RelationshipViewUpd(RelationshipViewMessage::RoleViewUpdate(m)),
             &state.role_view_state,
         ))
         .align_y(Alignment::Start)

@@ -1,13 +1,15 @@
-use super::{EntityViewMessage, EntityViewState};
-use crate::db_col_view;
-use crate::dialog::relabel_entity::RelabelEntityData;
-use crate::dialog::rename_descriptor::RenameDescriptorData;
-use crate::{app::message_handling::GuiMessage, style::header};
 use iced::widget::button;
 use iced::{
-    widget::{text_editor, Column, Row},
+    widget::{Column, Row},
     Alignment, Element, Length,
 };
+
+use crate::app::message_handling::GuiMessage;
+use crate::dialog::relabel_entity::RelabelEntityData;
+use crate::dialog::rename_descriptor::RenameDescriptorData;
+use crate::{db_col_view, editor};
+
+use super::{EntityViewMessage, EntityViewState};
 
 pub(crate) fn new(state: &EntityViewState) -> Element<'_, GuiMessage> {
     Column::new()
@@ -70,25 +72,22 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
     Row::new()
         .push(db_col_view::widget::new(
             "Label",
-            |m| GuiMessage::EntityViewUpd(EntityViewMessage::LabelViewUpd(m)),
+            |m| GuiMessage::EntityViewUpd(EntityViewMessage::LabelViewUpdate(m)),
             &state.label_view_state,
         ))
         .push(db_col_view::widget::new(
             "Descriptor",
-            |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpd(m)),
+            |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpdate(m)),
             &state.descriptor_view_state,
         ))
-        .push(desription_view(state))
+        .push(editor::widget::view(
+            "Description",
+            &state.current_description,
+            |a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)),
+            GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionDiscard),
+            GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionSave),
+        ))
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-}
-
-fn desription_view(state: &EntityViewState) -> Column<'_, GuiMessage> {
-    Column::new()
-        .push(header("Description"))
-        .push(text_editor(&state.current_description))
-        .padding(5)
-        .spacing(5)
-        .width(Length::Fill)
 }

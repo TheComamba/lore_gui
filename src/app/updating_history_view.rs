@@ -1,7 +1,6 @@
-use iced::widget::text_editor;
 use lorecore::{
     sql::lore_database::LoreDatabase,
-    types::{day::Day, timestamp::Timestamp, year::Year},
+    types::{day::Day, history_item_content::HistoryItemContent, timestamp::Timestamp, year::Year},
 };
 
 use crate::{
@@ -11,6 +10,7 @@ use crate::{
         new_history_item::{NewHistoryData, NewHistoryDialog},
         redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
+    editor::EditorState,
     errors::LoreGuiError,
     history_view::{HistoryViewMessage, HistoryViewState},
 };
@@ -34,10 +34,33 @@ impl SqlGui {
                 let on_confirm = GuiMessage::DeleteHistoryItem(timestamp);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
-            HistoryViewMessage::YearViewUpd(event) => self.update_year_view(event)?,
-            HistoryViewMessage::DayViewUpd(event) => self.update_day_view(event)?,
-            HistoryViewMessage::HistoryTimestampViewUpd(event) => {
+            HistoryViewMessage::YearViewUpdate(event) => self.update_year_view(event)?,
+            HistoryViewMessage::DayViewUpdate(event) => self.update_day_view(event)?,
+            HistoryViewMessage::HistoryTimestampViewUpdate(event) => {
                 self.update_timestamp_view(event)?
+            }
+            HistoryViewMessage::ContentUpdate(action) => {
+                self.history_view_state.current_content.perform(action)
+            }
+            HistoryViewMessage::ContentDiscard => self.history_view_state.current_content.reset(),
+            HistoryViewMessage::ContentSave => {
+                let db = self
+                    .lore_database
+                    .as_ref()
+                    .ok_or(LoreGuiError::NoDatabase)?;
+                let timestamp = match self
+                    .history_view_state
+                    .timestamp_view_state
+                    .get_selected()
+                    .0
+                {
+                    Some(t) => t,
+                    None => return Ok(()),
+                };
+                let content =
+                    HistoryItemContent::from(self.history_view_state.current_content.get_text());
+                db.change_history_item_content(timestamp, &content)?;
+                self.history_view_state.current_content.saved();
             }
         };
         Ok(())
@@ -143,7 +166,7 @@ impl HistoryViewState {
         self.year_view_state.set_selected(DbColViewEntry::NONE);
         self.day_view_state.set_selected(DbColViewEntry::NONE);
         self.timestamp_view_state.set_selected(DbColViewEntry::NONE);
-        self.current_content = text_editor::Content::with_text("");
+        self.current_content = EditorState::default();
         self.update_years(db)?;
         Ok(())
     }
@@ -183,7 +206,7 @@ impl HistoryViewState {
 
     fn update_content(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let content = self.get_current_content(db)?;
-        self.current_content = text_editor::Content::with_text(content.to_str());
+        self.current_content = EditorState::new(content.to_str());
         Ok(())
     }
 }

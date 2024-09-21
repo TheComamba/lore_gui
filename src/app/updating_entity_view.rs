@@ -1,4 +1,3 @@
-use iced::widget::text_editor;
 use lorecore::{
     sql::lore_database::LoreDatabase,
     types::{descriptor::Descriptor, label::Label},
@@ -13,6 +12,7 @@ use crate::{
         relabel_entity::{RelabelEntityData, RelabelEntityDialog},
         rename_descriptor::{RenameDescriptorData, RenameDescriptorDialog},
     },
+    editor::EditorState,
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
@@ -48,8 +48,43 @@ impl SqlGui {
                 let on_confirm = GuiMessage::DeleteDescriptor(label, descriptor);
                 self.dialog = Some(Box::new(ConfirmationDialog::new(message, on_confirm)))
             }
-            EntityViewMessage::LabelViewUpd(event) => self.update_label_view(event)?,
-            EntityViewMessage::DescriptorViewUpd(event) => self.update_descriptor_view(event)?,
+            EntityViewMessage::LabelViewUpdate(event) => self.update_label_view(event)?,
+            EntityViewMessage::DescriptorViewUpdate(event) => self.update_descriptor_view(event)?,
+            EntityViewMessage::DescriptionUpdate(action) => {
+                self.entity_view_state.current_description.perform(action)
+            }
+            EntityViewMessage::DescriptionDiscard => {
+                self.entity_view_state.current_description.reset()
+            }
+            EntityViewMessage::DescriptionSave => {
+                let db = self
+                    .lore_database
+                    .as_ref()
+                    .ok_or(LoreGuiError::NoDatabase)?;
+                let label = match self
+                    .entity_view_state
+                    .label_view_state
+                    .get_selected()
+                    .0
+                    .as_ref()
+                {
+                    Some(label) => label,
+                    None => return Ok(()),
+                };
+                let descriptor = match self
+                    .entity_view_state
+                    .descriptor_view_state
+                    .get_selected()
+                    .0
+                    .as_ref()
+                {
+                    Some(descriptor) => descriptor,
+                    None => return Ok(()),
+                };
+                let description = self.entity_view_state.current_description.get_text().into();
+                db.change_entity_description((label, descriptor), &description)?;
+                self.entity_view_state.current_description.saved();
+            }
         };
         Ok(())
     }
@@ -188,7 +223,7 @@ impl EntityViewState {
         self.label_view_state.set_selected(DbColViewEntry::NONE);
         self.descriptor_view_state
             .set_selected(DbColViewEntry::NONE);
-        self.current_description = text_editor::Content::with_text("");
+        self.current_description = EditorState::default();
         self.update_labels(db)?;
         Ok(())
     }
@@ -217,7 +252,7 @@ impl EntityViewState {
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let description = self.get_current_description(db)?;
-        self.current_description = text_editor::Content::with_text(description.to_str());
+        self.current_description = EditorState::new(description.to_str());
         Ok(())
     }
 }

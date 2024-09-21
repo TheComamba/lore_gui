@@ -6,7 +6,8 @@ use lorecore::{
 };
 
 use crate::{
-    db_col_view::ColViewMes, dialog::redate_history::RedateHistoryData, errors::LoreGuiError,
+    db_col_view::ColViewMes, dialog::redate_history::RedateHistoryData, editor::EditorState,
+    errors::LoreGuiError,
 };
 
 use super::db_col_view::state::DbColViewState;
@@ -17,7 +18,7 @@ pub(super) struct HistoryViewState {
     pub(super) year_view_state: DbColViewState<Year>,
     pub(super) day_view_state: DbColViewState<Day>,
     pub(super) timestamp_view_state: DbColViewState<Timestamp>,
-    pub(super) current_content: text_editor::Content,
+    pub(super) current_content: EditorState,
 }
 
 #[derive(Debug, Clone)]
@@ -25,9 +26,12 @@ pub(super) enum HistoryViewMessage {
     NewHistoryItem,
     RedateHistoryItem(RedateHistoryData),
     DeleteHistoryItem(Timestamp),
-    YearViewUpd(ColViewMes<Year>),
-    DayViewUpd(ColViewMes<Day>),
-    HistoryTimestampViewUpd(ColViewMes<Timestamp>),
+    YearViewUpdate(ColViewMes<Year>),
+    DayViewUpdate(ColViewMes<Day>),
+    HistoryTimestampViewUpdate(ColViewMes<Timestamp>),
+    ContentUpdate(text_editor::Action),
+    ContentDiscard,
+    ContentSave,
 }
 
 impl HistoryViewState {
@@ -36,7 +40,7 @@ impl HistoryViewState {
             year_view_state: DbColViewState::default(),
             day_view_state: DbColViewState::default(),
             timestamp_view_state: DbColViewState::default(),
-            current_content: text_editor::Content::with_text(""),
+            current_content: EditorState::default(),
         }
     }
 

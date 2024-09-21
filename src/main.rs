@@ -5,6 +5,7 @@ use app::SqlGui;
 mod app;
 mod db_col_view;
 mod dialog;
+mod editor;
 mod entity_view;
 mod errors;
 mod file_dialogs;
