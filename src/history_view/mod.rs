@@ -30,6 +30,8 @@ pub(super) enum HistoryViewMessage {
     DayViewUpdate(ColViewMes<Day>),
     HistoryTimestampViewUpdate(ColViewMes<Timestamp>),
     ContentUpdate(text_editor::Action),
+    ContentDiscard,
+    ContentSave,
 }
 
 impl HistoryViewState {

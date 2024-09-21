@@ -67,6 +67,8 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
             "Content",
             &state.current_content,
             |a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)),
+            GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentDiscard),
+            GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentSave),
         ))
         .align_y(Alignment::Start)
         .width(Length::Fill)

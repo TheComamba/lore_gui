@@ -84,6 +84,8 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
             "Description",
             &state.current_description,
             |a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)),
+            GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionDiscard),
+            GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionSave),
         ))
         .align_y(Alignment::Start)
         .width(Length::Fill)

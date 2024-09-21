@@ -1,6 +1,6 @@
 use lorecore::{
     sql::lore_database::LoreDatabase,
-    types::{day::Day, timestamp::Timestamp, year::Year},
+    types::{day::Day, history_item_content::HistoryItemContent, timestamp::Timestamp, year::Year},
 };
 
 use crate::{
@@ -41,6 +41,26 @@ impl SqlGui {
             }
             HistoryViewMessage::ContentUpdate(action) => {
                 self.history_view_state.current_content.perform(action)
+            }
+            HistoryViewMessage::ContentDiscard => self.history_view_state.current_content.reset(),
+            HistoryViewMessage::ContentSave => {
+                let db = self
+                    .lore_database
+                    .as_ref()
+                    .ok_or(LoreGuiError::NoDatabase)?;
+                let timestamp = match self
+                    .history_view_state
+                    .timestamp_view_state
+                    .get_selected()
+                    .0
+                {
+                    Some(t) => t,
+                    None => return Ok(()),
+                };
+                let content =
+                    HistoryItemContent::from(self.history_view_state.current_content.get_text());
+                db.change_history_item_content(timestamp, &content)?;
+                self.history_view_state.current_content.save();
             }
         };
         Ok(())
