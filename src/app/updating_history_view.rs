@@ -1,4 +1,3 @@
-use iced::widget::text_editor;
 use lorecore::{
     sql::lore_database::LoreDatabase,
     types::{day::Day, timestamp::Timestamp, year::Year},
@@ -11,6 +10,7 @@ use crate::{
         new_history_item::{NewHistoryData, NewHistoryDialog},
         redate_history::{RedateHistoryData, RedateHistoryDialog},
     },
+    editor::EditorState,
     errors::LoreGuiError,
     history_view::{HistoryViewMessage, HistoryViewState},
 };
@@ -146,7 +146,7 @@ impl HistoryViewState {
         self.year_view_state.set_selected(DbColViewEntry::NONE);
         self.day_view_state.set_selected(DbColViewEntry::NONE);
         self.timestamp_view_state.set_selected(DbColViewEntry::NONE);
-        self.current_content = text_editor::Content::with_text("");
+        self.current_content = EditorState::default();
         self.update_years(db)?;
         Ok(())
     }
@@ -186,7 +186,7 @@ impl HistoryViewState {
 
     fn update_content(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let content = self.get_current_content(db)?;
-        self.current_content = text_editor::Content::with_text(content.to_str());
+        self.current_content = EditorState::new(content.to_str());
         Ok(())
     }
 }

@@ -11,6 +11,7 @@ use lorecore::{
 use crate::{
     db_col_view::ColViewMes,
     dialog::{relabel_entity::RelabelEntityData, rename_descriptor::RenameDescriptorData},
+    editor::EditorState,
     errors::LoreGuiError,
 };
 
@@ -21,7 +22,7 @@ pub(crate) mod widget;
 pub(super) struct EntityViewState {
     pub(super) label_view_state: DbColViewState<Label>,
     pub(super) descriptor_view_state: DbColViewState<Descriptor>,
-    pub(super) current_description: text_editor::Content,
+    pub(super) current_description: EditorState,
 }
 
 #[derive(Debug, Clone)]
@@ -42,7 +43,7 @@ impl EntityViewState {
         Self {
             label_view_state: DbColViewState::default(),
             descriptor_view_state: DbColViewState::default(),
-            current_description: text_editor::Content::with_text(""),
+            current_description: EditorState::default(),
         }
     }
 

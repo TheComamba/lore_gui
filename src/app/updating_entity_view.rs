@@ -1,4 +1,3 @@
-use iced::widget::text_editor;
 use lorecore::{
     sql::lore_database::LoreDatabase,
     types::{descriptor::Descriptor, label::Label},
@@ -13,6 +12,7 @@ use crate::{
         relabel_entity::{RelabelEntityData, RelabelEntityDialog},
         rename_descriptor::{RenameDescriptorData, RenameDescriptorDialog},
     },
+    editor::EditorState,
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
@@ -191,7 +191,7 @@ impl EntityViewState {
         self.label_view_state.set_selected(DbColViewEntry::NONE);
         self.descriptor_view_state
             .set_selected(DbColViewEntry::NONE);
-        self.current_description = text_editor::Content::with_text("");
+        self.current_description = EditorState::default();
         self.update_labels(db)?;
         Ok(())
     }
@@ -220,7 +220,7 @@ impl EntityViewState {
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let description = self.get_current_description(db)?;
-        self.current_description = text_editor::Content::with_text(description.to_str());
+        self.current_description = EditorState::new(description.to_str());
         Ok(())
     }
 }

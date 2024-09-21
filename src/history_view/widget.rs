@@ -1,13 +1,15 @@
-use super::{HistoryViewMessage, HistoryViewState};
-use crate::db_col_view;
-use crate::dialog::redate_history::RedateHistoryData;
-use crate::{app::message_handling::GuiMessage, style::header};
-use iced::widget::{button, text_editor};
+use iced::widget::button;
 use iced::Alignment;
 use iced::{
     widget::{Column, Row},
     Element, Length,
 };
+
+use crate::app::message_handling::GuiMessage;
+use crate::dialog::redate_history::RedateHistoryData;
+use crate::{db_col_view, editor};
+
+use super::{HistoryViewMessage, HistoryViewState};
 
 pub(crate) fn new(state: &HistoryViewState) -> Element<'_, GuiMessage> {
     Column::new()
@@ -61,19 +63,12 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
             |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpdate(m)),
             &state.timestamp_view_state,
         ))
-        .push(content_view(state))
+        .push(editor::widget::view(
+            "Content",
+            &state.current_content,
+            |a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)),
+        ))
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-}
-
-fn content_view(state: &HistoryViewState) -> Column<'_, GuiMessage> {
-    let content_editor = text_editor(&state.current_content)
-        .on_action(|a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)));
-    Column::new()
-        .push(header("Content"))
-        .push(content_editor)
-        .padding(5)
-        .spacing(5)
-        .width(Length::Fill)
 }

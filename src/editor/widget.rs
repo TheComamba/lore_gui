@@ -7,7 +7,11 @@ use crate::{app::message_handling::GuiMessage, style::header};
 
 use super::EditorState;
 
-fn view<'a, M>(title: &'static str, state: &'a EditorState, on_action: M) -> Column<'a, GuiMessage>
+pub(crate) fn view<'a, M>(
+    title: &'static str,
+    state: &'a EditorState,
+    on_action: M,
+) -> Column<'a, GuiMessage>
 where
     M: 'static + Clone + Fn(text_editor::Action) -> GuiMessage,
 {

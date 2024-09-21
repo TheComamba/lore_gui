@@ -1,13 +1,15 @@
-use super::{EntityViewMessage, EntityViewState};
-use crate::db_col_view;
-use crate::dialog::relabel_entity::RelabelEntityData;
-use crate::dialog::rename_descriptor::RenameDescriptorData;
-use crate::{app::message_handling::GuiMessage, style::header};
 use iced::widget::button;
 use iced::{
-    widget::{text_editor, Column, Row},
+    widget::{Column, Row},
     Alignment, Element, Length,
 };
+
+use crate::app::message_handling::GuiMessage;
+use crate::dialog::relabel_entity::RelabelEntityData;
+use crate::dialog::rename_descriptor::RenameDescriptorData;
+use crate::{db_col_view, editor};
+
+use super::{EntityViewMessage, EntityViewState};
 
 pub(crate) fn new(state: &EntityViewState) -> Element<'_, GuiMessage> {
     Column::new()
@@ -78,19 +80,12 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
             |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpdate(m)),
             &state.descriptor_view_state,
         ))
-        .push(desription_view(state))
+        .push(editor::widget::view(
+            "Description",
+            &state.current_description,
+            |a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)),
+        ))
         .align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
-}
-
-fn desription_view(state: &EntityViewState) -> Column<'_, GuiMessage> {
-    let description_editor = text_editor(&state.current_description)
-        .on_action(|a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)));
-    Column::new()
-        .push(header("Description"))
-        .push(description_editor)
-        .padding(5)
-        .spacing(5)
-        .width(Length::Fill)
 }

@@ -6,10 +6,18 @@ pub(super) struct EditorState {
     pub(super) current_content: text_editor::Content,
 }
 
-impl EditorState {
-    pub(super) fn new() -> Self {
+impl Default for EditorState {
+    fn default() -> Self {
         Self {
             current_content: text_editor::Content::with_text(""),
+        }
+    }
+}
+
+impl EditorState {
+    pub(super) fn new(text: &str) -> Self {
+        Self {
+            current_content: text_editor::Content::with_text(text),
         }
     }
 
