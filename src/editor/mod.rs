@@ -9,18 +9,22 @@ pub(super) struct EditorState {
 
 impl Default for EditorState {
     fn default() -> Self {
+        let current_content = text_editor::Content::with_text("");
+        let persisted_text = current_content.text();
         Self {
-            current_content: text_editor::Content::with_text(""),
-            persisted_text: String::new(),
+            current_content,
+            persisted_text,
         }
     }
 }
 
 impl EditorState {
     pub(super) fn new(text: &str) -> Self {
+        let current_content = text_editor::Content::with_text(text);
+        let persisted_text = current_content.text();
         Self {
-            current_content: text_editor::Content::with_text(text),
-            persisted_text: text.to_string(),
+            current_content,
+            persisted_text,
         }
     }
 
@@ -40,7 +44,22 @@ impl EditorState {
         self.current_content.text() != self.persisted_text
     }
 
-    pub(super) fn save(&mut self) {
+    pub(super) fn saved(&mut self) {
         self.persisted_text = self.current_content.text();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_editor_state_is_changed() {
+        let mut editor_state = EditorState::new(" Test with \\reference {label}.");
+        assert_eq!(editor_state.is_changed(), false);
+        editor_state.perform(text_editor::Action::Edit(text_editor::Edit::Insert('i')));
+        assert_eq!(editor_state.is_changed(), true);
+        editor_state.reset();
+        assert_eq!(editor_state.is_changed(), false);
     }
 }

@@ -83,7 +83,7 @@ impl SqlGui {
                 };
                 let description = self.entity_view_state.current_description.get_text().into();
                 db.change_entity_description((label, descriptor), &description)?;
-                self.entity_view_state.current_description.save();
+                self.entity_view_state.current_description.saved();
             }
         };
         Ok(())

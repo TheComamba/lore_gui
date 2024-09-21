@@ -18,8 +18,12 @@ where
     M: 'static + Clone + Fn(text_editor::Action) -> GuiMessage,
 {
     let editor = text_editor(&state.current_content).on_action(on_action);
-    let discard_button = button("Discard").on_press(on_discard);
-    let save_button = button("Save").on_press(on_save);
+    let mut discard_button = button("Discard Changes");
+    let mut save_button = button("Save Changes");
+    if state.is_changed() {
+        discard_button = discard_button.on_press(on_discard);
+        save_button = save_button.on_press(on_save);
+    }
 
     Column::new()
         .push(header(title))

@@ -60,7 +60,7 @@ impl SqlGui {
                 let content =
                     HistoryItemContent::from(self.history_view_state.current_content.get_text());
                 db.change_history_item_content(timestamp, &content)?;
-                self.history_view_state.current_content.save();
+                self.history_view_state.current_content.saved();
             }
         };
         Ok(())
