@@ -82,3 +82,19 @@ impl Dialog for RelabelEntityDialog {
         GuiMessage::RelabelEntity(self.data.to_owned())
     }
 }
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use lorecore::types::label::Label;
+
+    use super::RelabelEntityData;
+
+    pub(crate) fn example_relabel_entity_data() -> RelabelEntityData {
+        let old_label = Label::from("old_entity");
+        let new_label = Label::from("new_entity");
+        RelabelEntityData {
+            old_label,
+            new_label,
+        }
+    }
+}

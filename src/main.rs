@@ -19,3 +19,20 @@ const APP_TITLE: &str = "Lore SQL GUI";
 fn main() -> iced::Result {
     iced::application(APP_TITLE, SqlGui::update, SqlGui::view).run()
 }
+
+#[cfg(test)]
+mod tests {
+    use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
+    use tempfile::NamedTempFile;
+
+    use crate::dialog::new_entity::NewEntityData;
+
+    pub(crate) fn temp_database() -> LoreDatabase {
+        let temp_path = NamedTempFile::new()
+            .unwrap()
+            .into_temp_path()
+            .as_os_str()
+            .into();
+        LoreDatabase::open(temp_path).unwrap()
+    }
+}

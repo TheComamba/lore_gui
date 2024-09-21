@@ -141,7 +141,7 @@ impl SqlGui {
         Ok(())
     }
 
-    pub(super) fn relable_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
+    pub(super) fn relabel_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
         let db = self
             .lore_database
             .as_ref()

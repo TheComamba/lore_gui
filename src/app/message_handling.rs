@@ -54,7 +54,7 @@ impl SqlGui {
             GuiMessage::DialogSubmit => self.dialog_submit()?,
             GuiMessage::DialogClosed => self.dialog = None,
             GuiMessage::NewEntity(data) => self.write_new_entity(data)?,
-            GuiMessage::RelabelEntity(data) => self.relable_entity(data)?,
+            GuiMessage::RelabelEntity(data) => self.relabel_entity(data)?,
             GuiMessage::DeleteEntity(label) => self.delete_entity(label)?,
             GuiMessage::NewDescriptor(data) => self.write_new_descriptor(data)?,
             GuiMessage::RenameDescriptor(data) => self.change_descriptor(data)?,
@@ -90,6 +90,11 @@ impl SqlGui {
 
 #[cfg(test)]
 mod tests {
+    use crate::dialog::new_descriptor::tests::example_new_descriptor_data;
+    use crate::dialog::new_entity::tests::example_new_entity_data;
+    use crate::dialog::relabel_entity::tests::example_relabel_entity_data;
+    use crate::tests::temp_database;
+
     use super::*;
 
     #[test]
@@ -123,5 +128,75 @@ mod tests {
         let message = GuiMessage::DialogClosed;
         gui.handle_message(message).unwrap();
         assert!(gui.dialog.is_none());
+    }
+
+    #[test]
+    fn check_gui_state_after_new_entity() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_entity_data();
+        let message = GuiMessage::NewEntity(data.clone());
+        gui.handle_message(message).unwrap();
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            Some(data.get_label().to_owned())
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_relabel_entity() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_relabel_entity_data();
+        let message = GuiMessage::RelabelEntity(data.clone());
+        gui.handle_message(message).unwrap();
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            Some(data.get_label().to_owned())
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_delete_entity() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_entity_data = example_new_entity_data();
+        let create_message = GuiMessage::NewEntity(new_entity_data.clone());
+        gui.handle_message(create_message).unwrap();
+        let delete_message = GuiMessage::DeleteEntity(new_entity_data.get_label().to_owned());
+        gui.handle_message(delete_message).unwrap();
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            None
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_new_descriptor() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_descriptor_data();
+        let message = GuiMessage::NewDescriptor(data.clone());
+        gui.handle_message(message).unwrap();
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            Some(data.get_label().to_owned())
+        );
+        assert_eq!(
+            gui.entity_view_state.descriptor_view_state.get_selected().0,
+            Some(data.get_descriptor().to_owned())
+        );
+        assert_eq!(
+            gui.entity_view_state.current_description.get_text(),
+            data.get_description().to_str().to_owned()
+        );
     }
 }

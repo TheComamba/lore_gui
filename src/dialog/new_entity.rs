@@ -127,3 +127,21 @@ impl Dialog for NewEntityDialog {
         GuiMessage::NewEntity(self.data.to_owned())
     }
 }
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use lorecore::types::label::Label;
+
+    use crate::dialog::new_entity::NewEntityData;
+
+    pub(crate) fn example_new_entity_data() -> NewEntityData {
+        let label = Label::from("new_entity");
+        let name = String::from("New Entity");
+        let category = String::from("Some Category");
+        NewEntityData {
+            label,
+            name,
+            category,
+        }
+    }
+}

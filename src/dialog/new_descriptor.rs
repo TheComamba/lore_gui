@@ -56,8 +56,18 @@ impl NewDescriptorData {
             .map_err(LoreGuiError::from)
     }
 
+    #[cfg(test)]
+    pub(crate) fn get_label(&self) -> &Label {
+        &self.label
+    }
+
     pub(crate) fn get_descriptor(&self) -> &Descriptor {
         &self.descriptor
+    }
+
+    #[cfg(test)]
+    pub(crate) fn get_description(&self) -> &Description {
+        &self.description
     }
 }
 
@@ -97,5 +107,18 @@ impl Dialog for NewDescriptorDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewDescriptor(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use crate::dialog::new_descriptor::NewDescriptorData;
+
+    pub(crate) fn example_new_descriptor_data() -> NewDescriptorData {
+        NewDescriptorData {
+            label: "test".into(),
+            descriptor: "test_descriptor".into(),
+            description: "test_description".into(),
+        }
     }
 }
