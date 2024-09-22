@@ -61,19 +61,19 @@ mod tests {
         ]
     }
 
-    fn example_years() -> Vec<Year> {
+    pub(crate) fn example_years() -> Vec<Year> {
         vec![0.into(), (-22).into(), 333.into()]
     }
 
-    fn example_days() -> Vec<Day> {
+    pub(crate) fn example_days() -> Vec<Day> {
         vec![Day::NONE, 11.into(), 222.into()]
     }
 
-    fn example_history_content(year: Year, day: Day) -> HistoryItemContent {
+    pub(crate) fn example_history_content(year: Year, day: Day) -> HistoryItemContent {
         format!("{}-{}", year, day).into()
     }
 
-    fn example_role(parent: &Parent, child: &Child) -> Role {
+    pub(crate) fn example_role(parent: &Parent, child: &Child) -> Role {
         format!("{}-{}", parent, child).into()
     }
 

@@ -201,3 +201,42 @@ impl HistoryViewState {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use lorecore::timestamp::current_timestamp;
+
+    use super::*;
+
+    use crate::tests::{example_database, example_days, example_history_content, example_years};
+
+    #[test]
+    fn selecting_year_deselects_day_and_timestamp() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let years = example_years();
+        let days = example_days();
+        gui.history_view_state
+            .year_view_state
+            .set_selected(DbColViewEntry(Some(years[0].clone())));
+        gui.history_view_state
+            .day_view_state
+            .set_selected(DbColViewEntry(Some(days[0].clone())));
+        gui.history_view_state
+            .timestamp_view_state
+            .set_selected(DbColViewEntry(Some(current_timestamp())));
+        let content = example_history_content(years[0], days[0]);
+        gui.history_view_state.current_content = EditorState::new(content.to_str());
+
+        let new_year = years[1].clone();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_year.clone())));
+        gui.update_year_view(event).unwrap();
+
+        assert_eq!(gui.selected_year(), Some(new_year));
+        assert_eq!(gui.selected_day(), None);
+        assert_eq!(gui.selected_timestamp(), None);
+        assert_eq!(gui.history_text(), "");
+    }
+}
