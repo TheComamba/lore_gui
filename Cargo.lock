@@ -1960,6 +1960,7 @@ dependencies = [
  "lorecore",
  "preferences",
  "rfd",
+ "serde_json",
  "tempfile",
 ]
 

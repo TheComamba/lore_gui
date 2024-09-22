@@ -92,6 +92,7 @@ impl SqlGui {
 mod tests {
     use crate::dialog::new_descriptor::tests::example_new_descriptor_data;
     use crate::dialog::new_entity::tests::example_new_entity_data;
+    use crate::dialog::new_history_item::tests::example_new_history_data;
     use crate::dialog::relabel_entity::tests::example_relabel_entity_data;
     use crate::dialog::rename_descriptor::tests::example_rename_descriptor_data;
     use crate::tests::temp_database;
@@ -261,6 +262,102 @@ mod tests {
         );
         assert_eq!(
             gui.entity_view_state.current_description.get_text(),
+            "".to_owned()
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_new_history_item() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_history_data();
+        let message = GuiMessage::NewHistoryItem(data.clone());
+        gui.handle_message(message).unwrap();
+
+        assert_eq!(
+            gui.history_view_state.year_view_state.get_selected().0,
+            Some(data.year().to_owned())
+        );
+        assert_eq!(
+            gui.history_view_state.day_view_state.get_selected().0,
+            Some(data.day().to_owned())
+        );
+        assert_eq!(
+            gui.history_view_state.current_content.get_text(),
+            data.content().to_str().to_owned()
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_redate_history_item() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_history_data = example_new_history_data();
+        let create_message = GuiMessage::NewHistoryItem(new_history_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let timestamp = gui
+            .history_view_state
+            .timestamp_view_state
+            .get_selected()
+            .0
+            .unwrap();
+
+        let old_year = new_history_data.year().clone();
+        let old_day = new_history_data.day().clone();
+        let mut redate_data = RedateHistoryData::new(timestamp, old_year, old_day);
+        let new_year = old_year + 1;
+        let new_day = old_day + 1;
+        redate_data.set_new_year(new_year);
+        redate_data.set_new_day(new_day);
+        let redate_message = GuiMessage::RedateHistoryItem(redate_data.clone());
+        gui.handle_message(redate_message).unwrap();
+
+        assert_eq!(
+            gui.history_view_state.year_view_state.get_selected().0,
+            Some(new_year)
+        );
+        assert_eq!(
+            gui.history_view_state.day_view_state.get_selected().0,
+            Some(new_day)
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_delete_history_item() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_history_data = example_new_history_data();
+        let create_message = GuiMessage::NewHistoryItem(new_history_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let timestamp = gui
+            .history_view_state
+            .timestamp_view_state
+            .get_selected()
+            .0
+            .unwrap();
+
+        let delete_message = GuiMessage::DeleteHistoryItem(timestamp);
+        gui.handle_message(delete_message).unwrap();
+
+        assert_eq!(
+            gui.history_view_state.year_view_state.get_selected().0,
+            None
+        );
+        assert_eq!(gui.history_view_state.day_view_state.get_selected().0, None);
+        assert_eq!(
+            gui.history_view_state.timestamp_view_state.get_selected().0,
+            None
+        );
+        assert_eq!(
+            gui.history_view_state.current_content.get_text(),
             "".to_owned()
         );
     }

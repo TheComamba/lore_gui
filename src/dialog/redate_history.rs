@@ -46,6 +46,16 @@ impl RedateHistoryData {
         db.redate_history_item(self.timestamp, self.new_year, self.new_day)?;
         Ok(())
     }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_year(&mut self, year: Year) {
+        self.new_year = year;
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_day(&mut self, day: Day) {
+        self.new_day = day;
+    }
 }
 
 impl Dialog for RedateHistoryDialog {

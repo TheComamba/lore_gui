@@ -65,11 +65,6 @@ impl NewHistoryData {
     pub(crate) fn content(&self) -> &HistoryItemContent {
         &self.content
     }
-
-    #[cfg(test)]
-    pub(crate) fn properties(&self) -> &HistoryItemProperties {
-        &self.properties
-    }
 }
 
 impl Dialog for NewHistoryDialog {
@@ -110,5 +105,30 @@ impl Dialog for NewHistoryDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewHistoryItem(self.data.clone())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use serde_json::json;
+    use std::collections::HashMap;
+
+    use super::*;
+
+    pub(crate) fn example_new_history_data() -> NewHistoryData {
+        let year = 2021.into();
+        let day = Day::from(11);
+        let content = HistoryItemContent::from("Example content");
+        let mut properties_map = HashMap::new();
+        properties_map.insert("key1".to_string(), json!("value1"));
+        properties_map.insert("key2".to_string(), json!(42));
+        properties_map.insert("key3".to_string(), json!({"nested_key": "nested_value"}));
+        let properties = HistoryItemProperties::from(properties_map);
+        NewHistoryData {
+            year,
+            day,
+            content,
+            properties,
+        }
     }
 }
