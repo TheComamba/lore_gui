@@ -145,6 +145,20 @@ mod tests {
     }
 
     #[test]
+    fn creating_entity_that_already_exists_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_entity_data();
+        let message = GuiMessage::NewEntity(data.clone());
+        gui.handle_message(message).unwrap();
+        let message = GuiMessage::NewEntity(data.clone());
+        let result = gui.handle_message(message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_relabel_entity() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -162,6 +176,18 @@ mod tests {
     }
 
     #[test]
+    fn relabeling_nonexistent_entity_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let relabel_data = example_relabel_entity_data();
+        let relabel_message = GuiMessage::RelabelEntity(relabel_data.clone());
+        let result = gui.handle_message(relabel_message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_delete_entity() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -173,6 +199,18 @@ mod tests {
         let delete_message = GuiMessage::DeleteEntity(new_entity_data.label().to_owned());
         gui.handle_message(delete_message).unwrap();
         assert_eq!(gui.selected_label(), None);
+    }
+
+    #[test]
+    fn deleting_nonexistent_entity_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let label = Label::from("Nonexistent Entity");
+        let delete_message = GuiMessage::DeleteEntity(label.clone());
+        let result = gui.handle_message(delete_message);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -193,6 +231,20 @@ mod tests {
             gui.description_text(),
             data.description().to_str().to_owned()
         );
+    }
+
+    #[test]
+    fn creating_descriptor_that_already_exists_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_descriptor_data();
+        let message = GuiMessage::NewDescriptor(data.clone());
+        gui.handle_message(message).unwrap();
+        let message = GuiMessage::NewDescriptor(data.clone());
+        let result = gui.handle_message(message);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -225,6 +277,21 @@ mod tests {
     }
 
     #[test]
+    fn renaming_nonexistent_descriptor_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_entity_data = example_new_entity_data();
+        let create_message = GuiMessage::NewEntity(new_entity_data.clone());
+        gui.handle_message(create_message).unwrap();
+        let rename_data = example_rename_descriptor_data();
+        let rename_message = GuiMessage::RenameDescriptor(rename_data.clone());
+        let result = gui.handle_message(rename_message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_delete_descriptor() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -246,6 +313,22 @@ mod tests {
         );
         assert_eq!(gui.selected_descriptor(), None);
         assert_eq!(gui.description_text(), "".to_owned());
+    }
+
+    #[test]
+    fn deleting_nonexistent_descriptor_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_entity_data = example_new_entity_data();
+        let create_message = GuiMessage::NewEntity(new_entity_data.clone());
+        gui.handle_message(create_message).unwrap();
+        let label = new_entity_data.label().clone();
+        let descriptor = Descriptor::from("Nonexistent Descriptor");
+        let delete_message = GuiMessage::DeleteDescriptor(label.clone(), descriptor.clone());
+        let result = gui.handle_message(delete_message);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -290,6 +373,21 @@ mod tests {
     }
 
     #[test]
+    fn redating_nonexistent_history_item_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let timestamp = Timestamp::from(1234);
+        let old_year = Year::from(2021);
+        let old_day = Day::from(1);
+        let redate_data = RedateHistoryData::new(timestamp, old_year, old_day);
+        let redate_message = GuiMessage::RedateHistoryItem(redate_data.clone());
+        let result = gui.handle_message(redate_message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_delete_history_item() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -311,6 +409,18 @@ mod tests {
     }
 
     #[test]
+    fn deleting_nonexistent_history_item_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let timestamp = Timestamp::from(1234);
+        let delete_message = GuiMessage::DeleteHistoryItem(timestamp);
+        let result = gui.handle_message(delete_message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_new_relationship() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -323,6 +433,20 @@ mod tests {
         assert_eq!(gui.selected_parent(), Some(data.parent().to_owned()));
         assert_eq!(gui.selected_child(), Some(data.child().to_owned()));
         assert_eq!(gui.selected_role(), Some(data.role().to_owned()));
+    }
+
+    #[test]
+    fn creating_relationship_that_already_exists_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_relationship_data();
+        let message = GuiMessage::NewRelationship(data.clone());
+        gui.handle_message(message).unwrap();
+        let message = GuiMessage::NewRelationship(data.clone());
+        let result = gui.handle_message(message);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -356,6 +480,28 @@ mod tests {
     }
 
     #[test]
+    fn changing_role_of_nonexistent_relationship_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let parent = Parent::from("Parent");
+        let child = Child::from("Child");
+        let role = Role::from("Role");
+        let relationship = EntityRelationship {
+            parent: parent.clone(),
+            child: child.clone(),
+            role: role.clone(),
+        };
+        let new_role = Role::from("New Role");
+        let mut change_data = ChangeRoleData::new(relationship);
+        change_data.set_new_role(new_role.clone());
+        let change_message = GuiMessage::ChangeRole(change_data.clone());
+        let result = gui.handle_message(change_message);
+        assert!(result.is_err());
+    }
+
+    #[test]
     fn check_gui_state_after_delete_relationship() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
@@ -380,5 +526,24 @@ mod tests {
         assert_eq!(gui.selected_parent(), None);
         assert_eq!(gui.selected_child(), None);
         assert_eq!(gui.selected_role(), None);
+    }
+
+    #[test]
+    fn deleting_nonexistent_relationship_produces_error() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let parent = Parent::from("Parent");
+        let child = Child::from("Child");
+        let role = Role::from("Role");
+        let relationship = EntityRelationship {
+            parent: parent.clone(),
+            child: child.clone(),
+            role: role.clone(),
+        };
+        let delete_message = GuiMessage::DeleteRelationship(relationship);
+        let result = gui.handle_message(delete_message);
+        assert!(result.is_err());
     }
 }
