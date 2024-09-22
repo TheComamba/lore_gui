@@ -61,28 +61,16 @@ impl SqlGui {
                     .lore_database
                     .as_ref()
                     .ok_or(LoreGuiError::NoDatabase)?;
-                let label = match self
-                    .entity_view_state
-                    .label_view_state
-                    .get_selected()
-                    .0
-                    .as_ref()
-                {
+                let label = match self.selected_label() {
                     Some(label) => label,
                     None => return Ok(()),
                 };
-                let descriptor = match self
-                    .entity_view_state
-                    .descriptor_view_state
-                    .get_selected()
-                    .0
-                    .as_ref()
-                {
+                let descriptor = match self.selected_descriptor() {
                     Some(descriptor) => descriptor,
                     None => return Ok(()),
                 };
                 let description = self.entity_view_state.current_description.get_text().into();
-                db.change_entity_description((label, descriptor), &description)?;
+                db.change_entity_description((&label, &descriptor), &description)?;
                 self.entity_view_state.current_description.saved();
             }
         };

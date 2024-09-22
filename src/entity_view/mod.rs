@@ -76,7 +76,7 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let label = match &self.label_view_state.get_selected().0 {
+        let label = match self.selected_label() {
             Some(label) => Some(SqlSearchText::exact(label.to_str())),
             None => return Ok(vec![]),
         };
@@ -99,11 +99,11 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(Description::NONE),
         };
-        let label = match &self.label_view_state.get_selected().0 {
+        let label = match self.selected_label() {
             Some(label) => Some(SqlSearchText::exact(label.to_str())),
             None => return Ok(Description::NONE),
         };
-        let descriptor = match &self.descriptor_view_state.get_selected().0 {
+        let descriptor = match self.selected_descriptor() {
             Some(descriptor) => Some(SqlSearchText::exact(descriptor.to_str())),
             None => return Ok(Description::NONE),
         };
@@ -121,6 +121,19 @@ impl EntityViewState {
             .unwrap_or(Description::NONE);
 
         Ok(description)
+    }
+
+    pub(super) fn selected_label(&self) -> Option<Label> {
+        self.label_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn selected_descriptor(&self) -> Option<Descriptor> {
+        self.descriptor_view_state.get_selected().0.clone()
+    }
+
+    #[cfg(test)]
+    pub(super) fn description_text(&self) -> String {
+        self.current_description.get_text()
     }
 }
 

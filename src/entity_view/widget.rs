@@ -24,7 +24,7 @@ fn label_buttons(state: &EntityViewState) -> Row<'_, GuiMessage> {
         button("New Entity").on_press(GuiMessage::EntityViewUpd(EntityViewMessage::NewEntity));
     let mut relabel_entity = button("Relabel Entity");
     let mut delete_entity = button("Delete Entity");
-    if let Some(label) = &state.label_view_state.get_selected().0 {
+    if let Some(label) = state.selected_label() {
         let relabel_entity_data = RelabelEntityData::new(label.clone());
         relabel_entity = relabel_entity.on_press(GuiMessage::EntityViewUpd(
             EntityViewMessage::RelabelEntity(relabel_entity_data),
@@ -45,11 +45,11 @@ fn descriptor_buttons(state: &EntityViewState) -> Row<'_, GuiMessage> {
     let mut new_descriptor = button("New Descriptor");
     let mut rename_descriptor = button("Rename Descriptor");
     let mut delete_descriptor = button("Delete Descriptor");
-    if let Some(label) = &state.label_view_state.get_selected().0 {
+    if let Some(label) = state.selected_label() {
         new_descriptor = new_descriptor.on_press(GuiMessage::EntityViewUpd(
             EntityViewMessage::NewDescriptor(label.clone()),
         ));
-        if let Some(descriptor) = &state.descriptor_view_state.get_selected().0 {
+        if let Some(descriptor) = state.selected_descriptor() {
             let rename_descriptor_data =
                 RenameDescriptorData::new(label.clone(), descriptor.clone());
             rename_descriptor = rename_descriptor.on_press(GuiMessage::EntityViewUpd(

@@ -48,17 +48,11 @@ impl SqlGui {
                     .lore_database
                     .as_ref()
                     .ok_or(LoreGuiError::NoDatabase)?;
-                let timestamp = match self
-                    .history_view_state
-                    .timestamp_view_state
-                    .get_selected()
-                    .0
-                {
+                let timestamp = match self.selected_timestamp() {
                     Some(t) => t,
                     None => return Ok(()),
                 };
-                let content =
-                    HistoryItemContent::from(self.history_view_state.current_content.get_text());
+                let content = HistoryItemContent::from(self.history_text());
                 db.change_history_item_content(timestamp, &content)?;
                 self.history_view_state.current_content.saved();
             }

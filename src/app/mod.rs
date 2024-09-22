@@ -1,8 +1,15 @@
+use lorecore::{
+    sql::lore_database::LoreDatabase,
+    types::{
+        child::Child, day::Day, descriptor::Descriptor, label::Label, parent::Parent, role::Role,
+        timestamp::Timestamp, year::Year,
+    },
+};
+
 use super::{
     dialog::Dialog, entity_view::EntityViewState, history_view::HistoryViewState,
     relationship_view::RelationshipViewState,
 };
-use lorecore::sql::lore_database::LoreDatabase;
 
 pub(super) mod message_handling;
 mod updating_database;
@@ -26,4 +33,52 @@ pub(crate) enum ViewType {
     Entity,
     History,
     Relationship,
+}
+
+impl SqlGui {
+    pub(crate) fn selected_label(&self) -> Option<Label> {
+        self.entity_view_state.selected_label()
+    }
+
+    pub(crate) fn selected_descriptor(&self) -> Option<Descriptor> {
+        self.entity_view_state.selected_descriptor()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn description_text(&self) -> String {
+        self.entity_view_state.description_text()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn selected_year(&self) -> Option<Year> {
+        self.history_view_state.selected_year()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn selected_day(&self) -> Option<Day> {
+        self.history_view_state.selected_day()
+    }
+
+    pub(crate) fn selected_timestamp(&self) -> Option<Timestamp> {
+        self.history_view_state.selected_timestamp()
+    }
+
+    pub(crate) fn history_text(&self) -> String {
+        self.history_view_state.content_text()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn selected_parent(&self) -> Option<Parent> {
+        self.relationship_view_state.selected_parent()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn selected_child(&self) -> Option<Child> {
+        self.relationship_view_state.selected_child()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn selected_role(&self) -> Option<Role> {
+        self.relationship_view_state.selected_role()
+    }
 }

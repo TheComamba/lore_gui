@@ -49,10 +49,7 @@ impl RelationshipViewState {
             None => return Ok(vec![]),
         };
         let child = self
-            .child_view_state
-            .get_selected()
-            .0
-            .as_ref()
+            .selected_child()
             .map(|c| SqlSearchText::exact(c.to_str()));
         let parent_search_text = self
             .parent_view_state
@@ -73,10 +70,7 @@ impl RelationshipViewState {
             None => return Ok(vec![]),
         };
         let parent = self
-            .parent_view_state
-            .get_selected()
-            .0
-            .as_ref()
+            .selected_parent()
             .map(|p| SqlSearchText::exact(p.to_str()));
         let child_search_text = self
             .child_view_state
@@ -96,11 +90,11 @@ impl RelationshipViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let parent = match &self.parent_view_state.get_selected().0 {
+        let parent = match self.selected_parent() {
             Some(parent) => parent,
             None => return Ok(vec![]),
         };
-        let child = match &self.child_view_state.get_selected().0 {
+        let child = match self.selected_child() {
             Some(child) => child,
             None => return Ok(vec![]),
         };
@@ -111,6 +105,18 @@ impl RelationshipViewState {
         let relationships = db.read_relationships(search_params)?;
         let roles = extract_roles(&relationships);
         Ok(roles)
+    }
+
+    pub(super) fn selected_parent(&self) -> Option<Parent> {
+        self.parent_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn selected_child(&self) -> Option<Child> {
+        self.child_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn selected_role(&self) -> Option<Role> {
+        self.role_view_state.get_selected().0.clone()
     }
 }
 
