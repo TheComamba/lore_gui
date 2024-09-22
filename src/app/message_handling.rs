@@ -133,7 +133,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_new_entity() {
+    fn new_entity_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -159,20 +159,19 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_relabel_entity() {
+    fn relabel_entity_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
         };
         let relabel_data = example_relabel_entity_data();
         let mut create_data = NewEntityData::new();
-        create_data.set_label(relabel_data.old_label().clone());
-        let relabel_message = GuiMessage::RelabelEntity(relabel_data.clone());
+        let old_label = relabel_data.old_label().clone();
+        let new_label = relabel_data.new_label().clone();
+        create_data.set_label(old_label);
+        let relabel_message = GuiMessage::RelabelEntity(relabel_data);
         gui.handle_message(relabel_message).unwrap();
-        assert_eq!(
-            gui.selected_label(),
-            Some(relabel_data.new_label().to_owned())
-        );
+        assert_eq!(gui.selected_label(), Some(new_label));
     }
 
     #[test]
@@ -188,7 +187,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_delete_entity() {
+    fn delete_entity_deselects_it() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -198,7 +197,10 @@ mod tests {
         gui.handle_message(create_message).unwrap();
         let delete_message = GuiMessage::DeleteEntity(new_entity_data.label().to_owned());
         gui.handle_message(delete_message).unwrap();
+
         assert_eq!(gui.selected_label(), None);
+        assert_eq!(gui.selected_descriptor(), None);
+        assert_eq!(gui.description_text(), "".to_owned());
     }
 
     #[test]
@@ -214,23 +216,21 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_new_descriptor() {
+    fn new_descriptor_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
         };
         let data = example_new_descriptor_data();
-        let message = GuiMessage::NewDescriptor(data.clone());
+        let label = data.label().clone();
+        let descriptor = data.descriptor().clone();
+        let description = data.description().to_string();
+        let message = GuiMessage::NewDescriptor(data);
         gui.handle_message(message).unwrap();
-        assert_eq!(gui.selected_label(), Some(data.label().to_owned()));
-        assert_eq!(
-            gui.selected_descriptor(),
-            Some(data.descriptor().to_owned())
-        );
-        assert_eq!(
-            gui.description_text(),
-            data.description().to_str().to_owned()
-        );
+
+        assert_eq!(gui.selected_label(), Some(label));
+        assert_eq!(gui.selected_descriptor(), Some(descriptor));
+        assert_eq!(gui.description_text(), description);
     }
 
     #[test]
@@ -248,32 +248,28 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_rename_descriptor() {
+    fn rename_descriptor_selects_descriptor() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
         };
         let rename_data = example_rename_descriptor_data();
-        let mut create_data = NewDescriptorData::new(rename_data.label().clone());
-        create_data.set_descriptor(rename_data.old_descriptor().clone());
+        let label = rename_data.label().clone();
+        let old_descriptor = rename_data.old_descriptor().clone();
+        let new_descriptor = rename_data.new_descriptor().clone();
+        let mut create_data = NewDescriptorData::new(label.clone());
+        let description = create_data.description().to_string();
+        create_data.set_descriptor(old_descriptor.clone());
         let create_message = GuiMessage::NewDescriptor(create_data.clone());
         gui.handle_message(create_message).unwrap();
 
-        let rename_message = GuiMessage::RenameDescriptor(RenameDescriptorData::new(
-            rename_data.label().to_owned(),
-            rename_data.old_descriptor().to_owned(),
-        ));
+        let rename_message =
+            GuiMessage::RenameDescriptor(RenameDescriptorData::new(label.clone(), old_descriptor));
         gui.handle_message(rename_message).unwrap();
 
-        assert_eq!(gui.selected_label(), Some(rename_data.label().to_owned()));
-        assert_eq!(
-            gui.selected_descriptor(),
-            Some(rename_data.new_descriptor().to_owned())
-        );
-        assert_eq!(
-            gui.description_text(),
-            create_data.description().to_str().to_owned()
-        );
+        assert_eq!(gui.selected_label(), Some(label));
+        assert_eq!(gui.selected_descriptor(), Some(new_descriptor));
+        assert_eq!(gui.description_text(), description);
     }
 
     #[test]
@@ -292,7 +288,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_delete_descriptor() {
+    fn delete_descriptor_deselects_it() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -301,16 +297,14 @@ mod tests {
         let create_message = GuiMessage::NewDescriptor(new_descriptor_data.clone());
         gui.handle_message(create_message).unwrap();
 
+        let label = new_descriptor_data.label().clone();
         let delete_message = GuiMessage::DeleteDescriptor(
-            new_descriptor_data.label().to_owned(),
+            label.clone(),
             new_descriptor_data.descriptor().to_owned(),
         );
         gui.handle_message(delete_message).unwrap();
 
-        assert_eq!(
-            gui.selected_label(),
-            Some(new_descriptor_data.label().to_owned())
-        );
+        assert_eq!(gui.selected_label(), Some(label));
         assert_eq!(gui.selected_descriptor(), None);
         assert_eq!(gui.description_text(), "".to_owned());
     }
@@ -332,7 +326,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_new_history_item() {
+    fn new_history_item_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -343,11 +337,12 @@ mod tests {
 
         assert_eq!(gui.selected_year(), Some(data.year().to_owned()));
         assert_eq!(gui.selected_day(), Some(data.day().to_owned()));
+        assert!(gui.selected_timestamp().is_some());
         assert_eq!(gui.history_text(), data.content().to_str().to_owned());
     }
 
     #[test]
-    fn check_gui_state_after_redate_history_item() {
+    fn redate_history_item_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -370,6 +365,11 @@ mod tests {
 
         assert_eq!(gui.selected_year(), Some(new_year));
         assert_eq!(gui.selected_day(), Some(new_day));
+        assert_eq!(gui.selected_timestamp(), Some(timestamp));
+        assert_eq!(
+            gui.history_text(),
+            new_history_data.content().to_str().to_owned()
+        );
     }
 
     #[test]
@@ -388,7 +388,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_delete_history_item() {
+    fn delete_history_item_deselects_all() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -421,7 +421,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_new_relationship() {
+    fn new_relationship_sets_it_selected() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -450,7 +450,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_change_role() {
+    fn changing_role_selects_relationship() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
@@ -502,7 +502,7 @@ mod tests {
     }
 
     #[test]
-    fn check_gui_state_after_delete_relationship() {
+    fn deleting_relationships_deselects_all() {
         let mut gui = SqlGui {
             lore_database: Some(temp_database()),
             ..Default::default()
