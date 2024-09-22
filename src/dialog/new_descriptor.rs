@@ -57,16 +57,16 @@ impl NewDescriptorData {
     }
 
     #[cfg(test)]
-    pub(crate) fn get_label(&self) -> &Label {
+    pub(crate) fn label(&self) -> &Label {
         &self.label
     }
 
-    pub(crate) fn get_descriptor(&self) -> &Descriptor {
+    pub(crate) fn descriptor(&self) -> &Descriptor {
         &self.descriptor
     }
 
     #[cfg(test)]
-    pub(crate) fn get_description(&self) -> &Description {
+    pub(crate) fn description(&self) -> &Description {
         &self.description
     }
 

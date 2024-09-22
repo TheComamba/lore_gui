@@ -49,8 +49,13 @@ impl RelabelEntityData {
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &Label {
+    pub(crate) fn new_label(&self) -> &Label {
         &self.new_label
+    }
+
+    #[cfg(test)]
+    pub(crate) fn old_label(&self) -> &Label {
+        &self.old_label
     }
 }
 

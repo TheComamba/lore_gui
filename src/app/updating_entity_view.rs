@@ -133,7 +133,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let label = data.get_label().clone();
+        let label = data.label().clone();
         data.write_to_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(label))))?;
@@ -146,7 +146,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let new_label = data.get_label().clone();
+        let new_label = data.new_label().clone();
         data.update_label_in_database(db)?;
         self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(new_label))))?;
@@ -174,7 +174,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().clone();
+        let descriptor = data.descriptor().clone();
         data.write_to_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
@@ -190,7 +190,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_old_descriptor().clone();
+        let descriptor = data.old_descriptor().clone();
         data.update_descriptor_in_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;

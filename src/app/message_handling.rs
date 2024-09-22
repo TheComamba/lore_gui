@@ -142,7 +142,7 @@ mod tests {
         gui.handle_message(message).unwrap();
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
-            Some(data.get_label().to_owned())
+            Some(data.label().to_owned())
         );
     }
 
@@ -152,12 +152,14 @@ mod tests {
             lore_database: Some(temp_database()),
             ..Default::default()
         };
-        let data = example_relabel_entity_data();
-        let message = GuiMessage::RelabelEntity(data.clone());
-        gui.handle_message(message).unwrap();
+        let relabel_data = example_relabel_entity_data();
+        let mut create_data = NewEntityData::new();
+        create_data.set_label(relabel_data.old_label().clone());
+        let relabel_message = GuiMessage::RelabelEntity(relabel_data.clone());
+        gui.handle_message(relabel_message).unwrap();
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
-            Some(data.get_label().to_owned())
+            Some(relabel_data.new_label().to_owned())
         );
     }
 
@@ -170,7 +172,7 @@ mod tests {
         let new_entity_data = example_new_entity_data();
         let create_message = GuiMessage::NewEntity(new_entity_data.clone());
         gui.handle_message(create_message).unwrap();
-        let delete_message = GuiMessage::DeleteEntity(new_entity_data.get_label().to_owned());
+        let delete_message = GuiMessage::DeleteEntity(new_entity_data.label().to_owned());
         gui.handle_message(delete_message).unwrap();
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
@@ -189,15 +191,15 @@ mod tests {
         gui.handle_message(message).unwrap();
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
-            Some(data.get_label().to_owned())
+            Some(data.label().to_owned())
         );
         assert_eq!(
             gui.entity_view_state.descriptor_view_state.get_selected().0,
-            Some(data.get_descriptor().to_owned())
+            Some(data.descriptor().to_owned())
         );
         assert_eq!(
             gui.entity_view_state.current_description.get_text(),
-            data.get_description().to_str().to_owned()
+            data.description().to_str().to_owned()
         );
     }
 
@@ -208,28 +210,28 @@ mod tests {
             ..Default::default()
         };
         let rename_data = example_rename_descriptor_data();
-        let mut create_data = NewDescriptorData::new(rename_data.get_label().clone());
-        create_data.set_descriptor(rename_data.get_old_descriptor().clone());
+        let mut create_data = NewDescriptorData::new(rename_data.label().clone());
+        create_data.set_descriptor(rename_data.old_descriptor().clone());
         let create_message = GuiMessage::NewDescriptor(create_data.clone());
         gui.handle_message(create_message).unwrap();
 
         let rename_message = GuiMessage::RenameDescriptor(RenameDescriptorData::new(
-            rename_data.get_label().to_owned(),
-            rename_data.get_old_descriptor().to_owned(),
+            rename_data.label().to_owned(),
+            rename_data.old_descriptor().to_owned(),
         ));
         gui.handle_message(rename_message).unwrap();
 
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
-            Some(rename_data.get_label().to_owned())
+            Some(rename_data.label().to_owned())
         );
         assert_eq!(
             gui.entity_view_state.descriptor_view_state.get_selected().0,
-            Some(rename_data.get_new_descriptor().to_owned())
+            Some(rename_data.new_descriptor().to_owned())
         );
         assert_eq!(
             gui.entity_view_state.current_description.get_text(),
-            create_data.get_description().to_str().to_owned()
+            create_data.description().to_str().to_owned()
         );
     }
 
@@ -244,19 +246,22 @@ mod tests {
         gui.handle_message(create_message).unwrap();
 
         let delete_message = GuiMessage::DeleteDescriptor(
-            new_descriptor_data.get_label().to_owned(),
-            new_descriptor_data.get_descriptor().to_owned(),
+            new_descriptor_data.label().to_owned(),
+            new_descriptor_data.descriptor().to_owned(),
         );
         gui.handle_message(delete_message).unwrap();
-        
+
         assert_eq!(
             gui.entity_view_state.label_view_state.get_selected().0,
-            Some(new_descriptor_data.get_label().to_owned())
+            Some(new_descriptor_data.label().to_owned())
         );
         assert_eq!(
             gui.entity_view_state.descriptor_view_state.get_selected().0,
             None
         );
-        assert_eq!(gui.entity_view_state.current_description.get_text(), "".to_owned());
+        assert_eq!(
+            gui.entity_view_state.current_description.get_text(),
+            "".to_owned()
+        );
     }
 }

@@ -77,8 +77,13 @@ impl NewEntityData {
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &Label {
+    pub(crate) fn label(&self) -> &Label {
         &self.label
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_label(&mut self, label: Label) {
+        self.label = label;
     }
 }
 

@@ -34,10 +34,10 @@ impl NewHistoryDialog {
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryData {
-    pub(crate) year: Year,
-    pub(crate) day: Day,
-    pub(crate) content: HistoryItemContent,
-    pub(crate) properties: HistoryItemProperties,
+    pub(self) year: Year,
+    pub(self) day: Day,
+    pub(self) content: HistoryItemContent,
+    pub(self) properties: HistoryItemProperties,
 }
 
 impl NewHistoryData {
@@ -51,6 +51,24 @@ impl NewHistoryData {
         };
         db.write_history_items(vec![item])?;
         Ok(())
+    }
+
+    pub(crate) fn year(&self) -> &Year {
+        &self.year
+    }
+
+    pub(crate) fn day(&self) -> &Day {
+        &self.day
+    }
+
+    #[cfg(test)]
+    pub(crate) fn content(&self) -> &HistoryItemContent {
+        &self.content
+    }
+
+    #[cfg(test)]
+    pub(crate) fn properties(&self) -> &HistoryItemProperties {
+        &self.properties
     }
 }
 
