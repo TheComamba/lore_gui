@@ -90,9 +90,12 @@ impl SqlGui {
 
 #[cfg(test)]
 mod tests {
+    use lorecore::types::role::Role;
+
     use crate::dialog::new_descriptor::tests::example_new_descriptor_data;
     use crate::dialog::new_entity::tests::example_new_entity_data;
     use crate::dialog::new_history_item::tests::example_new_history_data;
+    use crate::dialog::new_relationship::tests::example_new_relationship_data;
     use crate::dialog::relabel_entity::tests::example_relabel_entity_data;
     use crate::dialog::rename_descriptor::tests::example_rename_descriptor_data;
     use crate::tests::temp_database;
@@ -359,6 +362,123 @@ mod tests {
         assert_eq!(
             gui.history_view_state.current_content.get_text(),
             "".to_owned()
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_new_relationship() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let data = example_new_relationship_data();
+        let message = GuiMessage::NewRelationship(data.clone());
+        gui.handle_message(message).unwrap();
+
+        assert_eq!(
+            gui.relationship_view_state
+                .parent_view_state
+                .get_selected()
+                .0,
+            Some(data.parent().to_owned())
+        );
+        assert_eq!(
+            gui.relationship_view_state
+                .child_view_state
+                .get_selected()
+                .0,
+            Some(data.child().to_owned())
+        );
+        assert_eq!(
+            gui.relationship_view_state.role_view_state.get_selected().0,
+            Some(data.role().to_owned())
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_change_role() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let create_data = example_new_relationship_data();
+        let create_message = GuiMessage::NewRelationship(create_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let parent = create_data.parent();
+        let child = create_data.child();
+        let role = create_data.role();
+        let relationship = EntityRelationship {
+            parent: parent.clone(),
+            child: child.clone(),
+            role: role.clone(),
+        };
+
+        let new_role = Role::from("New Role");
+        let mut change_data = ChangeRoleData::new(relationship);
+        change_data.set_new_role(new_role.clone());
+        let change_message = GuiMessage::ChangeRole(change_data.clone());
+        gui.handle_message(change_message).unwrap();
+
+        assert_eq!(
+            gui.relationship_view_state
+                .parent_view_state
+                .get_selected()
+                .0,
+            Some(parent.clone())
+        );
+        assert_eq!(
+            gui.relationship_view_state
+                .child_view_state
+                .get_selected()
+                .0,
+            Some(child.clone())
+        );
+        assert_eq!(
+            gui.relationship_view_state.role_view_state.get_selected().0,
+            Some(new_role)
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_delete_relationship() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let create_data = example_new_relationship_data();
+        let create_message = GuiMessage::NewRelationship(create_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let parent = create_data.parent();
+        let child = create_data.child();
+        let role = create_data.role();
+        let relationship = EntityRelationship {
+            parent: parent.clone(),
+            child: child.clone(),
+            role: role.clone(),
+        };
+
+        let delete_message = GuiMessage::DeleteRelationship(relationship);
+        gui.handle_message(delete_message).unwrap();
+
+        assert_eq!(
+            gui.relationship_view_state
+                .parent_view_state
+                .get_selected()
+                .0,
+            None
+        );
+        assert_eq!(
+            gui.relationship_view_state
+                .child_view_state
+                .get_selected()
+                .0,
+            None
+        );
+        assert_eq!(
+            gui.relationship_view_state.role_view_state.get_selected().0,
+            None
         );
     }
 }

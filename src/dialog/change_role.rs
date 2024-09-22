@@ -40,6 +40,11 @@ impl ChangeRoleData {
         db.change_relationship_role(self.old_relationship, &self.new_role)?;
         Ok(())
     }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_role(&mut self, role: Role) {
+        self.new_role = role;
+    }
 }
 
 impl Dialog for ChangeRoleDialog {
