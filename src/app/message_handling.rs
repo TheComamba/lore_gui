@@ -95,7 +95,7 @@ mod tests {
     use crate::dialog::new_relationship::tests::example_new_relationship_data;
     use crate::dialog::relabel_entity::tests::example_relabel_entity_data;
     use crate::dialog::rename_descriptor::tests::example_rename_descriptor_data;
-    use crate::tests::temp_database;
+    use crate::tests::example_database;
 
     use super::*;
 
@@ -135,7 +135,7 @@ mod tests {
     #[test]
     fn new_entity_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_entity_data();
@@ -147,7 +147,7 @@ mod tests {
     #[test]
     fn creating_entity_that_already_exists_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_entity_data();
@@ -161,7 +161,7 @@ mod tests {
     #[test]
     fn relabel_entity_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let relabel_data = example_relabel_entity_data();
@@ -177,7 +177,7 @@ mod tests {
     #[test]
     fn relabeling_nonexistent_entity_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let relabel_data = example_relabel_entity_data();
@@ -189,7 +189,7 @@ mod tests {
     #[test]
     fn delete_entity_deselects_it() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_entity_data = example_new_entity_data();
@@ -206,7 +206,7 @@ mod tests {
     #[test]
     fn deleting_nonexistent_entity_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let label = Label::from("Nonexistent Entity");
@@ -218,7 +218,7 @@ mod tests {
     #[test]
     fn new_descriptor_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_descriptor_data();
@@ -236,7 +236,7 @@ mod tests {
     #[test]
     fn creating_descriptor_that_already_exists_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_descriptor_data();
@@ -250,7 +250,7 @@ mod tests {
     #[test]
     fn rename_descriptor_selects_descriptor() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let rename_data = example_rename_descriptor_data();
@@ -275,7 +275,7 @@ mod tests {
     #[test]
     fn renaming_nonexistent_descriptor_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_entity_data = example_new_entity_data();
@@ -290,7 +290,7 @@ mod tests {
     #[test]
     fn delete_descriptor_deselects_it() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_descriptor_data = example_new_descriptor_data();
@@ -312,7 +312,7 @@ mod tests {
     #[test]
     fn deleting_nonexistent_descriptor_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_entity_data = example_new_entity_data();
@@ -328,7 +328,7 @@ mod tests {
     #[test]
     fn new_history_item_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_history_data();
@@ -344,7 +344,7 @@ mod tests {
     #[test]
     fn redate_history_item_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_history_data = example_new_history_data();
@@ -375,7 +375,7 @@ mod tests {
     #[test]
     fn redating_nonexistent_history_item_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let timestamp = Timestamp::from(1234);
@@ -390,7 +390,7 @@ mod tests {
     #[test]
     fn delete_history_item_deselects_all() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let new_history_data = example_new_history_data();
@@ -411,7 +411,7 @@ mod tests {
     #[test]
     fn deleting_nonexistent_history_item_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let timestamp = Timestamp::from(1234);
@@ -423,7 +423,7 @@ mod tests {
     #[test]
     fn new_relationship_sets_it_selected() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_relationship_data();
@@ -438,7 +438,7 @@ mod tests {
     #[test]
     fn creating_relationship_that_already_exists_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let data = example_new_relationship_data();
@@ -452,7 +452,7 @@ mod tests {
     #[test]
     fn changing_role_selects_relationship() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let create_data = example_new_relationship_data();
@@ -482,7 +482,7 @@ mod tests {
     #[test]
     fn changing_role_of_nonexistent_relationship_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let parent = Parent::from("Parent");
@@ -504,7 +504,7 @@ mod tests {
     #[test]
     fn deleting_relationships_deselects_all() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let create_data = example_new_relationship_data();
@@ -531,7 +531,7 @@ mod tests {
     #[test]
     fn deleting_nonexistent_relationship_produces_error() {
         let mut gui = SqlGui {
-            lore_database: Some(temp_database()),
+            lore_database: Some(example_database()),
             ..Default::default()
         };
         let parent = Parent::from("Parent");
