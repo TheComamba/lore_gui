@@ -2,10 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{descriptor::Descriptor, label::Label},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 

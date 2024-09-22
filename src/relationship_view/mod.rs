@@ -4,7 +4,7 @@ use lorecore::{
         relationship::{extract_children, extract_parents, extract_roles},
         search_params::{RelationshipSearchParams, SqlSearchText},
     },
-    types::{child::Child, parent::Parent, relationship::EntityRelationship, role::Role},
+    types::*,
 };
 
 use crate::{

@@ -1,7 +1,4 @@
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{descriptor::Descriptor, label::Label},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{
     db_col_view::{entry::DbColViewEntry, ColViewMes},

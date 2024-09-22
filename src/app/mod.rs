@@ -1,10 +1,4 @@
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{
-        child::Child, day::Day, descriptor::Descriptor, label::Label, parent::Parent, role::Role,
-        timestamp::Timestamp, year::Year,
-    },
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use super::{
     dialog::Dialog, entity_view::EntityViewState, history_view::HistoryViewState,

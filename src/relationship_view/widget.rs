@@ -4,11 +4,9 @@ use iced::{
     widget::{Column, Row},
     Element, Length,
 };
-use lorecore::types::relationship::EntityRelationship;
+use lorecore::types::*;
 
-use crate::app::message_handling::GuiMessage;
-use crate::db_col_view;
-use crate::dialog::change_role::ChangeRoleData;
+use crate::{app::message_handling::GuiMessage, db_col_view, dialog::change_role::ChangeRoleData};
 
 use super::{RelationshipViewMessage, RelationshipViewState};
 

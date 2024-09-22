@@ -2,7 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -90,7 +90,7 @@ impl Dialog for RelabelEntityDialog {
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use lorecore::types::label::Label;
+    use lorecore::types::*;
 
     use super::RelabelEntityData;
 

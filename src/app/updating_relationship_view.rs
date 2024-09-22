@@ -1,9 +1,7 @@
 use lorecore::{
     extractions::extract_labels,
     sql::{lore_database::LoreDatabase, search_params::EntityColumnSearchParams},
-    types::{
-        child::Child, label::Label, parent::Parent, relationship::EntityRelationship, role::Role,
-    },
+    types::*,
 };
 
 use crate::{

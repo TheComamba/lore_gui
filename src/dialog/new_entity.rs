@@ -2,9 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
-use lorecore::types::entity::EntityColumn;
-use lorecore::types::label::Label;
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::app::message_handling::GuiMessage;
 use crate::errors::LoreGuiError;
@@ -135,7 +133,7 @@ impl Dialog for NewEntityDialog {
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use lorecore::types::label::Label;
+    use lorecore::types::*;
 
     use crate::dialog::new_entity::NewEntityData;
 

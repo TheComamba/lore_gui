@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lorecore::types::day::Day;
+use lorecore::types::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) struct DbColViewEntry<T>(pub(crate) Option<T>);

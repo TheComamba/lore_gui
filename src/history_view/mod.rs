@@ -2,7 +2,7 @@ use iced::widget::text_editor;
 use lorecore::{
     extractions::{extract_days, extract_years},
     sql::{lore_database::LoreDatabase, search_params::HistoryItemSearchParams},
-    types::{day::Day, history_item_content::HistoryItemContent, timestamp::Timestamp, year::Year},
+    types::*,
 };
 
 use crate::{

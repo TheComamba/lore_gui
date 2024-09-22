@@ -2,13 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{
-        day::Day, history::HistoryItem, history_item_content::HistoryItemContent,
-        history_item_properties::HistoryItemProperties, year::Year,
-    },
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 

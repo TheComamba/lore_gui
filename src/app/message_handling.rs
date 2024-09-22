@@ -1,8 +1,5 @@
-use lorecore::types::{
-    descriptor::Descriptor, label::Label, relationship::EntityRelationship, timestamp::Timestamp,
-};
+use lorecore::types::*;
 
-use super::{SqlGui, ViewType};
 use crate::{
     dialog::{
         change_role::ChangeRoleData, new_descriptor::NewDescriptorData, new_entity::NewEntityData,
@@ -15,6 +12,8 @@ use crate::{
     history_view::HistoryViewMessage,
     relationship_view::RelationshipViewMessage,
 };
+
+use super::{SqlGui, ViewType};
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
@@ -90,8 +89,6 @@ impl SqlGui {
 
 #[cfg(test)]
 mod tests {
-    use lorecore::types::role::Role;
-
     use crate::dialog::new_descriptor::tests::example_new_descriptor_data;
     use crate::dialog::new_entity::tests::example_new_entity_data;
     use crate::dialog::new_history_item::tests::example_new_history_data;

@@ -5,7 +5,7 @@ use lorecore::{
         lore_database::LoreDatabase,
         search_params::{EntityColumnSearchParams, SqlSearchText},
     },
-    types::{description::Description, descriptor::Descriptor, label::Label},
+    types::*,
 };
 
 use crate::{
