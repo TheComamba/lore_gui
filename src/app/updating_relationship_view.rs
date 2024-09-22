@@ -205,3 +205,56 @@ impl RelationshipViewState {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use crate::tests::{example_database, example_labels, example_role};
+
+    #[test]
+    fn selecting_parent_deselects_role() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let parents = example_labels();
+        let role = example_role(&parents[0].to_str().into(), &parents[1].to_str().into());
+        gui.relationship_view_state
+            .parent_view_state
+            .set_selected(DbColViewEntry(Some(parents[0].to_str().into())));
+        gui.relationship_view_state
+            .role_view_state
+            .set_selected(DbColViewEntry(Some(role.clone())));
+
+        let new_parent: Parent = parents[2].to_str().into();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_parent.clone())));
+        gui.update_parent_view(event).unwrap();
+
+        assert_eq!(gui.selected_parent(), Some(new_parent));
+        assert_eq!(gui.selected_role(), None);
+    }
+
+    #[test]
+    fn selecting_child_deselects_role() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let children = example_labels();
+        let role = example_role(&children[0].to_str().into(), &children[1].to_str().into());
+        gui.relationship_view_state
+            .child_view_state
+            .set_selected(DbColViewEntry(Some(children[0].to_str().into())));
+        gui.relationship_view_state
+            .role_view_state
+            .set_selected(DbColViewEntry(Some(role.clone())));
+
+        let new_child: Child = children[2].to_str().into();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_child.clone())));
+        gui.update_child_view(event).unwrap();
+
+        assert_eq!(gui.selected_child(), Some(new_child));
+        assert_eq!(gui.selected_role(), None);
+    }
+}

@@ -116,6 +116,9 @@ mod tests {
         let mut columns = Vec::new();
         for parent in labels.iter() {
             for child in labels.iter() {
+                if parent == child {
+                    continue;
+                }
                 let parent = parent.to_str().into();
                 let child = child.to_str().into();
                 let role = example_role(&parent, &child);
