@@ -69,6 +69,11 @@ impl NewDescriptorData {
     pub(crate) fn get_description(&self) -> &Description {
         &self.description
     }
+
+    #[cfg(test)]
+    pub(crate) fn set_descriptor(&mut self, descriptor: Descriptor) {
+        self.descriptor = descriptor;
+    }
 }
 
 impl Dialog for NewDescriptorDialog {

@@ -57,8 +57,18 @@ impl RenameDescriptorData {
         Ok(())
     }
 
-    pub(crate) fn get_descriptor(&self) -> &Descriptor {
+    #[cfg(test)]
+    pub(crate) fn get_label(&self) -> &Label {
+        &self.label
+    }
+
+    pub(crate) fn get_old_descriptor(&self) -> &Descriptor {
         &self.old_descriptor
+    }
+
+    #[cfg(test)]
+    pub(crate) fn get_new_descriptor(&self) -> &Descriptor {
+        &self.new_descriptor
     }
 }
 
@@ -91,5 +101,21 @@ impl Dialog for RenameDescriptorDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::RenameDescriptor(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+
+    pub(crate) fn example_rename_descriptor_data() -> RenameDescriptorData {
+        let label = Label::from("example_label");
+        let old_descriptor = Descriptor::from("Old Descriptor");
+        let new_descriptor = Descriptor::from("New Descriptor");
+        RenameDescriptorData {
+            label,
+            old_descriptor,
+            new_descriptor,
+        }
     }
 }

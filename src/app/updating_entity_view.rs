@@ -190,7 +190,7 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().clone();
+        let descriptor = data.get_old_descriptor().clone();
         data.update_descriptor_in_database(db)?;
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;

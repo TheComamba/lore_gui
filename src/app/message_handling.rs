@@ -93,6 +93,7 @@ mod tests {
     use crate::dialog::new_descriptor::tests::example_new_descriptor_data;
     use crate::dialog::new_entity::tests::example_new_entity_data;
     use crate::dialog::relabel_entity::tests::example_relabel_entity_data;
+    use crate::dialog::rename_descriptor::tests::example_rename_descriptor_data;
     use crate::tests::temp_database;
 
     use super::*;
@@ -198,5 +199,64 @@ mod tests {
             gui.entity_view_state.current_description.get_text(),
             data.get_description().to_str().to_owned()
         );
+    }
+
+    #[test]
+    fn check_gui_state_after_rename_descriptor() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let rename_data = example_rename_descriptor_data();
+        let mut create_data = NewDescriptorData::new(rename_data.get_label().clone());
+        create_data.set_descriptor(rename_data.get_old_descriptor().clone());
+        let create_message = GuiMessage::NewDescriptor(create_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let rename_message = GuiMessage::RenameDescriptor(RenameDescriptorData::new(
+            rename_data.get_label().to_owned(),
+            rename_data.get_old_descriptor().to_owned(),
+        ));
+        gui.handle_message(rename_message).unwrap();
+
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            Some(rename_data.get_label().to_owned())
+        );
+        assert_eq!(
+            gui.entity_view_state.descriptor_view_state.get_selected().0,
+            Some(rename_data.get_new_descriptor().to_owned())
+        );
+        assert_eq!(
+            gui.entity_view_state.current_description.get_text(),
+            create_data.get_description().to_str().to_owned()
+        );
+    }
+
+    #[test]
+    fn check_gui_state_after_delete_descriptor() {
+        let mut gui = SqlGui {
+            lore_database: Some(temp_database()),
+            ..Default::default()
+        };
+        let new_descriptor_data = example_new_descriptor_data();
+        let create_message = GuiMessage::NewDescriptor(new_descriptor_data.clone());
+        gui.handle_message(create_message).unwrap();
+
+        let delete_message = GuiMessage::DeleteDescriptor(
+            new_descriptor_data.get_label().to_owned(),
+            new_descriptor_data.get_descriptor().to_owned(),
+        );
+        gui.handle_message(delete_message).unwrap();
+        
+        assert_eq!(
+            gui.entity_view_state.label_view_state.get_selected().0,
+            Some(new_descriptor_data.get_label().to_owned())
+        );
+        assert_eq!(
+            gui.entity_view_state.descriptor_view_state.get_selected().0,
+            None
+        );
+        assert_eq!(gui.entity_view_state.current_description.get_text(), "".to_owned());
     }
 }

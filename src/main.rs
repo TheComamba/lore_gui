@@ -22,10 +22,8 @@ fn main() -> iced::Result {
 
 #[cfg(test)]
 mod tests {
-    use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
+    use lorecore::sql::lore_database::LoreDatabase;
     use tempfile::NamedTempFile;
-
-    use crate::dialog::new_entity::NewEntityData;
 
     pub(crate) fn temp_database() -> LoreDatabase {
         let temp_path = NamedTempFile::new()
