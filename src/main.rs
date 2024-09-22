@@ -36,7 +36,7 @@ mod tests {
         LoreDatabase::open(temp_path).unwrap()
     }
 
-    fn example_labels() -> Vec<Label> {
+    pub(crate) fn example_labels() -> Vec<Label> {
         vec![
             format!("{}_{}", "label_1", UNIQUIFIER).into(),
             format!("{}_{}", "label_2", UNIQUIFIER).into(),
@@ -44,7 +44,7 @@ mod tests {
         ]
     }
 
-    fn example_descriptors() -> Vec<(Descriptor, Description)> {
+    pub(crate) fn example_descriptors() -> Vec<(Descriptor, Description)> {
         vec![
             (
                 format!("{} {}", "Descriptor 1", UNIQUIFIER).into(),

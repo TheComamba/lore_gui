@@ -241,3 +241,60 @@ impl EntityViewState {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::tests::{example_database, example_descriptors, example_labels};
+
+    #[test]
+    fn selecting_label_deselects_descriptor() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let labels = example_labels();
+        let descriptors = example_descriptors();
+        gui.entity_view_state
+            .label_view_state
+            .set_selected(DbColViewEntry(Some(labels[0].clone())));
+        gui.entity_view_state
+            .descriptor_view_state
+            .set_selected(DbColViewEntry(Some(descriptors[0].0.clone())));
+        gui.entity_view_state.current_description = EditorState::new(descriptors[0].1.to_str());
+
+        let new_label = labels[1].clone();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_label.clone())));
+        gui.update_label_view(event).unwrap();
+
+        assert_eq!(gui.selected_label(), Some(new_label),);
+        assert_eq!(gui.selected_descriptor(), None);
+        assert_eq!(gui.description_text(), "");
+    }
+
+    #[test]
+    fn selecting_descriptor_updates_description() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let labels = example_labels();
+        let descriptors = example_descriptors();
+        gui.entity_view_state
+            .label_view_state
+            .set_selected(DbColViewEntry(Some(labels[0].clone())));
+        gui.entity_view_state
+            .descriptor_view_state
+            .set_selected(DbColViewEntry(Some(descriptors[0].0.clone())));
+        gui.entity_view_state.current_description = EditorState::new(descriptors[0].1.to_str());
+
+        let new_descriptor = descriptors[1].0.clone();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_descriptor.clone())));
+        gui.update_descriptor_view(event).unwrap();
+
+        assert_eq!(gui.selected_label(), Some(labels[0].clone()));
+        assert_eq!(gui.selected_descriptor(), Some(new_descriptor));
+        assert_eq!(gui.description_text(), descriptors[1].1.to_str());
+    }
+}
