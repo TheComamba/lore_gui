@@ -1,9 +1,7 @@
 use lorecore::{
     extractions::extract_labels,
     sql::{lore_database::LoreDatabase, search_params::EntityColumnSearchParams},
-    types::{
-        child::Child, label::Label, parent::Parent, relationship::EntityRelationship, role::Role,
-    },
+    types::*,
 };
 
 use crate::{
@@ -53,6 +51,7 @@ impl SqlGui {
                 self.update_role_view(event)?;
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -64,14 +63,13 @@ impl SqlGui {
         match event {
             ColViewMes::SearchFieldUpd(text) => {
                 state.parent_view_state.set_search_text(text);
-                state.update_parents(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, parent) => {
-                state.parent_view_state.set_selected(parent);
-                state.update_children(&self.lore_database)?;
-                state.update_role(&self.lore_database)?;
+                state.set_selected_parent(parent.0);
+                state.set_selected_role(None);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -83,14 +81,13 @@ impl SqlGui {
         match event {
             ColViewMes::SearchFieldUpd(text) => {
                 state.child_view_state.set_search_text(text);
-                state.update_children(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, child) => {
-                state.child_view_state.set_selected(child);
-                state.update_parents(&self.lore_database)?;
-                state.update_role(&self.lore_database)?;
+                state.set_selected_child(child.0);
+                state.set_selected_role(None);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -101,9 +98,10 @@ impl SqlGui {
                 state.role_view_state.set_search_text(text);
             }
             ColViewMes::Selected(_index, role) => {
-                state.role_view_state.set_selected(role);
+                state.set_selected_role(role.0);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -115,10 +113,13 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
+        let parent = data.parent().clone();
+        let child = data.child().clone();
+        let role = data.role().clone();
         data.write_to_database(db)?;
-        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.dialog = None;
+        self.set_selected_parent(Some(parent));
+        self.set_selected_child(Some(child));
+        self.set_selected_role(Some(role));
         Ok(())
     }
 
@@ -130,9 +131,13 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
+        let parent = data.parent().clone().into();
+        let child = data.child().clone().into();
+        let role = data.new_role().clone().into();
         data.write_to_database(db)?;
-        self.update_role_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.dialog = None;
+        self.set_selected_parent(parent);
+        self.set_selected_child(child);
+        self.set_selected_role(role);
         Ok(())
     }
 
@@ -145,9 +150,9 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_relationship(rel)?;
-        self.update_parent_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_child_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.dialog = None;
+        self.set_selected_parent(None);
+        self.set_selected_child(None);
+        self.set_selected_role(None);
         Ok(())
     }
 
@@ -171,6 +176,13 @@ impl RelationshipViewState {
         self.parent_view_state.set_selected(DbColViewEntry::NONE);
         self.child_view_state.set_selected(DbColViewEntry::NONE);
         self.role_view_state.set_selected(DbColViewEntry::NONE);
+        self.update_parents(db)?;
+        self.update_children(db)?;
+        self.update_role(db)?;
+        Ok(())
+    }
+
+    pub(super) fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         self.update_parents(db)?;
         self.update_children(db)?;
         self.update_role(db)?;
@@ -205,5 +217,50 @@ impl RelationshipViewState {
             .collect();
         self.role_view_state.set_entries(roles);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use crate::tests::{example_database, example_labels, example_role};
+
+    #[test]
+    fn selecting_parent_deselects_role() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let parents = example_labels();
+        let role = example_role(&parents[0].to_str().into(), &parents[1].to_str().into());
+        gui.set_selected_parent(Some(parents[0].to_str().into()));
+        gui.set_selected_role(Some(role.clone()));
+
+        let new_parent: Parent = parents[2].to_str().into();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_parent.clone())));
+        gui.update_parent_view(event).unwrap();
+
+        assert_eq!(gui.get_selected_parent(), Some(new_parent));
+        assert_eq!(gui.get_selected_role(), None);
+    }
+
+    #[test]
+    fn selecting_child_deselects_role() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let children = example_labels();
+        let role = example_role(&children[0].to_str().into(), &children[1].to_str().into());
+        gui.set_selected_child(Some(children[0].to_str().into()));
+        gui.set_selected_role(Some(role.clone()));
+
+        let new_child: Child = children[2].to_str().into();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_child.clone())));
+        gui.update_child_view(event).unwrap();
+
+        assert_eq!(gui.get_selected_child(), Some(new_child));
+        assert_eq!(gui.get_selected_role(), None);
     }
 }

@@ -4,14 +4,7 @@ use iced::{
     Element,
 };
 use iced_aw::{style, Card};
-use lorecore::{
-    errors::LoreCoreError,
-    types::{
-        child::Child, day::Day, description::Description, descriptor::Descriptor,
-        history_item_content::HistoryItemContent, label::Label, parent::Parent, role::Role,
-        year::Year,
-    },
-};
+use lorecore::{errors::LoreCoreError, types::*};
 
 pub(crate) mod change_role;
 pub(crate) mod confirmation;

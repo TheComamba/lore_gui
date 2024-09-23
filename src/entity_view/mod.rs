@@ -5,11 +5,11 @@ use lorecore::{
         lore_database::LoreDatabase,
         search_params::{EntityColumnSearchParams, SqlSearchText},
     },
-    types::{description::Description, descriptor::Descriptor, label::Label},
+    types::*,
 };
 
 use crate::{
-    db_col_view::ColViewMes,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{relabel_entity::RelabelEntityData, rename_descriptor::RenameDescriptorData},
     editor::EditorState,
     errors::LoreGuiError,
@@ -76,7 +76,7 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let label = match &self.label_view_state.get_selected().0 {
+        let label = match self.get_selected_label() {
             Some(label) => Some(SqlSearchText::exact(label.to_str())),
             None => return Ok(vec![]),
         };
@@ -99,11 +99,11 @@ impl EntityViewState {
             Some(db) => db,
             None => return Ok(Description::NONE),
         };
-        let label = match &self.label_view_state.get_selected().0 {
+        let label = match self.get_selected_label() {
             Some(label) => Some(SqlSearchText::exact(label.to_str())),
             None => return Ok(Description::NONE),
         };
-        let descriptor = match &self.descriptor_view_state.get_selected().0 {
+        let descriptor = match self.get_selected_descriptor() {
             Some(descriptor) => Some(SqlSearchText::exact(descriptor.to_str())),
             None => return Ok(Description::NONE),
         };
@@ -121,6 +121,31 @@ impl EntityViewState {
             .unwrap_or(Description::NONE);
 
         Ok(description)
+    }
+
+    pub(super) fn get_selected_label(&self) -> Option<Label> {
+        self.label_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn set_selected_label(&mut self, label: Option<Label>) {
+        self.label_view_state.set_selected(DbColViewEntry(label));
+    }
+
+    pub(super) fn get_selected_descriptor(&self) -> Option<Descriptor> {
+        self.descriptor_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn set_selected_descriptor(&mut self, descriptor: Option<Descriptor>) {
+        self.descriptor_view_state
+            .set_selected(DbColViewEntry(descriptor));
+    }
+
+    pub(super) fn get_description_text(&self) -> String {
+        self.current_description.get_text()
+    }
+
+    pub(super) fn set_description_text(&mut self, text: &str) {
+        self.current_description = EditorState::new(text);
     }
 }
 

@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use lorecore::types::day::Day;
+use lorecore::types::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) struct DbColViewEntry<T>(pub(crate) Option<T>);
@@ -21,5 +21,11 @@ impl<T: Display> Display for DbColViewEntry<T> {
             Some(value) => value.fmt(f),
             None => "[none]".fmt(f),
         }
+    }
+}
+
+impl<T> From<T> for DbColViewEntry<T> {
+    fn from(value: T) -> Self {
+        DbColViewEntry(Some(value))
     }
 }

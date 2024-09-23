@@ -4,11 +4,9 @@ use iced::{
     widget::{Column, Row},
     Element, Length,
 };
-use lorecore::types::relationship::EntityRelationship;
+use lorecore::types::*;
 
-use crate::app::message_handling::GuiMessage;
-use crate::db_col_view;
-use crate::dialog::change_role::ChangeRoleData;
+use crate::{app::message_handling::GuiMessage, db_col_view, dialog::change_role::ChangeRoleData};
 
 use super::{RelationshipViewMessage, RelationshipViewState};
 
@@ -25,16 +23,8 @@ fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMessage> {
     ));
     let mut change_role = button("Change Role");
     let mut delete_relationship = button("Delete Relationship");
-    if let (Some(parent), Some(child)) = (
-        &state.parent_view_state.get_selected().0,
-        &state.child_view_state.get_selected().0,
-    ) {
-        let role = state
-            .role_view_state
-            .get_selected()
-            .0
-            .clone()
-            .unwrap_or("".into());
+    if let (Some(parent), Some(child)) = (state.get_selected_parent(), state.get_selected_child()) {
+        let role = state.get_selected_role().unwrap_or("".into());
         let relationship = EntityRelationship {
             parent: parent.clone(),
             child: child.clone(),

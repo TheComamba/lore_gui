@@ -2,10 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{day::Day, timestamp::Timestamp, year::Year},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -45,6 +42,28 @@ impl RedateHistoryData {
     pub(crate) fn update_date_in_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         db.redate_history_item(self.timestamp, self.new_year, self.new_day)?;
         Ok(())
+    }
+
+    pub(crate) fn new_year(&self) -> Year {
+        self.new_year
+    }
+
+    pub(crate) fn new_day(&self) -> Day {
+        self.new_day
+    }
+
+    pub(crate) fn timestamp(&self) -> Timestamp {
+        self.timestamp
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_year(&mut self, year: Year) {
+        self.new_year = year;
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_day(&mut self, day: Day) {
+        self.new_day = day;
     }
 }
 

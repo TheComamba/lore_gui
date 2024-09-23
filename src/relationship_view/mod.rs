@@ -4,11 +4,11 @@ use lorecore::{
         relationship::{extract_children, extract_parents, extract_roles},
         search_params::{RelationshipSearchParams, SqlSearchText},
     },
-    types::{child::Child, parent::Parent, relationship::EntityRelationship, role::Role},
+    types::*,
 };
 
 use crate::{
-    db_col_view::{state::DbColViewState, ColViewMes},
+    db_col_view::{entry::DbColViewEntry, state::DbColViewState, ColViewMes},
     dialog::change_role::ChangeRoleData,
     errors::LoreGuiError,
 };
@@ -49,10 +49,7 @@ impl RelationshipViewState {
             None => return Ok(vec![]),
         };
         let child = self
-            .child_view_state
-            .get_selected()
-            .0
-            .as_ref()
+            .get_selected_child()
             .map(|c| SqlSearchText::exact(c.to_str()));
         let parent_search_text = self
             .parent_view_state
@@ -73,10 +70,7 @@ impl RelationshipViewState {
             None => return Ok(vec![]),
         };
         let parent = self
-            .parent_view_state
-            .get_selected()
-            .0
-            .as_ref()
+            .get_selected_parent()
             .map(|p| SqlSearchText::exact(p.to_str()));
         let child_search_text = self
             .child_view_state
@@ -96,11 +90,11 @@ impl RelationshipViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let parent = match &self.parent_view_state.get_selected().0 {
+        let parent = match self.get_selected_parent() {
             Some(parent) => parent,
             None => return Ok(vec![]),
         };
-        let child = match &self.child_view_state.get_selected().0 {
+        let child = match self.get_selected_child() {
             Some(child) => child,
             None => return Ok(vec![]),
         };
@@ -111,6 +105,30 @@ impl RelationshipViewState {
         let relationships = db.read_relationships(search_params)?;
         let roles = extract_roles(&relationships);
         Ok(roles)
+    }
+
+    pub(super) fn get_selected_parent(&self) -> Option<Parent> {
+        self.parent_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn set_selected_parent(&mut self, parent: Option<Parent>) {
+        self.parent_view_state.set_selected(DbColViewEntry(parent));
+    }
+
+    pub(super) fn get_selected_child(&self) -> Option<Child> {
+        self.child_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn set_selected_child(&mut self, child: Option<Child>) {
+        self.child_view_state.set_selected(DbColViewEntry(child));
+    }
+
+    pub(super) fn get_selected_role(&self) -> Option<Role> {
+        self.role_view_state.get_selected().0.clone()
+    }
+
+    pub(super) fn set_selected_role(&mut self, role: Option<Role>) {
+        self.role_view_state.set_selected(DbColViewEntry(role));
     }
 }
 

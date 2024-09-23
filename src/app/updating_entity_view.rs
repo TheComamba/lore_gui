@@ -1,7 +1,4 @@
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{descriptor::Descriptor, label::Label},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{
     db_col_view::{entry::DbColViewEntry, ColViewMes},
@@ -12,7 +9,6 @@ use crate::{
         relabel_entity::{RelabelEntityData, RelabelEntityDialog},
         rename_descriptor::{RenameDescriptorData, RenameDescriptorDialog},
     },
-    editor::EditorState,
     entity_view::{EntityViewMessage, EntityViewState},
     errors::LoreGuiError,
 };
@@ -61,31 +57,20 @@ impl SqlGui {
                     .lore_database
                     .as_ref()
                     .ok_or(LoreGuiError::NoDatabase)?;
-                let label = match self
-                    .entity_view_state
-                    .label_view_state
-                    .get_selected()
-                    .0
-                    .as_ref()
-                {
+                let label = match self.get_selected_label() {
                     Some(label) => label,
                     None => return Ok(()),
                 };
-                let descriptor = match self
-                    .entity_view_state
-                    .descriptor_view_state
-                    .get_selected()
-                    .0
-                    .as_ref()
-                {
+                let descriptor = match self.get_selected_descriptor() {
                     Some(descriptor) => descriptor,
                     None => return Ok(()),
                 };
-                let description = self.entity_view_state.current_description.get_text().into();
-                db.change_entity_description((label, descriptor), &description)?;
+                let description = self.get_description_text().into();
+                db.change_entity_description((&label, &descriptor), &description)?;
                 self.entity_view_state.current_description.saved();
             }
         };
+        self.entity_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -97,16 +82,13 @@ impl SqlGui {
         match event {
             ColViewMes::SearchFieldUpd(text) => {
                 state.label_view_state.set_search_text(text);
-                state.update_labels(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, label) => {
-                state.label_view_state.set_selected(label);
-                state
-                    .descriptor_view_state
-                    .set_selected(DbColViewEntry::NONE);
-                state.update_descriptors(&self.lore_database)?;
+                state.set_selected_label(label.0);
+                state.set_selected_descriptor(None);
             }
         };
+        self.entity_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -118,13 +100,13 @@ impl SqlGui {
         match event {
             ColViewMes::SearchFieldUpd(text) => {
                 state.descriptor_view_state.set_search_text(text);
-                state.update_descriptors(&self.lore_database)?;
             }
             ColViewMes::Selected(_index, descriptor) => {
-                state.descriptor_view_state.set_selected(descriptor);
-                state.update_description(&self.lore_database)?;
+                state.set_selected_descriptor(descriptor.0);
             }
         };
+
+        self.entity_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -133,24 +115,20 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let label = data.get_label().clone();
+        let label = data.label().clone();
         data.write_to_database(db)?;
-        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(label))))?;
-        self.dialog = None;
+        self.set_selected_label(Some(label));
         Ok(())
     }
 
-    pub(super) fn relable_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
+    pub(super) fn relabel_entity(&mut self, data: RelabelEntityData) -> Result<(), LoreGuiError> {
         let db = self
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let new_label = data.get_label().clone();
+        let new_label = data.new_label().clone();
         data.update_label_in_database(db)?;
-        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry(Some(new_label))))?;
-        self.dialog = None;
+        self.set_selected_label(Some(new_label));
         Ok(())
     }
 
@@ -160,9 +138,7 @@ impl SqlGui {
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
         db.delete_entity(label)?;
-        self.update_label_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_label_view(ColViewMes::Selected(0, DbColViewEntry::NONE))?;
-        self.dialog = None;
+        self.set_selected_label(None);
         Ok(())
     }
 
@@ -174,11 +150,11 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().clone();
+        let label = data.label().clone();
+        let descriptor = data.descriptor().clone();
         data.write_to_database(db)?;
-        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
-        self.dialog = None;
+        self.set_selected_label(Some(label));
+        self.set_selected_descriptor(Some(descriptor));
         Ok(())
     }
 
@@ -190,11 +166,11 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.get_descriptor().clone();
+        let label = data.label().clone();
+        let descriptor = data.new_descriptor().clone();
         data.update_descriptor_in_database(db)?;
-        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
-        self.dialog = None;
+        self.set_selected_label(Some(label));
+        self.set_selected_descriptor(Some(descriptor));
         Ok(())
     }
 
@@ -207,10 +183,9 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        db.delete_entity_column((label, descriptor))?;
-        self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
-        self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry::NONE))?;
-        self.dialog = None;
+        db.delete_entity_column((label.clone(), descriptor))?;
+        self.set_selected_label(Some(label));
+        self.set_selected_descriptor(None);
         Ok(())
     }
 }
@@ -220,11 +195,17 @@ impl EntityViewState {
         &mut self,
         db: &Option<LoreDatabase>,
     ) -> Result<(), LoreGuiError> {
-        self.label_view_state.set_selected(DbColViewEntry::NONE);
-        self.descriptor_view_state
-            .set_selected(DbColViewEntry::NONE);
-        self.current_description = EditorState::default();
+        self.set_selected_label(None);
+        self.set_selected_descriptor(None);
+        self.set_description_text("");
+        self.update(db)?;
+        Ok(())
+    }
+
+    pub(super) fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         self.update_labels(db)?;
+        self.update_descriptors(db)?;
+        self.update_description(db)?;
         Ok(())
     }
 
@@ -235,7 +216,6 @@ impl EntityViewState {
             .map(|l| DbColViewEntry(Some(l)))
             .collect();
         self.label_view_state.set_entries(labels);
-        self.update_descriptors(db)?;
         Ok(())
     }
 
@@ -246,13 +226,61 @@ impl EntityViewState {
             .map(|d| DbColViewEntry(Some(d)))
             .collect();
         self.descriptor_view_state.set_entries(descriptors);
-        self.update_description(db)?;
         Ok(())
     }
 
     fn update_description(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         let description = self.get_current_description(db)?;
-        self.current_description = EditorState::new(description.to_str());
+        self.set_description_text(description.to_str());
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::tests::{example_database, example_descriptors, example_labels};
+
+    #[test]
+    fn selecting_label_deselects_descriptor() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let labels = example_labels();
+        let descriptors = example_descriptors();
+        gui.set_selected_label(Some(labels[0].clone()));
+        gui.set_selected_descriptor(Some(descriptors[0].0.clone()));
+        gui.set_description_text(descriptors[0].1.to_str());
+
+        let new_label = labels[1].clone();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_label.clone())));
+        gui.update_label_view(event).unwrap();
+
+        assert_eq!(gui.get_selected_label(), Some(new_label),);
+        assert_eq!(gui.get_selected_descriptor(), None);
+        assert_eq!(gui.get_description_text(), "\n");
+    }
+
+    #[test]
+    fn selecting_descriptor_updates_description() {
+        let mut gui = SqlGui {
+            lore_database: Some(example_database()),
+            ..Default::default()
+        };
+        let labels = example_labels();
+        let descriptors = example_descriptors();
+        gui.set_selected_label(Some(labels[0].clone()));
+        gui.set_selected_descriptor(Some(descriptors[0].0.clone()));
+        gui.set_description_text(descriptors[0].1.to_str());
+
+        let new_descriptor = descriptors[1].0.clone();
+        let event = ColViewMes::Selected(1, DbColViewEntry(Some(new_descriptor.clone())));
+        gui.update_descriptor_view(event).unwrap();
+
+        assert_eq!(gui.get_selected_label(), Some(labels[0].clone()));
+        assert_eq!(gui.get_selected_descriptor(), Some(new_descriptor));
+        assert_eq!(gui.get_description_text(), descriptors[1].1.to_str());
     }
 }

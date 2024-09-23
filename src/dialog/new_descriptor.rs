@@ -2,10 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{description::Description, descriptor::Descriptor, entity::EntityColumn, label::Label},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -56,8 +53,27 @@ impl NewDescriptorData {
             .map_err(LoreGuiError::from)
     }
 
-    pub(crate) fn get_descriptor(&self) -> &Descriptor {
+    pub(crate) fn label(&self) -> &Label {
+        &self.label
+    }
+
+    pub(crate) fn descriptor(&self) -> &Descriptor {
         &self.descriptor
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_descriptor(&mut self, descriptor: Descriptor) {
+        self.descriptor = descriptor;
+    }
+
+    #[cfg(test)]
+    pub(crate) fn description(&self) -> &Description {
+        &self.description
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_description(&mut self, description: Description) {
+        self.description = description;
     }
 }
 
@@ -97,5 +113,18 @@ impl Dialog for NewDescriptorDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewDescriptor(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use crate::dialog::new_descriptor::NewDescriptorData;
+
+    pub(crate) fn example_new_descriptor_data() -> NewDescriptorData {
+        NewDescriptorData {
+            label: "test".into(),
+            descriptor: "test_descriptor".into(),
+            description: "test_description\n".into(),
+        }
     }
 }

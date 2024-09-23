@@ -2,11 +2,13 @@ use iced::widget::text_editor;
 use lorecore::{
     extractions::{extract_days, extract_years},
     sql::{lore_database::LoreDatabase, search_params::HistoryItemSearchParams},
-    types::{day::Day, history_item_content::HistoryItemContent, timestamp::Timestamp, year::Year},
+    types::*,
 };
 
 use crate::{
-    db_col_view::ColViewMes, dialog::redate_history::RedateHistoryData, editor::EditorState,
+    db_col_view::{entry::DbColViewEntry, ColViewMes},
+    dialog::redate_history::RedateHistoryData,
+    editor::EditorState,
     errors::LoreGuiError,
 };
 
@@ -67,7 +69,7 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let year = match self.year_view_state.get_selected().0 {
+        let year = match self.get_selected_year() {
             Some(year) => Some(year),
             None => return Ok(vec![]),
         };
@@ -86,11 +88,11 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok(vec![]),
         };
-        let year = match self.year_view_state.get_selected().0 {
+        let year = match self.get_selected_year() {
             Some(year) => Some(year),
             None => return Ok(vec![]),
         };
-        let day = self.day_view_state.get_selected().0;
+        let day = self.get_selected_day();
 
         let search_params = HistoryItemSearchParams::new(year, day, None, None);
         let history_items = db.read_history_items(search_params)?;
@@ -109,7 +111,7 @@ impl HistoryViewState {
             Some(db) => db,
             None => return Ok("".into()),
         };
-        let timestamp = match self.timestamp_view_state.get_selected().0 {
+        let timestamp = match self.get_selected_timestamp() {
             Some(timestamp) => timestamp,
             None => return Ok("".into()),
         };
@@ -124,6 +126,39 @@ impl HistoryViewState {
             None => "".into(),
         };
         Ok(content)
+    }
+
+    pub(super) fn get_selected_year(&self) -> Option<Year> {
+        self.year_view_state.get_selected().0
+    }
+
+    pub(super) fn set_selected_year(&mut self, year: Option<Year>) {
+        self.year_view_state.set_selected(DbColViewEntry(year));
+    }
+
+    pub(super) fn get_selected_day(&self) -> Option<Day> {
+        self.day_view_state.get_selected().0
+    }
+
+    pub(super) fn set_selected_day(&mut self, day: Option<Day>) {
+        self.day_view_state.set_selected(DbColViewEntry(day));
+    }
+
+    pub(super) fn get_selected_timestamp(&self) -> Option<Timestamp> {
+        self.timestamp_view_state.get_selected().0
+    }
+
+    pub(super) fn set_selected_timestamp(&mut self, timestamp: Option<Timestamp>) {
+        self.timestamp_view_state
+            .set_selected(DbColViewEntry(timestamp));
+    }
+
+    pub(super) fn get_content_text(&self) -> String {
+        self.current_content.get_text()
+    }
+
+    pub(super) fn set_content_text(&mut self, text: &str) {
+        self.current_content = EditorState::new(text);
     }
 }
 

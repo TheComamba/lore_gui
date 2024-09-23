@@ -2,7 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{sql::lore_database::LoreDatabase, types::label::Label};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -49,8 +49,13 @@ impl RelabelEntityData {
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &Label {
+    pub(crate) fn new_label(&self) -> &Label {
         &self.new_label
+    }
+
+    #[cfg(test)]
+    pub(crate) fn old_label(&self) -> &Label {
+        &self.old_label
     }
 }
 
@@ -80,5 +85,21 @@ impl Dialog for RelabelEntityDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::RelabelEntity(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use lorecore::types::*;
+
+    use super::RelabelEntityData;
+
+    pub(crate) fn example_relabel_entity_data() -> RelabelEntityData {
+        let old_label = Label::from("old_entity");
+        let new_label = Label::from("new_entity");
+        RelabelEntityData {
+            old_label,
+            new_label,
+        }
     }
 }

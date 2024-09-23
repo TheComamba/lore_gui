@@ -2,13 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{
-        day::Day, history::HistoryItem, history_item_content::HistoryItemContent,
-        history_item_properties::HistoryItemProperties, year::Year,
-    },
-};
+use lorecore::{sql::lore_database::LoreDatabase, timestamp::current_timestamp, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -27,6 +21,7 @@ impl NewHistoryDialog {
                 day: Day::NONE,
                 content: "".into(),
                 properties: HistoryItemProperties::none(),
+                timestamp: current_timestamp(),
             },
         }
     }
@@ -34,16 +29,17 @@ impl NewHistoryDialog {
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryData {
-    pub(crate) year: Year,
-    pub(crate) day: Day,
-    pub(crate) content: HistoryItemContent,
-    pub(crate) properties: HistoryItemProperties,
+    pub(self) timestamp: Timestamp,
+    pub(self) year: Year,
+    pub(self) day: Day,
+    pub(self) content: HistoryItemContent,
+    pub(self) properties: HistoryItemProperties,
 }
 
 impl NewHistoryData {
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let item = HistoryItem {
-            timestamp: lorecore::timestamp::current_timestamp(),
+            timestamp: self.timestamp,
             year: self.year,
             day: self.day,
             content: self.content,
@@ -51,6 +47,23 @@ impl NewHistoryData {
         };
         db.write_history_items(vec![item])?;
         Ok(())
+    }
+
+    pub(crate) fn year(&self) -> &Year {
+        &self.year
+    }
+
+    pub(crate) fn day(&self) -> &Day {
+        &self.day
+    }
+
+    #[cfg(test)]
+    pub(crate) fn content(&self) -> &HistoryItemContent {
+        &self.content
+    }
+
+    pub(crate) fn timestamp(&self) -> &Timestamp {
+        &self.timestamp
     }
 }
 
@@ -92,5 +105,33 @@ impl Dialog for NewHistoryDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewHistoryItem(self.data.clone())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use lorecore::timestamp::current_timestamp;
+    use serde_json::json;
+    use std::collections::HashMap;
+
+    use super::*;
+
+    pub(crate) fn example_new_history_data() -> NewHistoryData {
+        let year = 2021.into();
+        let day = Day::from(11);
+        let content = HistoryItemContent::from("Example content\n");
+        let mut properties_map = HashMap::new();
+        properties_map.insert("key1".to_string(), json!("value1"));
+        properties_map.insert("key2".to_string(), json!(42));
+        properties_map.insert("key3".to_string(), json!({"nested_key": "nested_value"}));
+        let properties = HistoryItemProperties::from(properties_map);
+        let timestamp = current_timestamp();
+        NewHistoryData {
+            year,
+            day,
+            content,
+            properties,
+            timestamp,
+        }
     }
 }

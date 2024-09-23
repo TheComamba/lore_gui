@@ -1,13 +1,12 @@
-use super::{Dialog, DialogUpdate};
-use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 use iced::{
     widget::{Button, Column, PickList, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{child::Child, parent::Parent, relationship::EntityRelationship, role::Role},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
+
+use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
+
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewRelationshipDialog {
@@ -56,6 +55,18 @@ impl NewRelationshipData {
         };
         db.write_relationships(vec![rel])
             .map_err(LoreGuiError::from)
+    }
+
+    pub(crate) fn parent(&self) -> &Parent {
+        &self.parent
+    }
+
+    pub(crate) fn child(&self) -> &Child {
+        &self.child
+    }
+
+    pub(crate) fn role(&self) -> &Role {
+        &self.role
     }
 }
 
@@ -114,5 +125,18 @@ impl Dialog for NewRelationshipDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewRelationship(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use super::*;
+
+    pub(crate) fn example_new_relationship_data() -> NewRelationshipData {
+        NewRelationshipData {
+            parent: "parent".into(),
+            child: "child".into(),
+            role: "role".into(),
+        }
     }
 }

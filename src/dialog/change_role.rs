@@ -2,10 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{
-    sql::lore_database::LoreDatabase,
-    types::{relationship::EntityRelationship, role::Role},
-};
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -39,6 +36,23 @@ impl ChangeRoleData {
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         db.change_relationship_role(self.old_relationship, &self.new_role)?;
         Ok(())
+    }
+
+    pub(crate) fn parent(&self) -> &Parent {
+        &self.old_relationship.parent
+    }
+
+    pub(crate) fn child(&self) -> &Child {
+        &self.old_relationship.child
+    }
+
+    pub(crate) fn new_role(&self) -> &Role {
+        &self.new_role
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_new_role(&mut self, role: Role) {
+        self.new_role = role;
     }
 }
 

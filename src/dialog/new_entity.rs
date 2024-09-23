@@ -2,9 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::sql::lore_database::LoreDatabase;
-use lorecore::types::entity::EntityColumn;
-use lorecore::types::label::Label;
+use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::app::message_handling::GuiMessage;
 use crate::errors::LoreGuiError;
@@ -77,8 +75,13 @@ impl NewEntityData {
         Ok(())
     }
 
-    pub(crate) fn get_label(&self) -> &Label {
+    pub(crate) fn label(&self) -> &Label {
         &self.label
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_label(&mut self, label: Label) {
+        self.label = label;
     }
 }
 
@@ -125,5 +128,23 @@ impl Dialog for NewEntityDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewEntity(self.data.to_owned())
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use lorecore::types::*;
+
+    use crate::dialog::new_entity::NewEntityData;
+
+    pub(crate) fn example_new_entity_data() -> NewEntityData {
+        let label = Label::from("new_entity");
+        let name = String::from("New Entity");
+        let category = String::from("Some Category");
+        NewEntityData {
+            label,
+            name,
+            category,
+        }
     }
 }
