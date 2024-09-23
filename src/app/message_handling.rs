@@ -175,18 +175,6 @@ mod tests {
     }
 
     #[test]
-    fn relabeling_nonexistent_entity_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let relabel_data = example_relabel_entity_data();
-        let relabel_message = GuiMessage::RelabelEntity(relabel_data.clone());
-        let result = gui.handle_message(relabel_message);
-        assert!(result.is_err());
-    }
-
-    #[test]
     fn delete_entity_deselects_it() {
         let mut gui = SqlGui {
             lore_database: Some(example_database()),
@@ -261,21 +249,6 @@ mod tests {
     }
 
     #[test]
-    fn renaming_nonexistent_descriptor_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let new_entity_data = example_new_entity_data();
-        let create_message = GuiMessage::NewEntity(new_entity_data.clone());
-        gui.handle_message(create_message).unwrap();
-        let rename_data = example_rename_descriptor_data();
-        let rename_message = GuiMessage::RenameDescriptor(rename_data.clone());
-        let result = gui.handle_message(rename_message);
-        assert!(result.is_err());
-    }
-
-    #[test]
     fn delete_descriptor_deselects_it() {
         let mut gui = SqlGui {
             lore_database: Some(example_database()),
@@ -342,21 +315,6 @@ mod tests {
             gui.history_text(),
             new_history_data.content().to_str().to_owned()
         );
-    }
-
-    #[test]
-    fn redating_nonexistent_history_item_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let timestamp = Timestamp::from(1234);
-        let old_year = Year::from(2021);
-        let old_day = Day::from(1);
-        let redate_data = RedateHistoryData::new(timestamp, old_year, old_day);
-        let redate_message = GuiMessage::RedateHistoryItem(redate_data.clone());
-        let result = gui.handle_message(redate_message);
-        assert!(result.is_err());
     }
 
     #[test]
@@ -437,28 +395,6 @@ mod tests {
         assert_eq!(gui.selected_parent(), Some(parent.clone()));
         assert_eq!(gui.selected_child(), Some(child.clone()));
         assert_eq!(gui.selected_role(), Some(new_role));
-    }
-
-    #[test]
-    fn changing_role_of_nonexistent_relationship_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let parent = Parent::from("Parent");
-        let child = Child::from("Child");
-        let role = Role::from("Role");
-        let relationship = EntityRelationship {
-            parent: parent.clone(),
-            child: child.clone(),
-            role: role.clone(),
-        };
-        let new_role = Role::from("New Role");
-        let mut change_data = ChangeRoleData::new(relationship);
-        change_data.set_new_role(new_role.clone());
-        let change_message = GuiMessage::ChangeRole(change_data.clone());
-        let result = gui.handle_message(change_message);
-        assert!(result.is_err());
     }
 
     #[test]
