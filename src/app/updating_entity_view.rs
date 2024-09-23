@@ -176,8 +176,12 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let descriptor = data.old_descriptor().clone();
+        let label = data.label().clone();
+        let descriptor = data.new_descriptor().clone();
         data.update_descriptor_in_database(db)?;
+        self.entity_view_state
+            .label_view_state
+            .set_selected(DbColViewEntry(Some(label)));
         self.update_descriptor_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.update_descriptor_view(ColViewMes::Selected(0, DbColViewEntry(Some(descriptor))))?;
         self.dialog = None;

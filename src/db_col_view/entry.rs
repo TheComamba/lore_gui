@@ -23,3 +23,9 @@ impl<T: Display> Display for DbColViewEntry<T> {
         }
     }
 }
+
+impl<T> From<T> for DbColViewEntry<T> {
+    fn from(value: T) -> Self {
+        DbColViewEntry(Some(value))
+    }
+}

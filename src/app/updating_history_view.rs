@@ -68,7 +68,9 @@ impl SqlGui {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_days(&self.lore_database)?;
-                state.timestamp_view_state.set_selected(DbColViewEntry::NONE);
+                state
+                    .timestamp_view_state
+                    .set_selected(DbColViewEntry::NONE);
                 state.update_timestamps(&self.lore_database)?;
             }
         };

@@ -54,16 +54,15 @@ impl RenameDescriptorData {
         Ok(())
     }
 
-    #[cfg(test)]
     pub(crate) fn label(&self) -> &Label {
         &self.label
     }
 
+    #[cfg(test)]
     pub(crate) fn old_descriptor(&self) -> &Descriptor {
         &self.old_descriptor
     }
 
-    #[cfg(test)]
     pub(crate) fn new_descriptor(&self) -> &Descriptor {
         &self.new_descriptor
     }

@@ -130,7 +130,19 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
+        let parent = data.parent().clone().into();
+        let child = data.child().clone().into();
+        let role = data.new_role().clone().into();
         data.write_to_database(db)?;
+        self.relationship_view_state
+            .parent_view_state
+            .set_selected(parent);
+        self.relationship_view_state
+            .child_view_state
+            .set_selected(child);
+        self.relationship_view_state
+            .role_view_state
+            .set_selected(role);
         self.update_role_view(ColViewMes::SearchFieldUpd(String::new()))?;
         self.dialog = None;
         Ok(())

@@ -38,6 +38,18 @@ impl ChangeRoleData {
         Ok(())
     }
 
+    pub(crate) fn parent(&self) -> &Parent {
+        &self.old_relationship.parent
+    }
+
+    pub(crate) fn child(&self) -> &Child {
+        &self.old_relationship.child
+    }
+
+    pub(crate) fn new_role(&self) -> &Role {
+        &self.new_role
+    }
+
     #[cfg(test)]
     pub(crate) fn set_new_role(&mut self, role: Role) {
         self.new_role = role;

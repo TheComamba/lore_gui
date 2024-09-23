@@ -239,8 +239,7 @@ mod tests {
         let create_message = GuiMessage::NewDescriptor(create_data.clone());
         gui.handle_message(create_message).unwrap();
 
-        let rename_message =
-            GuiMessage::RenameDescriptor(RenameDescriptorData::new(label.clone(), old_descriptor));
+        let rename_message = GuiMessage::RenameDescriptor(rename_data);
         gui.handle_message(rename_message).unwrap();
 
         assert_eq!(gui.selected_label(), Some(label));
