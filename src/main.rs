@@ -48,15 +48,15 @@ mod tests {
         vec![
             (
                 format!("{} {}", "Descriptor 1", UNIQUIFIER).into(),
-                format!("{} {}", "Description 1", UNIQUIFIER).into(),
+                format!("{} {}\n", "Description 1", UNIQUIFIER).into(),
             ),
             (
                 format!("{} {}", "Descriptor 2", UNIQUIFIER).into(),
-                format!("{} {}", "Description 2", UNIQUIFIER).into(),
+                format!("{} {}\n", "Description 2", UNIQUIFIER).into(),
             ),
             (
                 format!("{} {}", "Descriptor 3", UNIQUIFIER).into(),
-                format!("{} {}", "Description 3", UNIQUIFIER).into(),
+                format!("{} {}\n", "Description 3", UNIQUIFIER).into(),
             ),
         ]
     }
@@ -70,7 +70,7 @@ mod tests {
     }
 
     pub(crate) fn example_history_content(year: Year, day: Day) -> HistoryItemContent {
-        format!("{}-{}", year, day).into()
+        format!("{}-{}\n", year, day).into()
     }
 
     pub(crate) fn example_role(parent: &Parent, child: &Child) -> Role {

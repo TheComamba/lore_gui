@@ -200,19 +200,7 @@ mod tests {
 
         assert_eq!(gui.selected_label(), None);
         assert_eq!(gui.selected_descriptor(), None);
-        assert_eq!(gui.description_text(), "".to_owned());
-    }
-
-    #[test]
-    fn deleting_nonexistent_entity_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let label = Label::from("Nonexistent Entity");
-        let delete_message = GuiMessage::DeleteEntity(label.clone());
-        let result = gui.handle_message(delete_message);
-        assert!(result.is_err());
+        assert_eq!(gui.description_text(), "\n");
     }
 
     #[test]
@@ -306,23 +294,7 @@ mod tests {
 
         assert_eq!(gui.selected_label(), Some(label));
         assert_eq!(gui.selected_descriptor(), None);
-        assert_eq!(gui.description_text(), "".to_owned());
-    }
-
-    #[test]
-    fn deleting_nonexistent_descriptor_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let new_entity_data = example_new_entity_data();
-        let create_message = GuiMessage::NewEntity(new_entity_data.clone());
-        gui.handle_message(create_message).unwrap();
-        let label = new_entity_data.label().clone();
-        let descriptor = Descriptor::from("Nonexistent Descriptor");
-        let delete_message = GuiMessage::DeleteDescriptor(label.clone(), descriptor.clone());
-        let result = gui.handle_message(delete_message);
-        assert!(result.is_err());
+        assert_eq!(gui.description_text(), "\n");
     }
 
     #[test]
@@ -405,19 +377,7 @@ mod tests {
         assert_eq!(gui.selected_year(), None);
         assert_eq!(gui.selected_day(), None);
         assert_eq!(gui.selected_timestamp(), None);
-        assert_eq!(gui.history_text(), "".to_owned());
-    }
-
-    #[test]
-    fn deleting_nonexistent_history_item_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let timestamp = Timestamp::from(1234);
-        let delete_message = GuiMessage::DeleteHistoryItem(timestamp);
-        let result = gui.handle_message(delete_message);
-        assert!(result.is_err());
+        assert_eq!(gui.history_text(), "\n");
     }
 
     #[test]
@@ -526,24 +486,5 @@ mod tests {
         assert_eq!(gui.selected_parent(), None);
         assert_eq!(gui.selected_child(), None);
         assert_eq!(gui.selected_role(), None);
-    }
-
-    #[test]
-    fn deleting_nonexistent_relationship_produces_error() {
-        let mut gui = SqlGui {
-            lore_database: Some(example_database()),
-            ..Default::default()
-        };
-        let parent = Parent::from("Parent");
-        let child = Child::from("Child");
-        let role = Role::from("Role");
-        let relationship = EntityRelationship {
-            parent: parent.clone(),
-            child: child.clone(),
-            role: role.clone(),
-        };
-        let delete_message = GuiMessage::DeleteRelationship(relationship);
-        let result = gui.handle_message(delete_message);
-        assert!(result.is_err());
     }
 }

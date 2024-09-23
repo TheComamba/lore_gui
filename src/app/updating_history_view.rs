@@ -68,6 +68,8 @@ impl SqlGui {
                 state.year_view_state.set_selected(year);
                 state.day_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_days(&self.lore_database)?;
+                state.timestamp_view_state.set_selected(DbColViewEntry::NONE);
+                state.update_timestamps(&self.lore_database)?;
             }
         };
         Ok(())
@@ -237,6 +239,6 @@ mod test {
         assert_eq!(gui.selected_year(), Some(new_year));
         assert_eq!(gui.selected_day(), None);
         assert_eq!(gui.selected_timestamp(), None);
-        assert_eq!(gui.history_text(), "");
+        assert_eq!(gui.history_text(), "\n");
     }
 }

@@ -90,6 +90,7 @@ impl SqlGui {
                     .descriptor_view_state
                     .set_selected(DbColViewEntry::NONE);
                 state.update_descriptors(&self.lore_database)?;
+                state.current_description = EditorState::default();
             }
         };
         Ok(())
@@ -270,7 +271,7 @@ mod tests {
 
         assert_eq!(gui.selected_label(), Some(new_label),);
         assert_eq!(gui.selected_descriptor(), None);
-        assert_eq!(gui.description_text(), "");
+        assert_eq!(gui.description_text(), "\n");
     }
 
     #[test]

@@ -67,6 +67,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, parent) => {
                 state.parent_view_state.set_selected(parent);
                 state.update_children(&self.lore_database)?;
+                state.role_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_role(&self.lore_database)?;
             }
         };
@@ -86,6 +87,7 @@ impl SqlGui {
             ColViewMes::Selected(_index, child) => {
                 state.child_view_state.set_selected(child);
                 state.update_parents(&self.lore_database)?;
+                state.role_view_state.set_selected(DbColViewEntry::NONE);
                 state.update_role(&self.lore_database)?;
             }
         };
