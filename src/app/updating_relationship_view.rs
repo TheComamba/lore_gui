@@ -69,6 +69,7 @@ impl SqlGui {
                 state.set_selected_role(None);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -86,6 +87,7 @@ impl SqlGui {
                 state.set_selected_role(None);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -99,6 +101,7 @@ impl SqlGui {
                 state.set_selected_role(role.0);
             }
         };
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 

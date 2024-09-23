@@ -88,6 +88,7 @@ impl SqlGui {
                 state.set_selected_descriptor(None);
             }
         };
+        self.entity_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -104,6 +105,8 @@ impl SqlGui {
                 state.set_selected_descriptor(descriptor.0);
             }
         };
+
+        self.entity_view_state.update(&self.lore_database)?;
         Ok(())
     }
 

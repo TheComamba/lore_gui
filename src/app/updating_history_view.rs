@@ -70,6 +70,7 @@ impl SqlGui {
                 state.set_selected_timestamp(None);
             }
         };
+        self.history_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -84,6 +85,7 @@ impl SqlGui {
                 state.set_selected_timestamp(None);
             }
         };
+        self.history_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -100,6 +102,7 @@ impl SqlGui {
                 state.set_selected_timestamp(timestamp.0);
             }
         };
+        self.history_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
