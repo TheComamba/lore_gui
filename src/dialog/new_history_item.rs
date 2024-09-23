@@ -2,7 +2,7 @@ use iced::{
     widget::{Button, Column, Text, TextInput},
     Element,
 };
-use lorecore::{sql::lore_database::LoreDatabase, types::*};
+use lorecore::{sql::lore_database::LoreDatabase, timestamp::current_timestamp, types::*};
 
 use crate::{app::message_handling::GuiMessage, errors::LoreGuiError};
 
@@ -21,6 +21,7 @@ impl NewHistoryDialog {
                 day: Day::NONE,
                 content: "".into(),
                 properties: HistoryItemProperties::none(),
+                timestamp: current_timestamp(),
             },
         }
     }
@@ -28,6 +29,7 @@ impl NewHistoryDialog {
 
 #[derive(Clone, Debug)]
 pub(crate) struct NewHistoryData {
+    pub(self) timestamp: Timestamp,
     pub(self) year: Year,
     pub(self) day: Day,
     pub(self) content: HistoryItemContent,
@@ -37,7 +39,7 @@ pub(crate) struct NewHistoryData {
 impl NewHistoryData {
     pub(crate) fn write_to_database(self, db: &LoreDatabase) -> Result<(), LoreGuiError> {
         let item = HistoryItem {
-            timestamp: lorecore::timestamp::current_timestamp(),
+            timestamp: self.timestamp,
             year: self.year,
             day: self.day,
             content: self.content,
@@ -58,6 +60,10 @@ impl NewHistoryData {
     #[cfg(test)]
     pub(crate) fn content(&self) -> &HistoryItemContent {
         &self.content
+    }
+
+    pub(crate) fn timestamp(&self) -> &Timestamp {
+        &self.timestamp
     }
 }
 
@@ -104,6 +110,7 @@ impl Dialog for NewHistoryDialog {
 
 #[cfg(test)]
 pub(crate) mod tests {
+    use lorecore::timestamp::current_timestamp;
     use serde_json::json;
     use std::collections::HashMap;
 
@@ -118,11 +125,13 @@ pub(crate) mod tests {
         properties_map.insert("key2".to_string(), json!(42));
         properties_map.insert("key3".to_string(), json!({"nested_key": "nested_value"}));
         let properties = HistoryItemProperties::from(properties_map);
+        let timestamp = current_timestamp();
         NewHistoryData {
             year,
             day,
             content,
             properties,
+            timestamp,
         }
     }
 }

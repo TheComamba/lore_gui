@@ -110,9 +110,11 @@ impl SqlGui {
             .ok_or(LoreGuiError::NoDatabase)?;
         let year = data.year().clone();
         let day = data.day().clone();
+        let timestamp = data.timestamp().clone();
         data.write_to_database(db)?;
         self.set_selected_year(Some(year));
         self.set_selected_day(Some(day));
+        self.set_selected_timestamp(Some(timestamp));
         Ok(())
     }
 
