@@ -182,7 +182,7 @@ impl RelationshipViewState {
         Ok(())
     }
 
-    fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    pub(super) fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         self.update_parents(db)?;
         self.update_children(db)?;
         self.update_role(db)?;

@@ -62,13 +62,18 @@ impl NewDescriptorData {
     }
 
     #[cfg(test)]
+    pub(crate) fn set_descriptor(&mut self, descriptor: Descriptor) {
+        self.descriptor = descriptor;
+    }
+
+    #[cfg(test)]
     pub(crate) fn description(&self) -> &Description {
         &self.description
     }
 
     #[cfg(test)]
-    pub(crate) fn set_descriptor(&mut self, descriptor: Descriptor) {
-        self.descriptor = descriptor;
+    pub(crate) fn set_description(&mut self, description: Description) {
+        self.description = description;
     }
 }
 
@@ -119,7 +124,7 @@ pub(crate) mod tests {
         NewDescriptorData {
             label: "test".into(),
             descriptor: "test_descriptor".into(),
-            description: "test_description".into(),
+            description: "test_description\n".into(),
         }
     }
 }

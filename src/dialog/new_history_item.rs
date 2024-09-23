@@ -119,7 +119,7 @@ pub(crate) mod tests {
     pub(crate) fn example_new_history_data() -> NewHistoryData {
         let year = 2021.into();
         let day = Day::from(11);
-        let content = HistoryItemContent::from("Example content");
+        let content = HistoryItemContent::from("Example content\n");
         let mut properties_map = HashMap::new();
         properties_map.insert("key1".to_string(), json!("value1"));
         properties_map.insert("key2".to_string(), json!(42));

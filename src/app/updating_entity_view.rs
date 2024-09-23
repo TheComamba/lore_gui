@@ -202,7 +202,7 @@ impl EntityViewState {
         Ok(())
     }
 
-    fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    pub(super) fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         self.update_labels(db)?;
         self.update_descriptors(db)?;
         self.update_description(db)?;

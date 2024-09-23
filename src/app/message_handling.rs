@@ -69,6 +69,9 @@ impl SqlGui {
                 self.delete_relationship(relationship)?
             }
         }
+        self.entity_view_state.update(&self.lore_database)?;
+        self.history_view_state.update(&self.lore_database)?;
+        self.relationship_view_state.update(&self.lore_database)?;
         Ok(())
     }
 
@@ -234,8 +237,9 @@ mod tests {
         let old_descriptor = rename_data.old_descriptor().clone();
         let new_descriptor = rename_data.new_descriptor().clone();
         let mut create_data = NewDescriptorData::new(label.clone());
-        let description = create_data.description().to_string();
+        let description: Description = "Some new description\n".into();
         create_data.set_descriptor(old_descriptor.clone());
+        create_data.set_description(description.clone());
         let create_message = GuiMessage::NewDescriptor(create_data.clone());
         gui.handle_message(create_message).unwrap();
 
@@ -244,7 +248,7 @@ mod tests {
 
         assert_eq!(gui.get_selected_label(), Some(label));
         assert_eq!(gui.get_selected_descriptor(), Some(new_descriptor));
-        assert_eq!(gui.get_description_text(), description);
+        assert_eq!(gui.get_description_text(), description.to_str());
     }
 
     #[test]

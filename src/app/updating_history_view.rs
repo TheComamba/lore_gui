@@ -166,7 +166,7 @@ impl HistoryViewState {
         Ok(())
     }
 
-    fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
+    pub(super) fn update(&mut self, db: &Option<LoreDatabase>) -> Result<(), LoreGuiError> {
         self.update_years(db)?;
         self.update_days(db)?;
         self.update_timestamps(db)?;
