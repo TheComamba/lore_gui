@@ -115,8 +115,11 @@ mod tests {
 
     #[test]
     fn dialog_submit_closes_dialog() {
+        let dialog = Box::new(crate::dialog::error::ErrorDialog::new(
+            LoreGuiError::NoDatabase,
+        ));
         let mut gui = SqlGui {
-            dialog: Some(Box::new(crate::dialog::new_entity::NewEntityDialog::new())),
+            dialog: Some(dialog),
             ..Default::default()
         };
         let message = GuiMessage::DialogSubmit;
