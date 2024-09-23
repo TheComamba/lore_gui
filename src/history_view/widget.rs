@@ -25,8 +25,8 @@ fn buttons(state: &HistoryViewState) -> Row<'_, GuiMessage> {
     let mut redate_history = button("Redate History Item");
     let mut delete_item = button("Delete History Item");
     if let (Some(timestamp), Some(year), day) = (
-        state.selected_timestamp(),
-        state.selected_year(),
+        state.get_selected_timestamp(),
+        state.get_selected_year(),
         state.day_view_state.get_selected(),
     ) {
         let day = day.clone().flatten();

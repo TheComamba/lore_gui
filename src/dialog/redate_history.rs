@@ -44,6 +44,18 @@ impl RedateHistoryData {
         Ok(())
     }
 
+    pub(crate) fn new_year(&self) -> Year {
+        self.new_year
+    }
+
+    pub(crate) fn new_day(&self) -> Day {
+        self.new_day
+    }
+
+    pub(crate) fn timestamp(&self) -> Timestamp {
+        self.timestamp
+    }
+
     #[cfg(test)]
     pub(crate) fn set_new_year(&mut self, year: Year) {
         self.new_year = year;

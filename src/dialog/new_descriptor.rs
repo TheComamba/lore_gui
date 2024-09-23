@@ -53,7 +53,6 @@ impl NewDescriptorData {
             .map_err(LoreGuiError::from)
     }
 
-    #[cfg(test)]
     pub(crate) fn label(&self) -> &Label {
         &self.label
     }

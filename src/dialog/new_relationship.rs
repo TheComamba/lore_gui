@@ -57,17 +57,14 @@ impl NewRelationshipData {
             .map_err(LoreGuiError::from)
     }
 
-    #[cfg(test)]
     pub(crate) fn parent(&self) -> &Parent {
         &self.parent
     }
 
-    #[cfg(test)]
     pub(crate) fn child(&self) -> &Child {
         &self.child
     }
 
-    #[cfg(test)]
     pub(crate) fn role(&self) -> &Role {
         &self.role
     }
