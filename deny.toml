@@ -97,7 +97,7 @@ allow = [
     "ISC",
     "MIT",
     "MIT-0",
-    "Unicode-DFS-2016",
+    #"Unicode-DFS-2016",
     "Zlib"
 ]
 # The confidence threshold for detecting a license from license text.
