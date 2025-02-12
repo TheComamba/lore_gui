@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           sparse-checkout: changelogs
 
@@ -35,7 +35,7 @@ jobs:
         run: mv changelogs/current.md changelogs/changelog.md
 
       - name: Upload Changelog
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Changelog
           path: changelogs/changelog.md
@@ -49,17 +49,17 @@ jobs:
 
     steps:
       - name: Download Linux Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: LoreGui_ubuntu-latest
           path: artifactsLinux
       - name: Download Windows Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: LoreGui_windows-latest
           path: artifactsWindows
       - name: Download MacOS Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: LoreGui_macos-latest
           path: artifactsMacOS
@@ -71,7 +71,7 @@ jobs:
           zip -r binariesMacOS.zip artifactsMacOS
 
       - name: Download Changelog
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Changelog
           path: .
@@ -85,7 +85,7 @@ jobs:
           cat changelog.md
 
       - name: Upload Binaries
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: binaries*.zip
           body_path: changelog.md
