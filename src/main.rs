@@ -1,6 +1,11 @@
 #![warn(clippy::unwrap_used)]
 
+use std::path::PathBuf;
+
 use app::SqlGui;
+use iced::{window, Size};
+
+use crate::user_preferences::store_database_path;
 
 mod app;
 mod db_col_view;
@@ -14,10 +19,34 @@ mod relationship_view;
 mod style;
 mod user_preferences;
 
-const APP_TITLE: &str = "Lore SQL GUI";
+const APP_TITLE: &str = "Lore GUI";
 
 fn main() -> iced::Result {
-    iced::application(APP_TITLE, SqlGui::update, SqlGui::view).run()
+    if let Some(arg1) = std::env::args().nth(1) {
+        let path = PathBuf::from(&arg1);
+        if path.exists() && path.is_file() {
+            if let Err(err) = store_database_path(path) {
+                eprintln!(
+                    "Could not store database path from command line argument:\n{}",
+                    err
+                );
+            }
+        } else {
+            eprintln!("No such file: {}", arg1);
+        }
+    }
+
+    let window_settings = window::Settings {
+        size: (Size {
+            width: 1820.,
+            height: 980.,
+        }),
+        ..Default::default()
+    };
+    iced::application(APP_TITLE, SqlGui::update, SqlGui::view)
+        .antialiasing(true)
+        .window(window_settings)
+        .run()
 }
 
 #[cfg(test)]
