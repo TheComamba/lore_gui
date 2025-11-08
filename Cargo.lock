@@ -2012,7 +2012,7 @@ checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
 [[package]]
 name = "lorecore"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/LoreCore.git?branch=main#ead771968f4e242473d19831231cebe2fb063617"
+source = "git+https://github.com/TheComamba/LoreCore.git?branch=main#995a986cf3284a9e681eca284daab982597035ac"
 dependencies = [
  "diesel",
  "diesel_migrations",

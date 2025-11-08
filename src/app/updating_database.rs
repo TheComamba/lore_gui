@@ -1,9 +1,10 @@
-use super::SqlGui;
-use crate::{errors::LoreGuiError, file_dialogs, user_preferences::store_database_path};
+use crate::{
+    app::state::GuiState, errors::LoreGuiError, file_dialogs, user_preferences::store_database_path,
+};
 use lorecore::sql::lore_database::LoreDatabase;
 use std::path::PathBuf;
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn update_database_derived_data(&mut self) -> Result<(), LoreGuiError> {
         self.entity_view_state
             .reset_selections(&self.lore_database)?;

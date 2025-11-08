@@ -1,6 +1,7 @@
 use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{
+    app::state::GuiState,
     db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
@@ -12,9 +13,9 @@ use crate::{
     history_view::{HistoryViewMessage, HistoryViewState},
 };
 
-use super::{message_handling::GuiMessage, SqlGui};
+use super::message_handling::GuiMessage;
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn update_history_view(
         &mut self,
         event: HistoryViewMessage,
@@ -221,7 +222,7 @@ mod test {
 
     #[test]
     fn selecting_year_deselects_day_and_timestamp() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };

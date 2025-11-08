@@ -1,6 +1,7 @@
 use lorecore::types::*;
 
 use crate::{
+    app::state::{GuiState, ViewType},
     dialog::{
         change_role::ChangeRoleData, new_descriptor::NewDescriptorData, new_entity::NewEntityData,
         new_history_item::NewHistoryData, new_relationship::NewRelationshipData,
@@ -12,8 +13,6 @@ use crate::{
     history_view::HistoryViewMessage,
     relationship_view::RelationshipViewMessage,
 };
-
-use super::{SqlGui, ViewType};
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
@@ -40,7 +39,7 @@ pub(crate) enum GuiMessage {
     DeleteRelationship(EntityRelationship),
 }
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn handle_message(&mut self, message: GuiMessage) -> Result<(), LoreGuiError> {
         match message {
             GuiMessage::ViewSelected(view) => self.selected_view = view,
@@ -104,7 +103,7 @@ mod tests {
 
     #[test]
     fn view_selected_message_selects_a_view() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             selected_view: ViewType::Entity,
             ..Default::default()
         };
@@ -118,7 +117,7 @@ mod tests {
         let dialog = Box::new(crate::dialog::error::ErrorDialog::new(
             LoreGuiError::NoDatabase,
         ));
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             dialog: Some(dialog),
             ..Default::default()
         };
@@ -129,7 +128,7 @@ mod tests {
 
     #[test]
     fn dialog_closed_closes_dialog() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             dialog: Some(Box::new(crate::dialog::new_entity::NewEntityDialog::new())),
             ..Default::default()
         };
@@ -140,7 +139,7 @@ mod tests {
 
     #[test]
     fn new_entity_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -152,7 +151,7 @@ mod tests {
 
     #[test]
     fn creating_entity_that_already_exists_produces_error() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -166,7 +165,7 @@ mod tests {
 
     #[test]
     fn relabel_entity_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -182,7 +181,7 @@ mod tests {
 
     #[test]
     fn delete_entity_deselects_it() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -199,7 +198,7 @@ mod tests {
 
     #[test]
     fn new_descriptor_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -217,7 +216,7 @@ mod tests {
 
     #[test]
     fn creating_descriptor_that_already_exists_produces_error() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -231,7 +230,7 @@ mod tests {
 
     #[test]
     fn rename_descriptor_selects_descriptor() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -256,7 +255,7 @@ mod tests {
 
     #[test]
     fn delete_descriptor_deselects_it() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -278,7 +277,7 @@ mod tests {
 
     #[test]
     fn new_history_item_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -294,7 +293,7 @@ mod tests {
 
     #[test]
     fn redate_history_item_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -325,7 +324,7 @@ mod tests {
 
     #[test]
     fn delete_history_item_deselects_all() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -346,7 +345,7 @@ mod tests {
 
     #[test]
     fn new_relationship_sets_it_selected() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -361,7 +360,7 @@ mod tests {
 
     #[test]
     fn creating_relationship_that_already_exists_produces_error() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -375,7 +374,7 @@ mod tests {
 
     #[test]
     fn changing_role_selects_relationship() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -405,7 +404,7 @@ mod tests {
 
     #[test]
     fn deleting_relationships_deselects_all() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
