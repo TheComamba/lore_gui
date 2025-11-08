@@ -20,6 +20,7 @@ use super::db_col_view::state::DbColViewState;
 pub(crate) mod widget;
 
 pub(super) struct EntityViewState {
+    pub(super) display_protected: bool,
     pub(super) label_view_state: DbColViewState<Label>,
     pub(super) descriptor_view_state: DbColViewState<Descriptor>,
     pub(super) current_description: EditorState,
@@ -41,8 +42,9 @@ pub(super) enum EntityViewMessage {
 }
 
 impl EntityViewState {
-    pub(super) fn new() -> Self {
+    pub(super) fn new(display_protected: bool) -> Self {
         Self {
+            display_protected,
             label_view_state: DbColViewState::default(),
             descriptor_view_state: DbColViewState::default(),
             current_description: EditorState::default(),
@@ -64,7 +66,10 @@ impl EntityViewState {
             .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label_search_text, None);
         let entity_columns = db.read_entity_columns(search_params)?;
-        let labels = extract_labels(&entity_columns);
+        let mut labels = extract_labels(&entity_columns);
+        if !self.display_protected {
+            labels.retain(|label| !label.is_protected());
+        }
         Ok(labels)
     }
 
@@ -87,7 +92,10 @@ impl EntityViewState {
             .map(SqlSearchText::partial);
         let search_params = EntityColumnSearchParams::new(label, descriptor_search_text);
         let entity_columns = db.read_entity_columns(search_params)?;
-        let descriptors = extract_descriptors(&entity_columns);
+        let mut descriptors = extract_descriptors(&entity_columns);
+        if !self.display_protected {
+            descriptors.retain(|descriptor| !descriptor.is_protected());
+        }
         Ok(descriptors)
     }
 
@@ -147,10 +155,14 @@ impl EntityViewState {
     pub(super) fn set_description_text(&mut self, text: &str) {
         self.current_description = EditorState::new(text);
     }
+
+    pub(super) fn set_display_protected(&mut self, display_protected: bool) {
+        self.display_protected = display_protected;
+    }
 }
 
 impl Default for EntityViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(false)
     }
 }

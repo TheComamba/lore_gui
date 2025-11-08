@@ -47,7 +47,11 @@ impl GuiState {
             GuiMessage::NewDatabase => self.new_database_from_dialog()?,
             GuiMessage::OpenDatabase => self.open_database_from_dialog()?,
             GuiMessage::SetDisplayProtected(display_protected) => {
-                self.display_protected = display_protected
+                self.display_protected = display_protected;
+                self.entity_view_state
+                    .set_display_protected(display_protected);
+                self.relationship_view_state
+                    .set_display_protected(display_protected);
             }
             GuiMessage::EntityViewUpd(event) => self.update_entity_view(event)?,
             GuiMessage::HistoryViewUpd(event) => self.update_history_view(event)?,

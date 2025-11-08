@@ -16,6 +16,7 @@ use crate::{
 pub(crate) mod widget;
 
 pub(super) struct RelationshipViewState {
+    pub(super) display_protected: bool,
     pub(super) parent_view_state: DbColViewState<Parent>,
     pub(super) child_view_state: DbColViewState<Child>,
     pub(super) role_view_state: DbColViewState<Role>,
@@ -32,8 +33,9 @@ pub(super) enum RelationshipViewMessage {
 }
 
 impl RelationshipViewState {
-    pub(super) fn new() -> Self {
+    pub(super) fn new(display_protected: bool) -> Self {
         Self {
+            display_protected,
             parent_view_state: DbColViewState::new(vec![], true),
             child_view_state: DbColViewState::new(vec![], true),
             role_view_state: DbColViewState::default(),
@@ -103,7 +105,10 @@ impl RelationshipViewState {
             Some(SqlSearchText::exact(child.to_str())),
         );
         let relationships = db.read_relationships(search_params)?;
-        let roles = extract_roles(&relationships);
+        let mut roles = extract_roles(&relationships);
+        if !self.display_protected {
+            roles.retain(|role| !role.is_protected());
+        }
         Ok(roles)
     }
 
@@ -130,10 +135,14 @@ impl RelationshipViewState {
     pub(super) fn set_selected_role(&mut self, role: Option<Role>) {
         self.role_view_state.set_selected(DbColViewEntry(role));
     }
+
+    pub(super) fn set_display_protected(&mut self, display_protected: bool) {
+        self.display_protected = display_protected;
+    }
 }
 
 impl Default for RelationshipViewState {
     fn default() -> Self {
-        Self::new()
+        Self::new(false)
     }
 }
