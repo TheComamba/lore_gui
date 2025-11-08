@@ -9,7 +9,7 @@ use crate::{
     history_view, relationship_view,
 };
 use iced::{
-    widget::{button, opaque, stack, Button, Column, Container, Row, Text},
+    widget::{button, opaque, stack, Button, Column, Container, Row, Text, Toggler},
     Alignment, Element, Length,
 };
 
@@ -31,7 +31,8 @@ impl GuiState {
     fn main_view(&self) -> Element<'_, GuiMessage> {
         let mut col = Column::new()
             .push(self.menu_bar())
-            .push(self.current_database_display());
+            .push(self.current_database_display())
+            .push(self.display_settings());
         if self.lore_database.is_some() {
             col = col.push(self.view_selection_bar());
             match self.selected_view {
@@ -68,6 +69,13 @@ impl GuiState {
             None => "[No database loaded]".to_string(),
         };
         Container::new(Text::new(content)).padding(5).into()
+    }
+
+    fn display_settings(&self) -> Element<'_, GuiMessage> {
+        let toggler = Toggler::new(self.display_protected)
+            .label("Display protected")
+            .on_toggle(GuiMessage::SetDisplayProtected);
+        Container::new(toggler).padding(5).into()
     }
 
     fn view_selection_bar(&self) -> Element<'_, GuiMessage> {

@@ -19,6 +19,7 @@ pub(crate) enum GuiMessage {
     ViewSelected(ViewType),
     NewDatabase,
     OpenDatabase,
+    SetDisplayProtected(bool),
     EntityViewUpd(EntityViewMessage),
     HistoryViewUpd(HistoryViewMessage),
     RelationshipViewUpd(RelationshipViewMessage),
@@ -45,6 +46,9 @@ impl GuiState {
             GuiMessage::ViewSelected(view) => self.selected_view = view,
             GuiMessage::NewDatabase => self.new_database_from_dialog()?,
             GuiMessage::OpenDatabase => self.open_database_from_dialog()?,
+            GuiMessage::SetDisplayProtected(display_protected) => {
+                self.display_protected = display_protected
+            }
             GuiMessage::EntityViewUpd(event) => self.update_entity_view(event)?,
             GuiMessage::HistoryViewUpd(event) => self.update_history_view(event)?,
             GuiMessage::RelationshipViewUpd(event) => self.update_relationship_view(event)?,
