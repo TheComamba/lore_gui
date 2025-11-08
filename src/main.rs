@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use app::SqlGui;
+use app::state::GuiState;
 use iced::{window, Size};
 
 use crate::user_preferences::store_database_path;
@@ -43,7 +43,7 @@ fn main() -> iced::Result {
         }),
         ..Default::default()
     };
-    iced::application(APP_TITLE, SqlGui::update, SqlGui::view)
+    iced::application(APP_TITLE, GuiState::update, GuiState::view)
         .antialiasing(true)
         .window(window_settings)
         .run()

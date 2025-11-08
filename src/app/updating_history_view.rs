@@ -1,6 +1,7 @@
 use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{
+    app::state::GuiState,
     db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
@@ -12,9 +13,9 @@ use crate::{
     history_view::{HistoryViewMessage, HistoryViewState},
 };
 
-use super::{message_handling::GuiMessage, SqlGui};
+use super::message_handling::GuiMessage;
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn update_history_view(
         &mut self,
         event: HistoryViewMessage,
@@ -111,9 +112,9 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.year().clone();
-        let day = data.day().clone();
-        let timestamp = data.timestamp().clone();
+        let year = *data.year();
+        let day = *data.day();
+        let timestamp = *data.timestamp();
         data.write_to_database(db)?;
         self.set_selected_year(Some(year));
         self.set_selected_day(Some(day));
@@ -129,8 +130,8 @@ impl SqlGui {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.new_year().clone();
-        let day = data.new_day().clone();
+        let year = data.new_year();
+        let day = data.new_day();
         let timestamp = data.timestamp();
         data.update_date_in_database(db)?;
         self.set_selected_year(Some(year));
@@ -221,7 +222,7 @@ mod test {
 
     #[test]
     fn selecting_year_deselects_day_and_timestamp() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };

@@ -1,38 +1,19 @@
 use std::path::PathBuf;
 
-use super::{message_handling::GuiMessage, SqlGui, ViewType};
+use super::message_handling::GuiMessage;
 use crate::{
+    app::state::{GuiState, ViewType},
     dialog::error::ErrorDialog,
-    entity_view::{self, EntityViewState},
+    entity_view,
     errors::LoreGuiError,
-    history_view::{self, HistoryViewState},
-    relationship_view::{self, RelationshipViewState},
-    user_preferences::load_database_path,
+    history_view, relationship_view,
 };
 use iced::{
-    widget::{button, opaque, stack, Button, Column, Container, Row, Text},
+    widget::{button, opaque, stack, Button, Column, Container, Row, Text, Toggler},
     Alignment, Element, Length,
 };
 
-impl SqlGui {
-    fn new() -> Self {
-        let mut gui = SqlGui {
-            selected_view: super::ViewType::default(),
-            entity_view_state: EntityViewState::default(),
-            history_view_state: HistoryViewState::default(),
-            relationship_view_state: RelationshipViewState::default(),
-            lore_database: None,
-            dialog: None,
-        };
-        if let Some(path) = load_database_path() {
-            match gui.initialise(path) {
-                Ok(_) => (),
-                Err(e) => gui.dialog = Some(Box::new(ErrorDialog::new(e))),
-            };
-        }
-        gui
-    }
-
+impl GuiState {
     pub(crate) fn update(&mut self, message: GuiMessage) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
@@ -50,7 +31,8 @@ impl SqlGui {
     fn main_view(&self) -> Element<'_, GuiMessage> {
         let mut col = Column::new()
             .push(self.menu_bar())
-            .push(self.current_database_display());
+            .push(self.current_database_display())
+            .push(self.display_settings());
         if self.lore_database.is_some() {
             col = col.push(self.view_selection_bar());
             match self.selected_view {
@@ -89,6 +71,13 @@ impl SqlGui {
         Container::new(Text::new(content)).padding(5).into()
     }
 
+    fn display_settings(&self) -> Element<'_, GuiMessage> {
+        let toggler = Toggler::new(self.display_protected)
+            .label("Display protected")
+            .on_toggle(GuiMessage::SetDisplayProtected);
+        Container::new(toggler).padding(5).into()
+    }
+
     fn view_selection_bar(&self) -> Element<'_, GuiMessage> {
         let entity_button =
             button(Text::new("Entities")).on_press(GuiMessage::ViewSelected(ViewType::Entity));
@@ -106,15 +95,9 @@ impl SqlGui {
             .into()
     }
 
-    fn initialise(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
+    pub(super) fn initialise(&mut self, path: PathBuf) -> Result<(), LoreGuiError> {
         self.open_database(path)?;
         self.update_database_derived_data()?;
         Ok(())
-    }
-}
-
-impl Default for SqlGui {
-    fn default() -> Self {
-        SqlGui::new()
     }
 }

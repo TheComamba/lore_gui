@@ -5,6 +5,7 @@ use lorecore::{
 };
 
 use crate::{
+    app::state::GuiState,
     db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         change_role::{ChangeRoleData, ChangeRoleDialog},
@@ -15,9 +16,9 @@ use crate::{
     relationship_view::{RelationshipViewMessage, RelationshipViewState},
 };
 
-use super::{message_handling::GuiMessage, SqlGui};
+use super::message_handling::GuiMessage;
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn update_relationship_view(
         &mut self,
         event: RelationshipViewMessage,
@@ -228,7 +229,7 @@ mod test {
 
     #[test]
     fn selecting_parent_deselects_role() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -247,7 +248,7 @@ mod test {
 
     #[test]
     fn selecting_child_deselects_role() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };

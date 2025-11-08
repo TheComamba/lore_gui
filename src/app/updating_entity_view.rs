@@ -1,6 +1,7 @@
 use lorecore::{sql::lore_database::LoreDatabase, types::*};
 
 use crate::{
+    app::state::GuiState,
     db_col_view::{entry::DbColViewEntry, ColViewMes},
     dialog::{
         confirmation::ConfirmationDialog,
@@ -13,9 +14,9 @@ use crate::{
     errors::LoreGuiError,
 };
 
-use super::{message_handling::GuiMessage, SqlGui};
+use super::message_handling::GuiMessage;
 
-impl SqlGui {
+impl GuiState {
     pub(super) fn update_entity_view(
         &mut self,
         event: EntityViewMessage,
@@ -244,7 +245,7 @@ mod tests {
 
     #[test]
     fn selecting_label_deselects_descriptor() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
@@ -265,7 +266,7 @@ mod tests {
 
     #[test]
     fn selecting_descriptor_updates_description() {
-        let mut gui = SqlGui {
+        let mut gui = GuiState {
             lore_database: Some(example_database()),
             ..Default::default()
         };
