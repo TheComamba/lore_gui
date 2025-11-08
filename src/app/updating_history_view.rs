@@ -112,9 +112,9 @@ impl GuiState {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.year().clone();
-        let day = data.day().clone();
-        let timestamp = data.timestamp().clone();
+        let year = *data.year();
+        let day = *data.day();
+        let timestamp = *data.timestamp();
         data.write_to_database(db)?;
         self.set_selected_year(Some(year));
         self.set_selected_day(Some(day));
@@ -130,8 +130,8 @@ impl GuiState {
             .lore_database
             .as_ref()
             .ok_or(LoreGuiError::NoDatabase)?;
-        let year = data.new_year().clone();
-        let day = data.new_day().clone();
+        let year = data.new_year();
+        let day = data.new_day();
         let timestamp = data.timestamp();
         data.update_date_in_database(db)?;
         self.set_selected_year(Some(year));
