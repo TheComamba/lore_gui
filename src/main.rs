@@ -43,7 +43,8 @@ fn main() -> iced::Result {
         }),
         ..Default::default()
     };
-    iced::application(APP_TITLE, GuiState::update, GuiState::view)
+    iced::application(GuiState::default, GuiState::update, GuiState::view)
+        .title(APP_TITLE)
         .antialiasing(true)
         .window(window_settings)
         .run()
