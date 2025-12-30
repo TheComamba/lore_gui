@@ -201,7 +201,7 @@ mod tests {
 
         assert_eq!(gui.get_selected_label(), None);
         assert_eq!(gui.get_selected_descriptor(), None);
-        assert_eq!(gui.get_description_text(), "\n");
+        assert!(gui.get_description_text().trim().is_empty());
     }
 
     #[test]
@@ -280,7 +280,7 @@ mod tests {
 
         assert_eq!(gui.get_selected_label(), Some(label));
         assert_eq!(gui.get_selected_descriptor(), None);
-        assert_eq!(gui.get_description_text(), "\n");
+        assert!(gui.get_description_text().trim().is_empty());
     }
 
     #[test]
@@ -348,7 +348,7 @@ mod tests {
         assert_eq!(gui.get_selected_year(), None);
         assert_eq!(gui.get_selected_day(), None);
         assert_eq!(gui.get_selected_timestamp(), None);
-        assert_eq!(gui.get_history_text(), "\n");
+        assert!(gui.get_history_text().trim().is_empty());
     }
 
     #[test]

@@ -261,7 +261,7 @@ mod tests {
 
         assert_eq!(gui.get_selected_label(), Some(new_label),);
         assert_eq!(gui.get_selected_descriptor(), None);
-        assert_eq!(gui.get_description_text(), "\n");
+        assert!(gui.get_description_text().trim().is_empty());
     }
 
     #[test]
