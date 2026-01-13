@@ -8,7 +8,7 @@ iced = { version = "0.14.0", default-features = false, features=["wgpu", "canvas
 iced_aw = { version = "0.13.0", default-features = false, features = ["card", "selection_list"] }
 lorecore = { git = "https://github.com/TheComamba/LoreCore.git", branch="main" }
 preferences = {version = "2.0"}
-rfd = "0.16.0" # file dialogs
+rfd = "0.17.0" # file dialogs
 
 [dev-dependencies]
 serde_json = "*"
