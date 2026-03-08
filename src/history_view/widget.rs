@@ -6,16 +6,18 @@ use iced::{
 };
 
 use crate::app::message_handling::GuiMessage;
+use crate::content::content_view;
 use crate::dialog::redate_history::RedateHistoryData;
 use crate::{db_col_view, editor};
 
 use super::{HistoryViewMessage, HistoryViewState};
 
 pub(crate) fn new(state: &HistoryViewState) -> Element<'_, GuiMessage> {
-    Column::new()
-        .push(buttons(state))
-        .push(col_views(state))
-        .into()
+    let mut col = Column::new();
+    if state.edit_mode {
+        col = col.push(buttons(state))
+    }
+    col.push(col_views(state)).into()
 }
 
 fn buttons(state: &HistoryViewState) -> Row<'_, GuiMessage> {
@@ -47,7 +49,7 @@ fn buttons(state: &HistoryViewState) -> Row<'_, GuiMessage> {
 }
 
 fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
-    Row::new()
+    let mut row = Row::new()
         .push(db_col_view::widget::new(
             "Year",
             |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::YearViewUpdate(m)),
@@ -62,15 +64,19 @@ fn col_views(state: &HistoryViewState) -> Row<'_, GuiMessage> {
             "Timestamp",
             |m| GuiMessage::HistoryViewUpd(HistoryViewMessage::HistoryTimestampViewUpdate(m)),
             &state.timestamp_view_state,
-        ))
-        .push(editor::widget::view(
+        ));
+    if state.edit_mode {
+        row = row.push(editor::widget::view(
             "Content",
             &state.current_content,
             |a| GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentUpdate(a)),
             GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentDiscard),
             GuiMessage::HistoryViewUpd(HistoryViewMessage::ContentSave),
-        ))
-        .align_y(Alignment::Start)
+        ));
+    } else {
+        row = row.push(content_view(state.current_content.get_text()));
+    }
+    row.align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
 }

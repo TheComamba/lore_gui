@@ -11,10 +11,11 @@ use crate::{app::message_handling::GuiMessage, db_col_view, dialog::change_role:
 use super::{RelationshipViewMessage, RelationshipViewState};
 
 pub(crate) fn new(state: &RelationshipViewState) -> Element<'_, GuiMessage> {
-    Column::new()
-        .push(buttons(state))
-        .push(col_views(state))
-        .into()
+    let mut col = Column::new();
+    if state.edit_mode {
+        col = col.push(buttons(state))
+    }
+    col.push(col_views(state)).into()
 }
 
 fn buttons(state: &RelationshipViewState) -> Row<'_, GuiMessage> {

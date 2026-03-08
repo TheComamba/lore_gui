@@ -19,8 +19,10 @@ use super::db_col_view::state::DbColViewState;
 
 pub(crate) mod widget;
 
+#[derive(Debug, Default)]
 pub(super) struct EntityViewState {
     pub(super) display_protected: bool,
+    pub(super) edit_mode: bool,
     pub(super) label_view_state: DbColViewState<Label>,
     pub(super) descriptor_view_state: DbColViewState<Descriptor>,
     pub(super) current_description: EditorState,
@@ -42,15 +44,6 @@ pub(super) enum EntityViewMessage {
 }
 
 impl EntityViewState {
-    pub(super) fn new(display_protected: bool) -> Self {
-        Self {
-            display_protected,
-            label_view_state: DbColViewState::default(),
-            descriptor_view_state: DbColViewState::default(),
-            current_description: EditorState::default(),
-        }
-    }
-
     pub(super) fn get_current_labels(
         &mut self,
         db: &Option<LoreDatabase>,
@@ -154,15 +147,5 @@ impl EntityViewState {
 
     pub(super) fn set_description_text(&mut self, text: &str) {
         self.current_description = EditorState::new(text);
-    }
-
-    pub(super) fn set_display_protected(&mut self, display_protected: bool) {
-        self.display_protected = display_protected;
-    }
-}
-
-impl Default for EntityViewState {
-    fn default() -> Self {
-        Self::new(false)
     }
 }

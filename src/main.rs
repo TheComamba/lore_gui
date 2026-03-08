@@ -8,6 +8,7 @@ use iced::{window, Size};
 use crate::user_preferences::store_database_path;
 
 mod app;
+mod content;
 mod db_col_view;
 mod dialog;
 mod editor;
@@ -46,6 +47,7 @@ fn main() -> iced::Result {
     iced::application(GuiState::default, GuiState::update, GuiState::view)
         .title(APP_TITLE)
         .antialiasing(true)
+        .theme(GuiState::theme)
         .window(window_settings)
         .run()
 }

@@ -72,10 +72,18 @@ impl GuiState {
     }
 
     fn display_settings(&self) -> Element<'_, GuiMessage> {
-        let toggler = Toggler::new(self.display_protected)
+        let protected_toggler = Toggler::new(self.display_protected)
             .label("Display protected")
             .on_toggle(GuiMessage::SetDisplayProtected);
-        Container::new(toggler).padding(5).into()
+        let edit_toggler = Toggler::new(self.edit_mode)
+            .label("Edit Contents")
+            .on_toggle(GuiMessage::SetEditMode);
+        Row::new()
+            .push(protected_toggler)
+            .push(edit_toggler)
+            .padding(5)
+            .spacing(10)
+            .into()
     }
 
     fn view_selection_bar(&self) -> Element<'_, GuiMessage> {
@@ -99,5 +107,9 @@ impl GuiState {
         self.open_database(path)?;
         self.update_database_derived_data()?;
         Ok(())
+    }
+
+    pub(crate) fn theme(&self) -> iced::Theme {
+        iced::Theme::Dark
     }
 }

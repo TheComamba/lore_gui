@@ -14,6 +14,7 @@ use crate::{
 pub(crate) struct GuiState {
     pub(super) selected_view: ViewType,
     pub(super) display_protected: bool,
+    pub(super) edit_mode: bool,
     pub(super) entity_view_state: EntityViewState,
     pub(super) history_view_state: HistoryViewState,
     pub(super) relationship_view_state: RelationshipViewState,
@@ -34,6 +35,7 @@ impl Default for GuiState {
         let mut gui = GuiState {
             selected_view: ViewType::default(),
             display_protected: false,
+            edit_mode: false,
             entity_view_state: EntityViewState::default(),
             history_view_state: HistoryViewState::default(),
             relationship_view_state: RelationshipViewState::default(),

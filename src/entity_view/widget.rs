@@ -5,6 +5,7 @@ use iced::{
 };
 
 use crate::app::message_handling::GuiMessage;
+use crate::content::content_view;
 use crate::dialog::relabel_entity::RelabelEntityData;
 use crate::dialog::rename_descriptor::RenameDescriptorData;
 use crate::{db_col_view, editor};
@@ -12,11 +13,13 @@ use crate::{db_col_view, editor};
 use super::{EntityViewMessage, EntityViewState};
 
 pub(crate) fn new(state: &EntityViewState) -> Element<'_, GuiMessage> {
-    Column::new()
-        .push(label_buttons(state))
-        .push(descriptor_buttons(state))
-        .push(col_views(state))
-        .into()
+    let mut col = Column::new();
+    if state.edit_mode {
+        col = col
+            .push(label_buttons(state))
+            .push(descriptor_buttons(state));
+    }
+    col.push(col_views(state)).into()
 }
 
 fn label_buttons(state: &EntityViewState) -> Row<'_, GuiMessage> {
@@ -69,7 +72,7 @@ fn descriptor_buttons(state: &EntityViewState) -> Row<'_, GuiMessage> {
 }
 
 fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
-    Row::new()
+    let mut row = Row::new()
         .push(db_col_view::widget::new(
             "Label",
             |m| GuiMessage::EntityViewUpd(EntityViewMessage::LabelViewUpdate(m)),
@@ -79,15 +82,19 @@ fn col_views(state: &EntityViewState) -> Row<'_, GuiMessage> {
             "Descriptor",
             |m| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptorViewUpdate(m)),
             &state.descriptor_view_state,
-        ))
-        .push(editor::widget::view(
+        ));
+    if state.edit_mode {
+        row = row.push(editor::widget::view(
             "Description",
             &state.current_description,
             |a| GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionUpdate(a)),
             GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionDiscard),
             GuiMessage::EntityViewUpd(EntityViewMessage::DescriptionSave),
-        ))
-        .align_y(Alignment::Start)
+        ));
+    } else {
+        row = row.push(content_view(state.current_description.get_text()));
+    }
+    row.align_y(Alignment::Start)
         .width(Length::Fill)
         .height(Length::Fill)
 }

@@ -17,6 +17,7 @@ pub(crate) mod widget;
 
 pub(super) struct RelationshipViewState {
     pub(super) display_protected: bool,
+    pub(super) edit_mode: bool,
     pub(super) parent_view_state: DbColViewState<Parent>,
     pub(super) child_view_state: DbColViewState<Child>,
     pub(super) role_view_state: DbColViewState<Role>,
@@ -33,15 +34,6 @@ pub(super) enum RelationshipViewMessage {
 }
 
 impl RelationshipViewState {
-    pub(super) fn new(display_protected: bool) -> Self {
-        Self {
-            display_protected,
-            parent_view_state: DbColViewState::new(vec![], true),
-            child_view_state: DbColViewState::new(vec![], true),
-            role_view_state: DbColViewState::default(),
-        }
-    }
-
     pub(super) fn get_current_parents(
         &self,
         db: &Option<LoreDatabase>,
@@ -135,14 +127,16 @@ impl RelationshipViewState {
     pub(super) fn set_selected_role(&mut self, role: Option<Role>) {
         self.role_view_state.set_selected(DbColViewEntry(role));
     }
-
-    pub(super) fn set_display_protected(&mut self, display_protected: bool) {
-        self.display_protected = display_protected;
-    }
 }
 
 impl Default for RelationshipViewState {
     fn default() -> Self {
-        Self::new(false)
+        Self {
+            display_protected: false,
+            edit_mode: false,
+            parent_view_state: DbColViewState::new(vec![], true),
+            child_view_state: DbColViewState::new(vec![], true),
+            role_view_state: DbColViewState::default(),
+        }
     }
 }

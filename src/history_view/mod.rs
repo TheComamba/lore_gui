@@ -16,7 +16,9 @@ use super::db_col_view::state::DbColViewState;
 
 pub(crate) mod widget;
 
+#[derive(Debug, Default)]
 pub(super) struct HistoryViewState {
+    pub(super) edit_mode: bool,
     pub(super) year_view_state: DbColViewState<Year>,
     pub(super) day_view_state: DbColViewState<Day>,
     pub(super) timestamp_view_state: DbColViewState<Timestamp>,
@@ -37,15 +39,6 @@ pub(super) enum HistoryViewMessage {
 }
 
 impl HistoryViewState {
-    pub(super) fn new() -> Self {
-        Self {
-            year_view_state: DbColViewState::default(),
-            day_view_state: DbColViewState::default(),
-            timestamp_view_state: DbColViewState::default(),
-            current_content: EditorState::default(),
-        }
-    }
-
     pub(super) fn get_current_years(
         &self,
         db: &Option<LoreDatabase>,
@@ -159,11 +152,5 @@ impl HistoryViewState {
 
     pub(super) fn set_content_text(&mut self, text: &str) {
         self.current_content = EditorState::new(text);
-    }
-}
-
-impl Default for HistoryViewState {
-    fn default() -> Self {
-        Self::new()
     }
 }

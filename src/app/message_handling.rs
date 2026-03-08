@@ -20,6 +20,7 @@ pub(crate) enum GuiMessage {
     NewDatabase,
     OpenDatabase,
     SetDisplayProtected(bool),
+    SetEditMode(bool),
     EntityViewUpd(EntityViewMessage),
     HistoryViewUpd(HistoryViewMessage),
     RelationshipViewUpd(RelationshipViewMessage),
@@ -48,10 +49,14 @@ impl GuiState {
             GuiMessage::OpenDatabase => self.open_database_from_dialog()?,
             GuiMessage::SetDisplayProtected(display_protected) => {
                 self.display_protected = display_protected;
-                self.entity_view_state
-                    .set_display_protected(display_protected);
-                self.relationship_view_state
-                    .set_display_protected(display_protected);
+                self.entity_view_state.display_protected = display_protected;
+                self.relationship_view_state.display_protected = display_protected;
+            }
+            GuiMessage::SetEditMode(edit_mode) => {
+                self.edit_mode = edit_mode;
+                self.entity_view_state.edit_mode = edit_mode;
+                self.history_view_state.edit_mode = edit_mode;
+                self.relationship_view_state.edit_mode = edit_mode;
             }
             GuiMessage::EntityViewUpd(event) => self.update_entity_view(event)?,
             GuiMessage::HistoryViewUpd(event) => self.update_history_view(event)?,
